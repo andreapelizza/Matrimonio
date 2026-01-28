@@ -1,14 +1,80 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<title>Parcheggi</title>
+
+<!-- Leaflet -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+
 <!-- PapaParse -->
 <script src="https://unpkg.com/papaparse@5.4.1/papaparse.min.js"></script>
 
+<style>
+  body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+  }
+  h1 {
+    padding: 10px;
+  }
+  #map {
+    height: 400px;
+    margin: 10px;
+    border-radius: 8px;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 10px;
+  }
+  th, td {
+    border: 1px solid #ccc;
+    padding: 6px;
+    font-size: 14px;
+  }
+  th {
+    background: #f2f2f2;
+  }
+  tr:hover {
+    background: #fafafa;
+  }
+</style>
+</head>
+
+<body>
+
+<h1>Parcheggi</h1>
+
+<div id="map"></div>
+
+<table>
+  <thead>
+    <tr>
+      <th>Parcheggio</th>
+      <th>Indirizzo</th>
+      <th>Posti</th>
+      <th>Distanza (km)</th>
+      <th>Mappa</th>
+    </tr>
+  </thead>
+  <tbody id="tabella"></tbody>
+</table>
+
 <script>
+// 🔗 CSV Google Sheets
 const csvURL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQoiq8woGXo_hibNIDK3gsBSR56zgU4FEvPP0-lmdfv24Bt_l0hz6Jyh0jCsG8W_pKYsB2JKEGzaURo/pub?output=csv";
 
-// 📍 CENTRO (modifica se serve)
-const CENTRO = { lat: 44.14919, lon: 12.13341 }; 
+// 📍 CENTRO (LOCATION MATRIMONIO)
+const CENTRO = {
+  lat: 44.14919,
+  lon: 12.13341
+};
 
-// 🌍 Mappa
+// 🌍 Inizializza mappa
 const map = L.map('map').setView([CENTRO.lat, CENTRO.lon], 14);
+
 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
   attribution: '© OpenStreetMap'
 }).addTo(map);
@@ -19,7 +85,7 @@ L.marker([CENTRO.lat, CENTRO.lon])
   .bindPopup("<b>Location</b>")
   .openPopup();
 
-// 📏 Distanza Haversine
+// 📏 Calcolo distanza (Haversine)
 function distanzaKm(lat1, lon1, lat2, lon2) {
   const R = 6371;
   const dLat = (lat2 - lat1) * Math.PI / 180;
@@ -32,36 +98,47 @@ function distanzaKm(lat1, lon1, lat2, lon2) {
   return R * (2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a)));
 }
 
-// 📥 Carica CSV correttamente
+// 📥 Carica e processa CSV
 Papa.parse(csvURL, {
   download: true,
   header: true,
   skipEmptyLines: true,
   complete: function(results) {
 
-    const dati = results.data.map(p => {
-      if (!p.Coordinate) return null;
+    const dati = results.data
+      .map(p => {
+        if (!p.Coordinate) return null;
 
-      const [lat, lon] = p.Coordinate.split(";").map(Number);
-      if (isNaN(lat) || isNaN(lon)) return null;
+        // Coordinate formato: lat;lon
+        const parts = p.Coordinate.split(";");
+        if (parts.length !== 2) return null;
 
-      p.lat = lat;
-      p.lon = lon;
-      p.distanza = distanzaKm(CENTRO.lat, CENTRO.lon, lat, lon);
-      return p;
-    }).filter(Boolean);
+        const lat = parseFloat(parts[0]);
+        const lon = parseFloat(parts[1]);
+        if (isNaN(lat) || isNaN(lon)) return null;
 
-    // Ordina per distanza
+        p.lat = lat;
+        p.lon = lon;
+        p.distanza = distanzaKm(CENTRO.lat, CENTRO.lon, lat, lon);
+        return p;
+      })
+      .filter(Boolean);
+
+    // Ordina per distanza crescente
     dati.sort((a, b) => a.distanza - b.distanza);
 
-    // Tabella + Marker
     let html = "";
+
     dati.forEach(p => {
 
+      // Marker parcheggio
       L.marker([p.lat, p.lon])
         .addTo(map)
-        .bindPopup(`<b>${p.Etichetta}</b><br>${p.Indirizzo}`);
+        .bindPopup(
+          `<b>${p.Etichetta}</b><br>${p.Indirizzo}`
+        );
 
+      // Riga tabella
       html += `
         <tr>
           <td>${p.Etichetta}</td>
@@ -78,3 +155,6 @@ Papa.parse(csvURL, {
   }
 });
 </script>
+
+</body>
+</html>
