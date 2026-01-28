@@ -1,48 +1,11 @@
-<!DOCTYPE html>
-<html lang="it">
-<head>
-<meta charset="UTF-8">
-<title>Parcheggi</title>
-
-<!-- Leaflet -->
-<link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
-<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
-
-<style>
-  body { font-family: Arial, sans-serif; margin: 0; }
-  h1 { padding: 10px; }
-  #map { height: 400px; margin: 10px; border-radius: 8px; }
-  table { width: 100%; border-collapse: collapse; margin: 10px; }
-  th, td { border: 1px solid #ccc; padding: 6px; font-size: 14px; }
-  th { background: #f2f2f2; }
-  tr:hover { background: #fafafa; }
-</style>
-</head>
-
-<body>
-
-<h1>Parcheggi</h1>
-
-<div id="map"></div>
-
-<table>
-  <thead>
-    <tr>
-      <th>Parcheggio</th>
-      <th>Indirizzo</th>
-      <th>Posti</th>
-      <th>Distanza (km)</th>
-      <th>Mappa</th>
-    </tr>
-  </thead>
-  <tbody id="tabella"></tbody>
-</table>
+<!-- PapaParse -->
+<script src="https://unpkg.com/papaparse@5.4.1/papaparse.min.js"></script>
 
 <script>
 const csvURL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQoiq8woGXo_hibNIDK3gsBSR56zgU4FEvPP0-lmdfv24Bt_l0hz6Jyh0jCsG8W_pKYsB2JKEGzaURo/pub?output=csv";
 
-// 📍 CENTRO (MODIFICA QUI)
-const CENTRO = { lat: 44.14919, lon: 12.13341 };
+// 📍 CENTRO (modifica se serve)
+const CENTRO = { lat: 44.14919, lon: 12.13341 }; 
 
 // 🌍 Mappa
 const map = L.map('map').setView([CENTRO.lat, CENTRO.lon], 14);
@@ -56,7 +19,7 @@ L.marker([CENTRO.lat, CENTRO.lon])
   .bindPopup("<b>Location</b>")
   .openPopup();
 
-// 📏 Calcolo distanza (Haversine)
+// 📏 Distanza Haversine
 function distanzaKm(lat1, lon1, lat2, lon2) {
   const R = 6371;
   const dLat = (lat2 - lat1) * Math.PI / 180;
@@ -69,23 +32,24 @@ function distanzaKm(lat1, lon1, lat2, lon2) {
   return R * (2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a)));
 }
 
-// 📥 Caricamento CSV
-fetch(csvURL)
-  .then(res => res.text())
-  .then(csv => {
-    const righe = csv.trim().split("\n").map(r => r.split(","));
-    const header = righe.shift();
+// 📥 Carica CSV correttamente
+Papa.parse(csvURL, {
+  download: true,
+  header: true,
+  skipEmptyLines: true,
+  complete: function(results) {
 
-    const dati = righe.map(r => {
-      const o = {};
-      r.forEach((v, i) => o[header[i]] = v);
+    const dati = results.data.map(p => {
+      if (!p.Coordinate) return null;
 
-      const [lat, lon] = o.Coordinate.split(";").map(Number);
-      o.lat = lat;
-      o.lon = lon;
-      o.distanza = distanzaKm(CENTRO.lat, CENTRO.lon, lat, lon);
-      return o;
-    });
+      const [lat, lon] = p.Coordinate.split(";").map(Number);
+      if (isNaN(lat) || isNaN(lon)) return null;
+
+      p.lat = lat;
+      p.lon = lon;
+      p.distanza = distanzaKm(CENTRO.lat, CENTRO.lon, lat, lon);
+      return p;
+    }).filter(Boolean);
 
     // Ordina per distanza
     dati.sort((a, b) => a.distanza - b.distanza);
@@ -93,6 +57,7 @@ fetch(csvURL)
     // Tabella + Marker
     let html = "";
     dati.forEach(p => {
+
       L.marker([p.lat, p.lon])
         .addTo(map)
         .bindPopup(`<b>${p.Etichetta}</b><br>${p.Indirizzo}`);
@@ -103,13 +68,13 @@ fetch(csvURL)
           <td>${p.Indirizzo}</td>
           <td>${p.Posti || "-"}</td>
           <td>${p.distanza.toFixed(2)}</td>
-          <td><a href="${p['Link Google Maps']}" target="_blank">Apri</a></td>
+          <td>
+            <a href="${p['Link Google Maps']}" target="_blank">Apri</a>
+          </td>
         </tr>`;
     });
 
     document.getElementById("tabella").innerHTML = html;
-  });
+  }
+});
 </script>
-
-</body>
-</html>
