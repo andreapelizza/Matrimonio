@@ -2,36 +2,55 @@
 <html lang="it">
 <head>
   <meta charset="UTF-8">
-  <title>Musica HTML</title>
+  <title>Matrimonio - Andreapelizza</title>
 
+  <!-- Font Kaushan Script -->
   <link href="https://fonts.googleapis.com/css2?family=Kaushan+Script&display=swap" rel="stylesheet">
 
   <style>
     body {
       display: flex;
+      flex-direction: column;
       justify-content: center;
       align-items: center;
       height: 100vh;
       margin: 0;
-      background: #f2f2f2;
+      background: #f9f0e7; /* colore elegante per matrimonio */
+    }
+
+    h1 {
+      font-family: 'Kaushan Script', cursive;
+      font-size: 48px;
+      margin-bottom: 40px;
+      color: #a32f2f;
     }
 
     button {
       font-family: 'Kaushan Script', cursive;
       font-size: 28px;
       padding: 15px 35px;
-      background: #1a1a1a;
+      background: #a32f2f;
       color: white;
       border: none;
       border-radius: 15px;
       cursor: pointer;
+      box-shadow: 0 5px 10px rgba(0,0,0,0.3);
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    button:hover {
+      transform: scale(1.05);
+      box-shadow: 0 8px 16px rgba(0,0,0,0.4);
     }
   </style>
 </head>
 <body>
 
+  <h1>Matrimonio</h1>
+
   <button id="btn">🎵 Avvia musica</button>
 
+  <!-- Player audio -->
   <audio id="audio">
     <source src="canzone.mp3" type="audio/mpeg">
     Il tuo browser non supporta l’audio.
