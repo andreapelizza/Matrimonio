@@ -65,7 +65,7 @@
 <script>
 
 // 🔗 CSV GitHub
-const csvURL = "https://raw.githubusercontent.com/andreapelizza/Matrimonio/parcheggi.csv"; // <-- il tuo file CSV su GitHub
+const csvURL = "https://raw.githubusercontent.com/andreapelizza/Matrimonio/main/parking.csv"; // <-- il tuo file CSV su GitHub
 
 // 📍 CENTRO (LOCATION MATRIMONIO)
 const CENTRO = {
@@ -132,7 +132,7 @@ Papa.parse(csvURL, {
 
     dati.forEach(p => {
 
-      // Marker parcheggio
+      // Marker parking
       L.marker([p.lat, p.lon])
         .addTo(map)
         .bindPopup(
