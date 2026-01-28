@@ -32,8 +32,7 @@ tr:hover { background: #fafafa; }
     <tr>
       <th>Parcheggio</th>
       <th>Indirizzo</th>
-      <th>Posti</th>
-      <th>Posti accessibilità</th>
+      <th>Posti ed Accessibilità</th>
       <th>Distanza (km)</th>
       <th>Lunghezza percorso (km)</th>
       <th>Dislivello (m)</th>
@@ -45,7 +44,7 @@ tr:hover { background: #fafafa; }
 
 <script>
 // URL CSV Google Sheets pubblico
-const csvURL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQoiq8woGXo_hibNIDK3gsBSR56zgU4FEvPP0-lmdfv24Bt_l0hz6Jyh0jCsG8W_pKYsB2JKEGzaURo/pub?gid=436600834&single=true&output=csv";
+const csvURL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQoiq8woGXo_hibNIDK3gsBSR56zgU4FEvPP0-lmdfv24Bt_l0hz6Jyh0jCsG8W_pKYsB2JKEGzaURo/pub?output=csv";
 
 // Centro location matrimonio
 const CENTRO = { lat: 44.14919, lon: 12.13341 };
@@ -68,7 +67,6 @@ Papa.parse(csvURL, {
   complete: function(results) {
     console.log("CSV completo:", results.data);
 
-    // Mappa delle chiavi del CSV (utile se ci sono spazi strani)
     const dati = results.data
       .map(p => {
         const lat = parseFloat(p.Latitudine || p['Latitudine']);
@@ -84,32 +82,30 @@ Papa.parse(csvURL, {
       .filter(Boolean);
 
     // Ordina per distanza se presente
-    dati.sort((a, b) => parseFloat(a['Distanza dal Comune in linea d\'aria'] || 0) - parseFloat(b['Distanza dal Comune in linea d\'aria'] || 0));
+    dati.sort((a, b) => parseFloat(a['Distanza in linea d\'aria'] || 0) - parseFloat(b['Distanza in linea d\'aria'] || 0));
 
     let html = "";
-    dati.forEach(p => {
+    dati.forEach((p, index) => {
       // Marker sulla mappa con popup completo
       L.marker([p.lat, p.lon])
         .addTo(map)
         .bindPopup(`
           <b>${p.label}</b><br>
           ${p.Indirizzo || "-"}<br>
-          Posti: ${p.Posti || "-"}<br>
-          Posti accessibilità: ${p['Posti accessibilità'] || "-"}<br>
-          Distanza: ${p['Distanza dal Comune in linea d\'aria'] || "-"} km<br>
-          Lunghezza percorso: ${p['Lunghezza percorso dal Comune'] || "-"} km<br>
+          Posti ed Accessibilità: ${p['Posti ed Accessibilità'] || "-"}<br>
+          Distanza: ${p['Distanza in linea d\'aria'] || "-"} km<br>
+          Lunghezza percorso: ${p['Lunghezza del percorso'] || "-"} km<br>
           Dislivello: ${p.Dislivello || "-"} m
         `);
 
       // Riga tabella
       html += `
-        <tr>
+        <tr${index < 3 ? ' style="background-color:#e0ffe0"' : ''}>
           <td>${p.label}</td>
           <td>${p.Indirizzo || "-"}</td>
-          <td>${p.Posti || "-"}</td>
-          <td>${p['Posti accessibilità'] || "-"}</td>
-          <td>${p['Distanza dal Comune in linea d\'aria'] || "-"}</td>
-          <td>${p['Lunghezza percorso dal Comune'] || "-"}</td>
+          <td>${p['Posti ed Accessibilità'] || "-"}</td>
+          <td>${p['Distanza in linea d\'aria'] || "-"}</td>
+          <td>${p['Lunghezza del percorso'] || "-"}</td>
           <td>${p.Dislivello || "-"}</td>
           <td><a href="https://www.google.com/maps/search/?api=1&query=${p.lat},${p.lon}" target="_blank">Apri</a></td>
         </tr>`;
