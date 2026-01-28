@@ -33,8 +33,8 @@ tr:hover { background: #fafafa; }
       <th>Parcheggio</th>
       <th>Indirizzo</th>
       <th>Posti ed Accessibilità</th>
-      <th>Distanza (km)</th>
-      <th>Lunghezza percorso (km)</th>
+      <th>Distanza (m)</th>
+      <th>Lunghezza percorso (m)</th>
       <th>Dislivello (m)</th>
       <th>Mappa</th>
     </tr>
@@ -93,7 +93,7 @@ Papa.parse(csvURL, {
           <b>${p.label}</b><br>
           ${p.Indirizzo || "-"}<br>
           Posti ed Accessibilità: ${p['Posti ed Accessibilità'] || "-"}<br>
-          Distanza: ${p['Distanza in linea d\'aria'] || "-"} km<br>
+          Distanza: ${p['Distanza in linea d\'aria'] || "-"} m<br>
           Lunghezza percorso: ${p['Lunghezza del percorso'] || "-"} km<br>
           Dislivello: ${p.Dislivello || "-"} m
         `);
