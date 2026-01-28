@@ -40,7 +40,7 @@ button:hover {
 <body>
 
 
-  <button id="btn">🎵 Avvia il brano</button>
+  <button id="btn">🎵 Play</button>
 
 
 <audio id="audio">
@@ -56,10 +56,10 @@ let playing = false;
 btn.onclick = function() {
   if (!playing) {
     audio.play();
-    btn.innerHTML = "✋ Metti in pausa"; // cambia icona in pausa
+    btn.innerHTML = "⏸ Pause"; // cambia icona in pausa
   } else {
     audio.pause();
-    btn.innerHTML = "🎵 Avvia il brano"; // icona play
+    btn.innerHTML = "🎵 Play"; // icona play
   }
   playing = !playing;
 };
