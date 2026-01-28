@@ -2,7 +2,7 @@
 <html lang="it">
 <head>
 <meta charset="UTF-8">
-<title>Parcheggi</title>
+<title>Parcheggi Matrimonio</title>
 
 <!-- Leaflet -->
 <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
@@ -12,19 +12,18 @@
 <script src="https://unpkg.com/papaparse@5.4.1/papaparse.min.js"></script>
 
 <style>
-  body { font-family: Arial, sans-serif; margin: 0; }
-  h1 { padding: 10px; }
-  #map { height: 400px; margin: 10px; border-radius: 8px; }
-  table { width: 100%; border-collapse: collapse; margin: 10px; font-size: 14px; }
-  th, td { border: 1px solid #ccc; padding: 6px; text-align: left; }
-  th { background: #f2f2f2; }
-  tr:hover { background: #fafafa; }
+body { font-family: Arial, sans-serif; margin: 0; }
+h1 { padding: 10px; }
+#map { height: 400px; margin: 10px; border-radius: 8px; }
+table { width: 100%; border-collapse: collapse; margin: 10px; font-size: 14px; }
+th, td { border: 1px solid #ccc; padding: 6px; text-align: left; }
+th { background: #f2f2f2; }
+tr:hover { background: #fafafa; }
 </style>
 </head>
-
 <body>
 
-<h1>Parcheggi</h1>
+<h1>Parcheggi Matrimonio</h1>
 
 <div id="map"></div>
 
@@ -45,18 +44,15 @@
 </table>
 
 <script>
-// 🔗 CSV Google Sheets
+// URL CSV Google Sheets pubblico
 const csvURL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQoiq8woGXo_hibNIDK3gsBSR56zgU4FEvPP0-lmdfv24Bt_l0hz6Jyh0jCsG8W_pKYsB2JKEGzaURo/pub?output=csv";
 
-// 📍 CENTRO (LOCATION MATRIMONIO)
+// Centro location matrimonio
 const CENTRO = { lat: 44.14919, lon: 12.13341 };
 
-// 🌍 Inizializza mappa
+// Inizializza mappa
 const map = L.map('map').setView([CENTRO.lat, CENTRO.lon], 14);
-
-L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-  attribution: '© OpenStreetMap'
-}).addTo(map);
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '© OpenStreetMap' }).addTo(map);
 
 // Marker centro
 L.marker([CENTRO.lat, CENTRO.lon])
@@ -64,53 +60,56 @@ L.marker([CENTRO.lat, CENTRO.lon])
   .bindPopup("<b>Location Matrimonio</b>")
   .openPopup();
 
-// 📥 Carica CSV Google Sheets
+// Carica CSV con PapaParse
 Papa.parse(csvURL, {
   download: true,
   header: true,
   skipEmptyLines: true,
   complete: function(results) {
+    console.log("CSV completo:", results.data);
 
-    console.log("CSV caricato:", results.data); // Debug
-
+    // Mappa delle chiavi del CSV (utile se ci sono spazi strani)
     const dati = results.data
       .map(p => {
-        const lat = parseFloat(p.Latitudine);
-        const lon = parseFloat(p.Longitudine);
-        if (isNaN(lat) || isNaN(lon)) return null;
+        const lat = parseFloat(p.Latitudine || p['Latitudine']);
+        const lon = parseFloat(p.Longitudine || p['Longitudine']);
+        const descrizione = p.Descrizione || p['Descrizione'] || "Parcheggio";
+        if (!descrizione || isNaN(lat) || isNaN(lon)) return null;
+
         p.lat = lat;
         p.lon = lon;
+        p.label = descrizione;
         return p;
       })
       .filter(Boolean);
 
-    // Ordina per distanza se vuoi
-    dati.sort((a, b) => parseFloat(a['Distanza dal Comune in linea d\'aria']) - parseFloat(b['Distanza dal Comune in linea d\'aria']));
+    // Ordina per distanza se presente
+    dati.sort((a, b) => parseFloat(a['Distanza dal Comune in linea d\'aria'] || 0) - parseFloat(b['Distanza dal Comune in linea d\'aria'] || 0));
 
     let html = "";
     dati.forEach(p => {
-      // Marker parking
+      // Marker sulla mappa con popup completo
       L.marker([p.lat, p.lon])
         .addTo(map)
         .bindPopup(`
-          <b>${p.Descrizione}</b><br>
-          ${p.Indirizzo}<br>
+          <b>${p.label}</b><br>
+          ${p.Indirizzo || "-"}<br>
           Posti: ${p.Posti || "-"}<br>
           Posti accessibilità: ${p['Posti accessibilità'] || "-"}<br>
-          Distanza: ${p['Distanza dal Comune in linea d\'aria']} km<br>
-          Lunghezza percorso: ${p['Lunghezza percorso dal Comune']} km<br>
+          Distanza: ${p['Distanza dal Comune in linea d\'aria'] || "-"} km<br>
+          Lunghezza percorso: ${p['Lunghezza percorso dal Comune'] || "-"} km<br>
           Dislivello: ${p.Dislivello || "-"} m
         `);
 
       // Riga tabella
       html += `
         <tr>
-          <td>${p.Descrizione}</td>
-          <td>${p.Indirizzo}</td>
+          <td>${p.label}</td>
+          <td>${p.Indirizzo || "-"}</td>
           <td>${p.Posti || "-"}</td>
           <td>${p['Posti accessibilità'] || "-"}</td>
-          <td>${p['Distanza dal Comune in linea d\'aria']}</td>
-          <td>${p['Lunghezza percorso dal Comune']}</td>
+          <td>${p['Distanza dal Comune in linea d\'aria'] || "-"}</td>
+          <td>${p['Lunghezza percorso dal Comune'] || "-"}</td>
           <td>${p.Dislivello || "-"}</td>
           <td><a href="https://www.google.com/maps/search/?api=1&query=${p.lat},${p.lon}" target="_blank">Apri</a></td>
         </tr>`;
