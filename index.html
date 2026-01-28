@@ -39,31 +39,10 @@ button:hover {
 </head>
 <body>
 
+<h1>Andrea e Cristina<br>04 giugno 2026 ore 16.00</h1>
+  
 
-  <button id="btn">🎵 Play</button>
 
-
-<audio id="audio">
-  <source src="Dire Straits - Walk Of Life (Official Music Video).mp3" type="audio/mpeg">
-  Il tuo browser non supporta l’audio.
-</audio>
-
-<script>
-const audio = document.getElementById('audio');
-const btn = document.getElementById('btn');
-let playing = false;
-
-btn.onclick = function() {
-  if (!playing) {
-    audio.play();
-    btn.innerHTML = "⏸ Pause"; // cambia icona in pausa
-  } else {
-    audio.pause();
-    btn.innerHTML = "🎵 Play"; // icona play
-  }
-  playing = !playing;
-};
-</script>
 
 </body>
 </html>
