@@ -63,8 +63,8 @@
 </table>
 
 <script>
-// 🔗 CSV Google Sheets
-const csvURL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQoiq8woGXo_hibNIDK3gsBSR56zgU4FEvPP0-lmdfv24Bt_l0hz6Jyh0jCsG8W_pKYsB2JKEGzaURo/pub?output=csv";
+// 🔗 CSV GitHub
+const csvURL = "parcheggi.csv"; // <-- il tuo file CSV su GitHub
 
 // 📍 CENTRO (LOCATION MATRIMONIO)
 const CENTRO = {
@@ -98,7 +98,7 @@ function distanzaKm(lat1, lon1, lat2, lon2) {
   return R * (2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a)));
 }
 
-// 📥 Carica e processa CSV
+// 📥 Carica e processa CSV locale con PapaParse
 Papa.parse(csvURL, {
   download: true,
   header: true,
