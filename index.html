@@ -53,10 +53,10 @@ let playing = false;
 btn.onclick = function() {
   if (!playing) {
     audio.play();
-    btn.innerHTML = "⏸"; // cambia icona in pausa
+    btn.innerHTML = "⏸ Metti in pausa"; // cambia icona in pausa
   } else {
     audio.pause();
-    btn.innerHTML = "🎵"; // icona play
+    btn.innerHTML = "🎵 Avvia il brano"; // icona play
   }
   playing = !playing;
 };
