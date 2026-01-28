@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Carosello Immagini con Didascalia</title>
+
+<!-- Google Font Kaushan Script -->
+<link href="https://fonts.googleapis.com/css2?family=Kaushan+Script&display=swap" rel="stylesheet">
+
+<style>
+body {
+  margin: 0;
+  font-family: 'Kaushan Script', cursive;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 50px 0;
+  background: #f4cccc;
+}
+
+.slider-container {
+  width: 90%;
+  max-width: 800px;
+  overflow: hidden;
+  border-radius: 15px;
+  box-shadow: 0 5px 20px rgba(0,0,0,0.2);
+  position: relative;
+  background: #f4cccc;
+}
+
+.slider {
+  display: flex;
+  transition: transform 0.5s ease;
+}
+
+.slide {
+  min-width: 100%;
+  box-sizing: border-box;
+  text-align: center;
+  min-height: 250px;
+}
+
+.slide img {
+  width: 100%;
+  height: 400px;          /* FONDAMENTALE */
+  display: block;
+  border-radius: 15px;
+}
+
+/* Didascalia */
+.caption {
+  background: #f4cccc;
+  padding: 15px 20px;
+  border-radius: 0 0 15px 15px;
+  margin-top: -5px;
+}
+
+.caption h2 {
+  margin: 0;
+  font-size: 28px;
+  color: red; /* titolo rosso */
+}
+
+.caption h3 {
+  margin: 0;
+  font-size: 20px;
+  color: #ff0000; /* titolo rosso */
+}
+
+.caption p {
+  margin: 5px 0 0;
+  font-size: 16px;
+  text-align: justify;
+  color: #444; /* testo della didascalia */
+}
+
+/* Pulsanti */
+.nav-btn {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  background: rgba(0,0,0,0.5);
+  color: #fff;
+  border: none;
+  padding: 10px 20px;
+  cursor: pointer;
+  border-radius: 30px;
+  font-size: 18px;
+  z-index: 10;
+}
+
+.nav-btn:hover {
+  background: #ff0000;
+  transform: translateY(-50%) scale(1.05);
+}
+
+.prev { left: 10px; }
+.next { right: 10px; }
+
+/* Pallini indicatori */
+.dots {
+  text-align: center;
+  padding: 15px 0;
+  background: #f4cccc;
+  border-radius: 0 0 15px 15px;
+}
+
+.dot {
+  display: inline-block;
+  width: 12px;
+  height: 12px;
+  margin: 0 5px;
+  background: #bbb;
+  border-radius: 50%;
+  cursor: pointer;
+}
+
+.dot.active {
+  background: red;
+}
+</style>
+</head>
+<body>
+
+<div class="slider-container">
+  <div class="slider" id="slider">
+    <div class="slide">
+        <img src="https://imgur.com/smSAiQw.jpg" alt='Bertinoro "Il Balcone di Romagna"'>
+        <div class="caption">
+            <h2>Bertinoro</h2>
+            <h3>"Il Balcone di Romagna"</h3>
+            <p>Bertinoro è il Balcone di Romagna: la sua piazza, con il palazzo comunale e la cattedrale, è una vera e propria terrazza panoramica sul mare e sulla pianura romagnola.</p>
+            <p>Qui è situata anche la Colonna dell'Ospitalità, simbolo di Bertinoro e centro di un'importante tradizione, "il rito dell'ospitalità! in cui ad inizio settembre i partecipanti vengono accolti nelle case e nei ristoranti del borgo, per rivivere insieme l'emozione di una storia antichissima.</p>
+        </div>
+    </div>
+    <div class="slide">
+        <img src="https://imgur.com/x8equD3.jpg" alt='Fratta Terme "La casa degli Sposi"'>
+        <div class="caption">
+            <h2>Fratta Terme</h2>
+            <h3>"La Casa degli Sposi"</h3>
+            <p>Sorge tra dolci colline, in una vallata attraversata dal rio Salso.</p>
+            <p>L'abitato si sviluppa all'incrocio delle strade che collegano Bertinoro, Forlimpopoli, Meldola, Polenta.</p>
+            <p>Nei tratti finali del rio Salso si hanno affioramenti di acqua sulfurea, ferrosa e salata, ideali per le cure termali.</p>
+        </div>
+    </div>
+    <div class="slide">
+        <img src="https://imgur.com/ZDNbTdt.jpg" alt='Il Palazzo Comunale "Palazzo Ordelaffi"'>
+        <div class="caption">
+            <h2>Il Palazzo Comunale</h2>
+            <h3>"Palazzo Ordelaffi"</h3>
+            <p>Costruito da Pino I Ordelaffi quando si impadronì di Bertinoro nel 1306, cacciando i guelfi.</p>
+            <p>Il palazzo é custode delle memorie civili e storiche di Bertinoro.</p>
+            <p>Al piano nobile due sale: Sala del Popolo, per le riunioni cittadine, e Sala della Fama, meglio conosciuta come Sala Quadri dove verrà effettuata la cerimonia.</p>
+            <p>Si affaccia su Piazza della Libertà da cui si può ammirare la Romagna, dalle colline fino al mare Adriatico.</p>
+        </div>
+    </div>
+    <div class="slide">
+        <img src="https://imgur.com/g2AX3Pn.jpg" alt='Agriturismo "Al Colle"'>
+        <div class="caption">
+            <h2>Agriturismo</h2>
+            <h3>"Al Colle"</h3>
+            <p>Situato tra le dolci colline di Bertinoro, tra natura, gusto e benessere, è un luogo dove passare il tempo in buona compagnia!</p>
+            <p>...e non diciamo nient'altro!</p>
+        </div>
+    </div>
+  </div>
+
+  <button class="nav-btn prev" onclick="prevSlide()">&#10094;</button>
+  <button class="nav-btn next" onclick="nextSlide()">&#10095;</button>
+
+  <div class="dots" id="dots">
+    <span class="dot active" onclick="goToSlide(0)"></span>
+    <span class="dot" onclick="goToSlide(1)"></span>
+    <span class="dot" onclick="goToSlide(2)"></span>
+    <span class="dot" onclick="goToSlide(3)"></span>
+  </div>
+</div>
+
+<script>
+let currentIndex = 0;
+const slides = document.querySelectorAll(".slide");
+const dots = document.querySelectorAll(".dot");
+
+function updateSlider() {
+  const slider = document.getElementById("slider");
+  slider.style.transform = `translateX(-${currentIndex * 100}%)`;
+  dots.forEach(dot => dot.classList.remove("active"));
+  dots[currentIndex].classList.add("active");
+}
+
+function nextSlide() {
+  currentIndex = (currentIndex + 1) % slides.length;
+  updateSlider();
+}
+
+function prevSlide() {
+  currentIndex = (currentIndex - 1 + slides.length) % slides.length;
+  updateSlider();
+}
+
+function goToSlide(index) {
+  currentIndex = index;
+  updateSlider();
+}
+
+// Optional: auto slide ogni 5 secondi
+// setInterval(nextSlide, 5000);
+</script>
+
+</body>
+</html>
