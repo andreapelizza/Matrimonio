@@ -1,86 +1,66 @@
 <!DOCTYPE html>
 <html lang="it">
 <head>
-  <meta charset="UTF-8">
-  <title>Matrimonio - AndreaeCrisina</title>
+<meta charset="UTF-8">
+<title>Pulsante Matrimonio</title>
 
-  <!-- Font Kaushan Script -->
-  <link href="https://fonts.googleapis.com/css2?family=Kaushan+Script&display=swap" rel="stylesheet">
+<!-- Font Kaushan Script -->
+<link href="https://fonts.googleapis.com/css2?family=Kaushan+Script&display=swap" rel="stylesheet">
 
-  <style>
-    body {
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
-      margin: 0;
-      /**background: #f4cccc; /* colore elegante per matrimonio */
-      background: transparent;
-    }
+<style>
+body {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  margin: 0;
+  background: transparent; /* sfondo trasparente */
+}
 
-    h1 {
-      font-family: 'Kaushan Script', cursive;
-      font-size: 48px;
-      margin: 0 0 10px 0; /* margine inferiore ridotto a 10px */
-      color: #efefef;
-    }
-    
-    h2 {
-    font-family: 'Kaushan Script', cursive;
-    font-size: 36px;
-    margin: 0 0 20px 0; /* margine inferiore 20px */
-    color: #efefef;
-    }
+button {
+  font-family: 'Kaushan Script', cursive;
+  font-size: 28px;
+  padding: 20px 50px;
+  background: #a32f2f; /* colore pulsante */
+  color: white;
+  border: none;
+  border-radius: 15px;
+  cursor: pointer;
+  box-shadow: 0 5px 10px rgba(0,0,0,0.3);
+  transition: transform 0.2s, box-shadow 0.2s;
+}
 
-    button {
-      font-family: 'Kaushan Script', cursive;
-      font-size: 28px;
-      padding: 15px 35px;
-      background: #a32f2f;
-      color: #efefef;
-      border: none;
-      border-radius: 15px;
-      cursor: pointer;
-      box-shadow: 0 5px 10px rgba(0,0,0,0.3);
-      transition: transform 0.2s, box-shadow 0.2s;
-    }
-
-    button:hover {
-      transform: scale(1.05);
-      box-shadow: 0 8px 16px rgba(0,0,0,0.4);
-    }
-  </style>
+button:hover {
+  transform: scale(1.05);
+  box-shadow: 0 8px 16px rgba(0,0,0,0.4);
+}
+</style>
 </head>
 <body>
 
-  <h1>Benvenut*!</h1>
-  <h2>Fai partire la canzone e continua a leggere!</h2>
-<br>
-  <button id="btn">🎵 Avvia musica</button>
+<button id="btn">🎵</button>
 
-  <!-- Player audio -->
-  <audio id="audio">
-    <source src="Dire Straits - Walk Of Life (Official Music Video).mp3" type="audio/mpeg">
-    Il tuo browser non supporta l’audio.
-  </audio>
+<audio id="audio">
+  <source src="walk-of-life.mp3" type="audio/mpeg">
+  Il tuo browser non supporta l’audio.
+</audio>
 
-  <script>
-    const audio = document.getElementById('audio');
-    const btn = document.getElementById('btn');
-    let playing = false;
+<script>
+const audio = document.getElementById('audio');
+const btn = document.getElementById('btn');
+let playing = false;
 
-    btn.onclick = function() {
-      if (!playing) {
-        audio.play();
-        btn.innerHTML = "⏸ Pausa musica";
-      } else {
-        audio.pause();
-        btn.innerHTML = "🎵 Avvia musica";
-      }
-      playing = !playing;
-    };
-  </script>
+btn.onclick = function() {
+  if (!playing) {
+    audio.play();
+    btn.innerHTML = "⏸"; // cambia icona in pausa
+  } else {
+    audio.pause();
+    btn.innerHTML = "🎵"; // icona play
+  }
+  playing = !playing;
+};
+</script>
 
 </body>
 </html>
