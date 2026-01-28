@@ -44,40 +44,55 @@ tr:hover { background: #fafafa; }
 
 <script>
 const csvURL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQoiq8woGXo_hibNIDK3gsBSR56zgU4FEvPP0-lmdfv24Bt_l0hz6Jyh0jCsG8W_pKYsB2JKEGzaURo/pub?output=csv";
+
 const CENTRO = { lat: 44.14919, lon: 12.13341 };
 
+// Inizializza mappa
 const map = L.map('map').setView([CENTRO.lat, CENTRO.lon], 14);
 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '© OpenStreetMap' }).addTo(map);
-L.marker([CENTRO.lat, CENTRO.lon]).addTo(map).bindPopup("<b>Location Matrimonio</b>").openPopup();
 
+// Marker centro
+L.marker([CENTRO.lat, CENTRO.lon])
+  .addTo(map)
+  .bindPopup("<b>Location Matrimonio</b>")
+  .openPopup();
+
+// Carica CSV con PapaParse
 Papa.parse(csvURL, {
   download: true,
   header: true,
   skipEmptyLines: true,
+  dynamicTyping: false,      // Legge tutto come stringa
+  trimHeaders: true,         // Rimuove spazi nelle intestazioni
+  transform: value => value.trim(), // Rimuove spazi nelle celle
   complete: function(results) {
     const dati = results.data
       .map(p => {
+        // Coordinate
         const lat = parseFloat(p.Latitudine || p['Latitudine']);
         const lon = parseFloat(p.Longitudine || p['Longitudine']);
         const descrizione = p.Descrizione || p['Descrizione'] || "Parcheggio";
+
         if (!descrizione || isNaN(lat) || isNaN(lon)) return null;
 
-        // Cerca dinamicamente la colonna "Posti ed Accessibilità" indipendentemente da accenti o emoji
+        // Trova la colonna "Posti ed Accessibilità" indipendentemente da emoji/parentesi
         const postiKey = Object.keys(p).find(k => k.toLowerCase().includes("posti") && k.toLowerCase().includes("access"));
+        const posti_valore = postiKey ? p[postiKey] : "-";
 
         p.lat = lat;
         p.lon = lon;
         p.label = descrizione;
-        p.posti = postiKey ? p[postiKey] : "-";
+        p.posti = posti_valore;
         return p;
       })
       .filter(Boolean);
 
-    // Ordina per distanza
+    // Ordina per distanza (se presente)
     dati.sort((a, b) => parseFloat(a['Distanza in linea d\'aria'] || 0) - parseFloat(b['Distanza in linea d\'aria'] || 0));
 
     let html = "";
     dati.forEach((p, index) => {
+      // Marker mappa
       L.marker([p.lat, p.lon])
         .addTo(map)
         .bindPopup(`
@@ -89,6 +104,7 @@ Papa.parse(csvURL, {
           Dislivello: ${p.Dislivello || "-"} m
         `);
 
+      // Riga tabella
       html += `
         <tr${index < 3 ? ' style="background-color:#e0ffe0"' : ''}>
           <td>${p.label}</td>
