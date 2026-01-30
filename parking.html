@@ -129,22 +129,22 @@ Papa.parse(csvURL, {
         `);
 
       // Riga tabella
-      html += `
-        <tr${index < 3 ? ' style="background-color:#e0ffe0"' : ''}>
-          <td>P${index + 1}</td>
-          <td>${p.label}</td>
-          <td>${p.indirizzo}</td>
-          <td>${p.posti} – ${p.accessibilita}</td>
-          <td>${p.distanza}</td>
-          <td>${p.percorso}</td>
-          <td>${p.dislivello}</td>
-          <td>
-            <a href="https://www.google.com/maps/search/?api=1&query=${p.lat},${p.lon}" target="_blank">
-              Apri
-            </a>
-          </td>
-        </tr>
-      `;
+        html += `
+          <tr>
+            <td>P${index + 1}</td>
+            <td>${p.label}</td>
+            <td>${p.indirizzo}</td>
+            <td>${p.posti} – ${p.accessibilita}</td>
+            <td>${p.distanza}</td>
+            <td>${p.percorso}</td>
+            <td>${p.dislivello}</td>
+            <td>
+              <a href="https://www.google.com/maps/search/?api=1&query=${p.lat},${p.lon}" target="_blank">
+                Apri
+              </a>
+            </td>
+          </tr>
+        `;
     });
 
     document.getElementById("tabella").innerHTML = html;
