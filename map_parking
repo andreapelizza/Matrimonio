@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<title>Parcheggi Matrimonio - Solo Mappa</title>
+
+<!-- Leaflet -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+
+<!-- PapaParse -->
+<script src="https://unpkg.com/papaparse@5.4.1/papaparse.min.js"></script>
+
+<style>
+body { margin: 0; }
+#map { width: 95%; max-width: 1200px; height: 500px; margin: 20px auto; border-radius: 8px; }
+
+/* Marker numerato */
+.marker-number div {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #1976d2;
+  color: white;
+  border-radius: 50%;
+  width: 28px;
+  height: 28px;
+  font-weight: bold;
+  border: 2px solid white;
+}
+
+a {
+  color: #1976d2;
+  text-decoration: none;
+}
+a:hover { text-decoration: underline; }
+</style>
+</head>
+<body>
+
+<div id="map"></div>
+
+<script>
+const csvURL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQoiq8woGXo_hibNIDK3gsBSR56zgU4FEvPP0-lmdfv24Bt_l0hz6Jyh0jCsG8W_pKYsB2JKEGzaURo/pub?output=csv";
+const CENTRO = { lat: 44.14919, lon: 12.13341 };
+
+// Inizializza mappa
+const map = L.map('map').setView([CENTRO.lat, CENTRO.lon], 14);
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '© OpenStreetMap' }).addTo(map);
+
+// Marker principale Municipio
+const municipioIcon = L.divIcon({
+  className: 'marker-number',
+  html: `<div style="background:#8e24aa">🏛️</div>`,
+  iconSize: [28, 28],
+  iconAnchor: [14, 28]
+});
+
+L.marker([CENTRO.lat, CENTRO.lon], { icon: municipioIcon })
+  .addTo(map)
+  .bindPopup("<b>Municipio</b>")
+  .openPopup();
+
+// Carica CSV e crea marker parcheggi
+Papa.parse(csvURL, {
+  download: true,
+  header: true,
+  skipEmptyLines: true,
+  complete: function(results) {
+    const dati = results.data
+      .map(p => {
+        const lat = parseFloat(p.Latitudine);
+        const lon = parseFloat(p.Longitudine);
+        if (isNaN(lat) || isNaN(lon)) return null;
+        return {
+          label: p.Descrizione || "Parcheggio",
+          lat,
+          lon,
+          indirizzo: p.Indirizzo || "-",
+          posti: p.Posti || "-",
+          accessibilita: p.Accessibilità || "-"
+        };
+      })
+      .filter(Boolean);
+
+    dati.forEach((p, index) => {
+      L.marker([p.lat, p.lon], {
+        icon: L.divIcon({
+          className: 'marker-number',
+          html: `<div>P${String(index + 1).padStart(2,'0')}</div>`,
+          iconSize: [28, 28],
+          iconAnchor: [14, 28]
+        })
+      }).addTo(map).bindPopup(`
+        <b>${p.label}</b><br>
+        ${p.indirizzo}<br>
+        Posti: ${p.posti}<br>
+        Accessibilità: ${p.accessibilita}<br>
+        <a href="https://www.google.com/maps/search/?api=1&query=${p.lat},${p.lon}" target="_blank">Apri Google Maps</a><br>
+        <a href="https://www.google.com/maps/dir/?api=1&destination=${p.lat},${p.lon}" target="_blank">Naviga a</a>
+      `);
+    });
+  }
+});
+</script>
+
+</body>
+</html>
