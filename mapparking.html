@@ -2,53 +2,38 @@
 <html lang="it">
 <head>
 <meta charset="UTF-8">
-<title>Mappa Matrimonio - Solo Mappa</title>
+<title>Mappa Matrimonio</title>
 
 <!-- Leaflet -->
 <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
 <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 
-<!-- PapaParse -->
-<script src="https://unpkg.com/papaparse@5.4.1/papaparse.min.js"></script>
+<!-- Kaushan Script -->
+<link href="https://fonts.googleapis.com/css2?family=Kaushan+Script&display=swap" rel="stylesheet">
 
 <style>
-body { margin: 0; }
-#map { width: 95%; max-width: 1200px; height: 500px; margin: 20px auto; border-radius: 8px; }
+body { margin: 0; font-family: 'Kaushan Script', cursive; }
+#map { height: 500px; width: 95%; max-width: 1200px; margin: 20px auto; border-radius: 8px; }
 
-/* Marker numerato */
 .marker-number div {
   display: flex;
   align-items: center;
   justify-content: center;
-  background-color: #1976d2;
-  color: white;
-  border-radius: 50%;
-  width: 28px;
-  height: 28px;
-  font-weight: bold;
-  border: 2px solid white;
-}
-
-/* Marker speciale */
-.marker-special div {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background-color: #d32f2f; /* rosso per evidenziare */
   color: white;
   border-radius: 50%;
   width: 32px;
   height: 32px;
-  font-weight: bold;
-  border: 2px solid white;
   font-size: 18px;
+  border: 2px solid white;
+  font-weight: bold;
+  font-family: 'Kaushan Script', cursive;
 }
 
-a {
-  color: #1976d2;
-  text-decoration: none;
+/* Applica Kaushan Script anche ai popup Leaflet */
+.leaflet-popup-content {
+  font-family: 'Kaushan Script', cursive;
+  font-size: 16px;
 }
-a:hover { text-decoration: underline; }
 </style>
 </head>
 <body>
@@ -56,86 +41,36 @@ a:hover { text-decoration: underline; }
 <div id="map"></div>
 
 <script>
-const csvURL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQoiq8woGXo_hibNIDK3gsBSR56zgU4FEvPP0-lmdfv24Bt_l0hz6Jyh0jCsG8W_pKYsB2JKEGzaURo/pub?output=csv";
-const CENTRO = { lat: 44.14919, lon: 12.13341 };
+const map = L.map('map').setView([44.14919, 12.13341], 13);
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+  attribution: '© OpenStreetMap'
+}).addTo(map);
 
-// Inizializza mappa
-const map = L.map('map').setView([CENTRO.lat, CENTRO.lon], 13);
-L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '© OpenStreetMap' }).addTo(map);
+// Funzione per creare icone uniformi
+function createIcon(symbol, color) {
+  return L.divIcon({
+    className: 'marker-number',
+    html: `<div style="background:${color}">${symbol}</div>`,
+    iconSize: [32, 32],
+    iconAnchor: [16, 32]
+  });
+}
 
-// Marker principale Municipio
-const municipioIcon = L.divIcon({
-  className: 'marker-number',
-  html: `<div style="background:#8e24aa">🏛️</div>`,
-  iconSize: [28, 28],
-  iconAnchor: [14, 28]
-});
-L.marker([CENTRO.lat, CENTRO.lon], { icon: municipioIcon })
-  .addTo(map)
-  /*.bindPopup("<b>Municipio</b>")
-  .openPopup();*/
-
-// Carica CSV e crea marker parcheggi
-Papa.parse(csvURL, {
-  download: true,
-  header: true,
-  skipEmptyLines: true,
-  complete: function(results) {
-    const dati = results.data
-      .map(p => {
-        const lat = parseFloat(p.Latitudine);
-        const lon = parseFloat(p.Longitudine);
-        if (isNaN(lat) || isNaN(lon)) return null;
-        return {
-          label: p.Descrizione || "Parcheggio",
-          lat,
-          lon,
-          indirizzo: p.Indirizzo || "-",
-          posti: p.Posti || "-",
-          accessibilita: p.Accessibilità || "-"
-        };
-      })
-      .filter(Boolean);
-
-    dati.forEach((p, index) => {
-      L.marker([p.lat, p.lon], {
-        icon: L.divIcon({
-          className: 'marker-number',
-          html: `<div>P${String(index + 1).padStart(2,'0')}</div>`,
-          iconSize: [28, 28],
-          iconAnchor: [14, 28]
-        })
-      }).addTo(map).bindPopup(`
-        <b>${p.label}</b><br>
-        ${p.indirizzo}<br>
-        Posti: ${p.posti}<br>
-        Accessibilità: ${p.accessibilita}<br>
-        <a href="https://www.google.com/maps/search/?api=1&query=${p.lat},${p.lon}" target="_blank">Apri Google Maps</a><br>
-        <a href="https://www.google.com/maps/dir/?api=1&destination=${p.lat},${p.lon}" target="_blank">Naviga a</a>
-      `);
-    });
-  }
-});
-
-// MARKER SPECIALI
-const specialLocations = [
-  { label: "Casa degli Sposi", lat: 44.14268, lon: 12.09886, emoji: "❤️" },
-  { label: 'Enoteca "Colonna Panorama"', lat: 44.14925, lon: 12.13385, emoji: "🍸" },
-  { label: 'Agriturismo "Al Colle"', lat: 44.15848, lon: 12.18447, emoji: "🍴" }
+// Lista dei marker con coordinate, simbolo, colore e etichetta
+const markers = [
+  {lat: 44.14268, lon: 12.09886, symbol: '❤️', color: '#e91e63', label: 'Casa degli Sposi'},
+  {lat: 44.14925, lon: 12.13385, symbol: '🍷', color: '#ff9800', label: 'Enoteca "Colonna Panorama"'},
+  {lat: 44.15848, lon: 12.18447, symbol: '🍴', color: '#4caf50', label: 'Agriturismo "Al Colle"'}
 ];
 
-specialLocations.forEach(p => {
-  L.marker([p.lat, p.lon], {
-    icon: L.divIcon({
-      className: 'marker-special',
-      html: `<div>${p.emoji}</div>`,
-      iconSize: [32, 32],
-      iconAnchor: [16, 32]
-    })
-  }).addTo(map).bindPopup(`
-    <b>${p.label}</b><br>
-    <a href="https://www.google.com/maps/search/?api=1&query=${p.lat},${p.lon}" target="_blank">Apri Google Maps</a><br>
-    <a href="https://www.google.com/maps/dir/?api=1&destination=${p.lat},${p.lon}" target="_blank">Naviga a</a>
+// Aggiungi marker alla mappa
+markers.forEach(m => {
+  const marker = L.marker([m.lat, m.lon], { icon: createIcon(m.symbol, m.color) }).addTo(map);
+  marker.bindPopup(`
+    <b>${m.label}</b><br>
+    <a href="https://www.google.com/maps/dir/?api=1&destination=${m.lat},${m.lon}" target="_blank">
+      Naviga a qui
+    </a>
   `);
 });
 </script>
