@@ -34,6 +34,13 @@ th, td {
   white-space: normal;
 }
 
+.table-wrapper {
+  width: 95%;           /* la tabella occupa quasi tutta la larghezza */
+  max-width: 1200px;    /* limite massimo per non diventare troppo larga */
+  margin: 10px auto;    /* centra orizzontalmente */
+  overflow-x: auto;     /* scroll orizzontale se necessario su mobile */
+}
+
 /* Larghezza percentuale colonne */
 th:nth-child(1), td:nth-child(1) { width: 6%; }   /* # */
 th:nth-child(2), td:nth-child(2) { width: 22%; }  /* Parcheggio */
@@ -71,6 +78,16 @@ th:nth-child(3), td:nth-child(3) {  /* Indirizzo */
   height: 28px;
   font-weight: bold;
   border: 2px solid white;
+}
+
+/* Link blu e hover */
+a {
+  color: #1976d2;
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
 }
 </style>
 </head>
