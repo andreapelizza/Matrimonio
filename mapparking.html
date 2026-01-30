@@ -2,7 +2,7 @@
 <html lang="it">
 <head>
 <meta charset="UTF-8">
-<title>Parcheggi Matrimonio - Solo Mappa</title>
+<title>Mappa Matrimonio - Solo Mappa</title>
 
 <!-- Leaflet -->
 <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
@@ -29,6 +29,21 @@ body { margin: 0; }
   border: 2px solid white;
 }
 
+/* Marker speciale */
+.marker-special div {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #d32f2f; /* rosso per evidenziare */
+  color: white;
+  border-radius: 50%;
+  width: 32px;
+  height: 32px;
+  font-weight: bold;
+  border: 2px solid white;
+  font-size: 18px;
+}
+
 a {
   color: #1976d2;
   text-decoration: none;
@@ -45,7 +60,7 @@ const csvURL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQoiq8woGXo_hibN
 const CENTRO = { lat: 44.14919, lon: 12.13341 };
 
 // Inizializza mappa
-const map = L.map('map').setView([CENTRO.lat, CENTRO.lon], 14);
+const map = L.map('map').setView([CENTRO.lat, CENTRO.lon], 13);
 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '© OpenStreetMap' }).addTo(map);
 
 // Marker principale Municipio
@@ -55,10 +70,9 @@ const municipioIcon = L.divIcon({
   iconSize: [28, 28],
   iconAnchor: [14, 28]
 });
-
 L.marker([CENTRO.lat, CENTRO.lon], { icon: municipioIcon })
   .addTo(map)
-  /*.bindPopup("<b>Municipio</b>")*/
+  .bindPopup("<b>Municipio</b>")
   .openPopup();
 
 // Carica CSV e crea marker parcheggi
@@ -101,6 +115,28 @@ Papa.parse(csvURL, {
       `);
     });
   }
+});
+
+// MARKER SPECIALI
+const specialLocations = [
+  { label: "Casa degli Sposi", lat: 44.14268, lon: 12.09886, emoji: "❤️" },
+  { label: 'Enoteca "Colonna Panorama"', lat: 44.14925, lon: 12.13385, emoji: "🍸" },
+  { label: 'Agriturismo "Al Colle"', lat: 44.15848, lon: 12.18447, emoji: "🍴" }
+];
+
+specialLocations.forEach(p => {
+  L.marker([p.lat, p.lon], {
+    icon: L.divIcon({
+      className: 'marker-special',
+      html: `<div>${p.emoji}</div>`,
+      iconSize: [32, 32],
+      iconAnchor: [16, 32]
+    })
+  }).addTo(map).bindPopup(`
+    <b>${p.label}</b><br>
+    <a href="https://www.google.com/maps/search/?api=1&query=${p.lat},${p.lon}" target="_blank">Apri Google Maps</a><br>
+    <a href="https://www.google.com/maps/dir/?api=1&destination=${p.lat},${p.lon}" target="_blank">Naviga a</a>
+  `);
 });
 </script>
 
