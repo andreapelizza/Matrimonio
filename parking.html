@@ -86,24 +86,24 @@ Papa.parse(csvURL, {
   trimHeaders: true,
   transform: value => value.trim(),
   complete: function(results) {
-    const dati = results.data
-      .map(p => {
-        const lat = parseFloat(p.Latitudine || p['Latitudine']);
-        const lon = parseFloat(p.Longitudine || p['Longitudine']);
-        const descrizione = p.Descrizione || p['Descrizione'] || "Parcheggio";
-        if (!descrizione || isNaN(lat) || isNaN(lon)) return null;
-
-        // Trova dinamicamente la colonna "Posti ed Accessibilità"
-        const postiKey = Object.keys(p).find(k => k.toLowerCase().includes("posti") && k.toLowerCase().includes("access"));
-        const posti_valore = postiKey ? p[postiKey] : "-";
-
-        p.lat = lat;
-        p.lon = lon;
-        p.label = descrizione;
-        p.posti = posti_valore;
-        return p;
-      })
-      .filter(Boolean);
+  const dati = results.data
+    .map(p => {
+      const lat = parseFloat(p.Latitudine);
+      const lon = parseFloat(p.Longitudine);
+      if (isNaN(lat) || isNaN(lon)) return null;
+      return {
+        label: p.Descrizione || "Parcheggio",
+        lat,
+        lon,
+        indirizzo: p.Indirizzo || "-",
+        posti: p.Posti || "-",
+        accessibilita: p.Accessibilità || "-",
+        distanza: p["Distanza in linea d'aria"] || "-",
+        percorso: p["Lunghezza del percorso"] || "-",
+        dislivello: p.Dislivello || "-"
+      };
+    })
+    .filter(Boolean);
 
     // Ordina per distanza crescente
     //dati.sort((a, b) => parseFloat(a['Distanza in linea d\'aria'] || 0) - parseFloat(b['Distanza in linea d\'aria'] || 0));
@@ -119,26 +119,32 @@ Papa.parse(csvURL, {
           iconAnchor: [14, 28]
         })
       }).addTo(map).bindPopup(`
-        <b>${p.label}</b><br>
-        ${p.Indirizzo || "-"}<br>
-        Posti ed Accessibilità: ${p.posti}<br>
-        Distanza: ${p['Distanza in linea d\'aria'] || "-"} m<br>
-        Lunghezza percorso: ${p['Lunghezza del percorso'] || "-"} m<br>
-        Dislivello: ${p.Dislivello || "-"} m
-      `);
+          <b>${p.label}</b><br>
+          ${p.indirizzo}<br>
+          Posti: ${p.posti}<br>
+          Accessibilità: ${p.accessibilita}<br>
+          Distanza: ${p.distanza} m<br>
+          Percorso: ${p.percorso} m<br>
+          Dislivello: ${p.dislivello} m
+        `);
 
       // Riga tabella
       html += `
         <tr${index < 3 ? ' style="background-color:#e0ffe0"' : ''}>
-          <td>${index + 1}</td>
+          <td>P${index + 1}</td>
           <td>${p.label}</td>
-          <td>${p.Indirizzo || "-"}</td>
-          <td>${p.posti}</td>
-          <td>${p['Distanza in linea d\'aria'] || "-"}</td>
-          <td>${p['Lunghezza del percorso'] || "-"}</td>
-          <td>${p.Dislivello || "-"}</td>
-          <td><a href="https://www.google.com/maps/search/?api=1&query=${p.lat},${p.lon}" target="_blank">Apri</a></td>
-        </tr>`;
+          <td>${p.indirizzo}</td>
+          <td>${p.posti} – ${p.accessibilita}</td>
+          <td>${p.distanza}</td>
+          <td>${p.percorso}</td>
+          <td>${p.dislivello}</td>
+          <td>
+            <a href="https://www.google.com/maps/search/?api=1&query=${p.lat},${p.lon}" target="_blank">
+              Apri
+            </a>
+          </td>
+        </tr>
+      `;
     });
 
     document.getElementById("tabella").innerHTML = html;
