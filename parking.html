@@ -20,7 +20,11 @@ h1 { padding: 10px; }
 
 table { width: 100%; border-collapse: collapse; margin: 10px; font-size: 14px; background-color: #f4cccc; }
 th, td { border: 1px solid #ccc; padding: 6px; text-align: left; }
-th { background: #f2f2f2; }
+th {
+  background-color: #e6a9a9; /* più scuro di #f4cccc */
+  /*background-color: #dd8f8f;*/
+  color: #000;
+}
 tr:hover { background: #fafafa; }
 
 .marker-number div {
@@ -47,14 +51,13 @@ tr:hover { background: #fafafa; }
   <thead>
     <tr>
       <th>#</th>
-      <th>Parcheggio</th>
+      <th>Parcheggio (con link)</th>
       <th>Indirizzo</th>
       <th>Posti</th>
       <th>Accessibilità</th>
       <th>Distanza (m)</th>
       <th>Lunghezza percorso (m)</th>
       <th>Dislivello (m)</th>
-      <th>Mappa</th>
     </tr>
   </thead>
   <tbody id="tabella"></tbody>
@@ -135,18 +138,19 @@ Papa.parse(csvURL, {
         html += `
           <tr>
             <td>P${index + 1}</td>
-            <td>${p.label}</td>
+            <td>
+              <a href="https://www.google.com/maps/search/?api=1&query=${p.lat},${p.lon}"
+                target="_blank"
+                style="color:#000; text-decoration: underline;">
+                ${p.label}
+              </a>
+            </td>
             <td>${p.indirizzo}</td>
             <td>${p.posti}</td>
             <td>${p.accessibilita}</td>
             <td>${p.distanza}</td>
             <td>${p.percorso}</td>
             <td>${p.dislivello}</td>
-            <td>
-              <a href="https://www.google.com/maps/search/?api=1&query=${p.lat},${p.lon}" target="_blank">
-                Apri Google Maps
-              </a>
-            </td>
           </tr>
         `;
     });
