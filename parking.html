@@ -203,8 +203,11 @@ Papa.parse(csvURL, {
           Accessibilità: ${p.accessibilita}<br>
           Distanza: ${p.distanza} m<br>
           Percorso: ${p.percorso} m<br>
-          Dislivello: ${p.dislivello} m
-        `);
+          Dislivello: ${p.dislivello} m<br>
+          <a href="https://www.google.com/maps/search/?api=1&query=${p.lat},${p.lon}" target="_blank" style="color:#1976d2;">Apri Google Maps</a><br>
+          <a href="https://www.google.com/maps/dir/?api=1&destination=${p.lat},${p.lon}" target="_blank" style="color:#1976d2;">Naviga a</a>
+      `);
+
 
       // Riga tabella
         html += `
