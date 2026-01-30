@@ -2,38 +2,68 @@
 <html lang="it">
 <head>
 <meta charset="UTF-8">
-<title>Mappa Matrimonio</title>
+<title>Mappa Parcheggi e Luoghi</title>
+
+<!-- Font Kaushan Script -->
+<link href="https://fonts.googleapis.com/css2?family=Kaushan+Script&display=swap" rel="stylesheet">
 
 <!-- Leaflet -->
 <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
 <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 
-<!-- Kaushan Script -->
-<link href="https://fonts.googleapis.com/css2?family=Kaushan+Script&display=swap" rel="stylesheet">
+<!-- PapaParse -->
+<script src="https://unpkg.com/papaparse@5.4.1/papaparse.min.js"></script>
 
 <style>
-body { margin: 0; font-family: 'Kaushan Script', cursive; }
-#map { height: 500px; width: 95%; max-width: 1200px; margin: 20px auto; border-radius: 8px; }
+body { font-family: 'Kaushan Script', sans-serif; margin: 0; }
+#map { height: 100vh; width: 95%; max-width: 1200px; margin: auto; border-radius: 8px; }
 
+/* Marker numerati parcheggi */
 .marker-number div {
   display: flex;
   align-items: center;
   justify-content: center;
+  background-color: #1976d2;
   color: white;
   border-radius: 50%;
   width: 32px;
   height: 32px;
-  font-size: 18px;
-  border: 2px solid white;
   font-weight: bold;
-  font-family: 'Kaushan Script', cursive;
-}
-
-/* Applica Kaushan Script anche ai popup Leaflet */
-.leaflet-popup-content {
+  border: 2px solid white;
   font-family: 'Kaushan Script', cursive;
   font-size: 16px;
 }
+
+/* Marker speciali */
+.marker-special div {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #d81b60;
+  color: white;
+  border-radius: 50%;
+  width: 32px;
+  height: 32px;
+  border: 2px solid white;
+  font-size: 18px;
+}
+
+/* Marker Municipio */
+.marker-municipio div {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #8e24aa;
+  color: white;
+  border-radius: 50%;
+  width: 32px;
+  height: 32px;
+  border: 2px solid white;
+  font-size: 18px;
+}
+
+a { color: #1976d2; text-decoration: none; }
+a:hover { text-decoration: underline; }
 </style>
 </head>
 <body>
@@ -41,37 +71,102 @@ body { margin: 0; font-family: 'Kaushan Script', cursive; }
 <div id="map"></div>
 
 <script>
-const map = L.map('map').setView([44.14919, 12.13341], 13);
-L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-  attribution: '© OpenStreetMap'
-}).addTo(map);
+const CENTRO = { lat: 44.14919, lon: 12.13341 };
+const csvURL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQoiq8woGXo_hibNIDK3gsBSR56zgU4FEvPP0-lmdfv24Bt_l0hz6Jyh0jCsG8W_pKYsB2JKEGzaURo/pub?output=csv";
 
-// Funzione per creare icone uniformi
-function createIcon(symbol, color) {
+// Inizializza mappa
+const map = L.map('map').setView([CENTRO.lat, CENTRO.lon], 14);
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '© OpenStreetMap' }).addTo(map);
+
+// Funzioni per creare icone
+function createNumberIcon(text) {
   return L.divIcon({
     className: 'marker-number',
-    html: `<div style="background:${color}">${symbol}</div>`,
+    html: `<div>${text}</div>`,
     iconSize: [32, 32],
     iconAnchor: [16, 32]
   });
 }
 
-// Lista dei marker con coordinate, simbolo, colore e etichetta
-const markers = [
-  {lat: 44.14268, lon: 12.09886, symbol: '❤️', color: '#e91e63', label: 'Casa degli Sposi'},
-  {lat: 44.14925, lon: 12.13385, symbol: '🍷', color: '#ff9800', label: 'Enoteca "Colonna Panorama"'},
-  {lat: 44.15848, lon: 12.18447, symbol: '🍴', color: '#4caf50', label: 'Agriturismo "Al Colle"'}
+function createSpecialIcon(symbol) {
+  return L.divIcon({
+    className: 'marker-special',
+    html: `<div>${symbol}</div>`,
+    iconSize: [32, 32],
+    iconAnchor: [16, 32]
+  });
+}
+
+function createMunicipioIcon() {
+  return L.divIcon({
+    className: 'marker-municipio',
+    html: `<div>🏛️</div>`,
+    iconSize: [32, 32],
+    iconAnchor: [16, 32]
+  });
+}
+
+// Aggiungi Municipio
+L.marker([CENTRO.lat, CENTRO.lon], { icon: createMunicipioIcon() }).addTo(map);
+
+// Aggiungi punti speciali
+const specialPoints = [
+  {lat: 44.14268, lon: 12.09886, label: "Casa degli Sposi", symbol: "❤️"},
+  {lat: 44.14925, lon: 12.13385, label: "Enoteca Colonna Panorama", symbol: "🥂"},
+  {lat: 44.15848, lon: 12.18447, label: "Agriturismo Al Colle", symbol: "🍴"}
 ];
 
-// Aggiungi marker alla mappa
-markers.forEach(m => {
-  const marker = L.marker([m.lat, m.lon], { icon: createIcon(m.symbol, m.color) }).addTo(map);
-  marker.bindPopup(`
-    <b>${m.label}</b><br>
-    <a href="https://www.google.com/maps/dir/?api=1&destination=${m.lat},${m.lon}" target="_blank">
-      Naviga a qui
-    </a>
-  `);
+specialPoints.forEach(p => {
+  L.marker([p.lat, p.lon], { icon: createSpecialIcon(p.symbol) })
+    .addTo(map)
+    .bindPopup(`
+      <b>${p.label}</b><br>
+      <a href="https://www.google.com/maps/dir/?api=1&destination=${p.lat},${p.lon}" target="_blank">
+        Naviga a qui
+      </a>
+    `);
+});
+
+// Carica parcheggi da Google Sheet
+Papa.parse(csvURL, {
+  download: true,
+  header: true,
+  skipEmptyLines: true,
+  complete: function(results) {
+    const dati = results.data
+      .map((p, index) => {
+        const lat = parseFloat(p.Latitudine);
+        const lon = parseFloat(p.Longitudine);
+        if (isNaN(lat) || isNaN(lon)) return null;
+        return {
+          label: p.Descrizione || "Parcheggio",
+          indirizzo: p.Indirizzo || "-",
+          posti: p.Posti || "-",
+          accessibilita: p.Accessibilità || "-",
+          distanza: p["Distanza in linea d'aria"] || "-",
+          percorso: p["Lunghezza del percorso"] || "-",
+          dislivello: p.Dislivello || "-",
+          lat, lon
+        };
+      }).filter(Boolean);
+
+    dati.forEach((p, index) => {
+      L.marker([p.lat, p.lon], { icon: createNumberIcon(`P${String(index+1).padStart(2,'0')}`) })
+        .addTo(map)
+        .bindPopup(`
+          <b>${p.label}</b><br>
+          ${p.indirizzo}<br>
+          Posti: ${p.posti}<br>
+          Accessibilità: ${p.accessibilita}<br>
+          Distanza: ${p.distanza} m<br>
+          Percorso: ${p.percorso} m<br>
+          Dislivello: ${p.dislivello} m<br>
+          <a href="https://www.google.com/maps/dir/?api=1&destination=${p.lat},${p.lon}" target="_blank">
+            Naviga a qui
+          </a>
+        `);
+    });
+  }
 });
 </script>
 
