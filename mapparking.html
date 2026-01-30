@@ -72,8 +72,8 @@ const municipioIcon = L.divIcon({
 });
 L.marker([CENTRO.lat, CENTRO.lon], { icon: municipioIcon })
   .addTo(map)
-  .bindPopup("<b>Municipio</b>")
-  .openPopup();
+  /*.bindPopup("<b>Municipio</b>")
+  .openPopup();*/
 
 // Carica CSV e crea marker parcheggi
 Papa.parse(csvURL, {
