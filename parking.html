@@ -69,6 +69,18 @@ th:nth-child(8), td:nth-child(8) {  /* Dislivello */
   text-align: center;
 }
 
+@media (max-width: 768px) {
+  /* Nasconde le colonne 3, 6 e 8 */
+  table td:nth-child(3),
+  table th:nth-child(3),
+  table td:nth-child(6),
+  table th:nth-child(6),
+  table td:nth-child(8),
+  table th:nth-child(8) {
+    display: none;
+  }
+}
+
 /* Colonne allineate a sinistra */
 th:nth-child(2), td:nth-child(2),   /* Parcheggio */
 th:nth-child(3), td:nth-child(3) {  /* Indirizzo */
