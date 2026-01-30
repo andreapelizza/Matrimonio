@@ -64,7 +64,18 @@ const CENTRO = { lat: 44.14919, lon: 12.13341 };
 // Inizializza mappa
 const map = L.map('map').setView([CENTRO.lat, CENTRO.lon], 14);
 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '© OpenStreetMap' }).addTo(map);
-L.marker([CENTRO.lat, CENTRO.lon]).addTo(map).bindPopup("<b>Location Matrimonio</b>").openPopup();
+const municipioIcon = L.divIcon({
+  className: 'marker-number',
+  html: `<div style="background:#8e24aa">🏛️</div>`,
+  iconSize: [28, 28],
+  iconAnchor: [14, 28]
+});
+
+L.marker([CENTRO.lat, CENTRO.lon], { icon: municipioIcon })
+  .addTo(map)
+  .bindPopup("<b>Municipio</b>")
+  .openPopup();
+
 
 // Carica CSV con PapaParse
 Papa.parse(csvURL, {
@@ -95,7 +106,7 @@ Papa.parse(csvURL, {
       .filter(Boolean);
 
     // Ordina per distanza crescente
-    dati.sort((a, b) => parseFloat(a['Distanza in linea d\'aria'] || 0) - parseFloat(b['Distanza in linea d\'aria'] || 0));
+    //dati.sort((a, b) => parseFloat(a['Distanza in linea d\'aria'] || 0) - parseFloat(b['Distanza in linea d\'aria'] || 0));
 
     let html = "";
     dati.forEach((p, index) => {
@@ -103,7 +114,7 @@ Papa.parse(csvURL, {
       L.marker([p.lat, p.lon], {
         icon: L.divIcon({
           className: 'marker-number',
-          html: `<div>${index + 1}</div>`,
+          html: `<div>P${index + 1}</div>`,
           iconSize: [28, 28],
           iconAnchor: [14, 28]
         })
