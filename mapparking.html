@@ -16,7 +16,7 @@
 
 <style>
 body { font-family: 'Kaushan Script', sans-serif; margin: 0; }
-#map { height: 60vh; width: 95%; max-width: 1200px; margin: auto; border-radius: 8px; }
+#map { height: 100vh; width: 95%; max-width: 1200px; margin: auto; border-radius: 8px; }
 
 /* Marker numerati parcheggi */
 .marker-number div {
@@ -75,7 +75,7 @@ const CENTRO = { lat: 44.14919, lon: 12.13341 };
 const csvURL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQoiq8woGXo_hibNIDK3gsBSR56zgU4FEvPP0-lmdfv24Bt_l0hz6Jyh0jCsG8W_pKYsB2JKEGzaURo/pub?output=csv";
 
 // Inizializza mappa
-const map = L.map('map').setView([CENTRO.lat, CENTRO.lon], 15);
+const map = L.map('map').setView([CENTRO.lat, CENTRO.lon], 14);
 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '© OpenStreetMap' }).addTo(map);
 
 // Funzioni per creare icone
