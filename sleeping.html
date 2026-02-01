@@ -63,7 +63,7 @@ const map = L.map('map').setView([CENTRO.lat, CENTRO.lon], 15);
 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '© OpenStreetMap' }).addTo(map);
 
 // Funzioni per creare icone
-function createSpecialIcon(symbol) {
+function createSpecialIcon(symbol, color = "#FF9800") {
   return L.divIcon({
     className: 'marker-special',
     html: `<div>${symbol}</div>`,
@@ -92,7 +92,7 @@ const specialPoints = [
 ];
 
 specialPoints.forEach(p => {
-  L.marker([p.lat, p.lon], { icon: createSpecialIcon(p.symbol) })
+  L.marker([p.lat, p.lon], { icon: createSpecialIcon(p.symbol, p.color) })
     .addTo(map)
     .bindPopup(`
       <b>${p.label}</b><br>
