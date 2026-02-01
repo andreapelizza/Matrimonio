@@ -116,7 +116,7 @@ Papa.parse(csvURL, {
         return {
           label: p.Descrizione || "Hotel",
           indirizzo: p.Indirizzo || "-",
-          telefono: p.telefono || "-",
+          telefono: p.Telefono || "-",
           lat, lon
         };
       }).filter(Boolean);
