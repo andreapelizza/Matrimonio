@@ -1,70 +1,38 @@
-<!DOCTYPE html>
-<html lang="it">
-<head>
-<meta charset="UTF-8">
-<title>Pulsante Matrimonio</title>
-
-<!-- Font Kaushan Script -->
-<link href="https://fonts.googleapis.com/css2?family=Kaushan+Script&display=swap" rel="stylesheet">
-
-  <style>
-    body {
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
-      margin: 0;
-      background: transparent;
-    }
-
-button {
-  font-family: 'Kaushan Script', cursive;
-  font-size: 28px;
-  padding: 20px 50px;
-  background: #a32f2f; /* colore pulsante */
-  color: white;
-  border: none;
-  border-radius: 15px;
-  cursor: pointer;
-  box-shadow: 0 5px 10px rgba(0,0,0,0.3);
-  transition: transform 0.2s, box-shadow 0.2s;
-}
-
-button:hover {
-  transform: scale(1.05);
-  box-shadow: 0 8px 16px rgba(0,0,0,0.4);
-}
-</style>
-</head>
-<body>
-
-
-  <button id="btn">🎵 Play</button>
-
-
-<audio id="audio">
-  <source src="Dire Straits - Walk Of Life (Official Music Video).mp3" type="audio/mpeg">
-  Il tuo browser non supporta l’audio.
-</audio>
-
 <script>
 const audio = document.getElementById('audio');
-audio.volume = 0.6; // volume al 60%
 const btn = document.getElementById('btn');
-let playing = false;
 
-btn.onclick = function() {
+audio.volume = 0.6;
+
+// Recupera stato salvato
+let playing = localStorage.getItem('playing') === 'true';
+let savedTime = localStorage.getItem('time');
+
+if (savedTime) {
+  audio.currentTime = parseFloat(savedTime);
+}
+
+if (playing) {
+  audio.play();
+  btn.innerHTML = "⏸ Pause";
+}
+
+// Click sul pulsante
+btn.onclick = function () {
   if (!playing) {
     audio.play();
-    btn.innerHTML = "⏸ Pause"; // cambia icona in pausa
+    btn.innerHTML = "⏸ Pause";
   } else {
     audio.pause();
-    btn.innerHTML = "🎵 Play"; // icona play
+    btn.innerHTML = "🎵 Play";
   }
-  playing = !playing;
-};
-</script>
 
-</body>
-</html>
+  playing = !playing;
+  localStorage.setItem('playing', playing);
+};
+
+// Salva continuamente il tempo
+audio.addEventListener('timeupdate', () => {
+  localStorage.setItem('time', audio.currentTime);
+});
+</script>
