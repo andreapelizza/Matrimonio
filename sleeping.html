@@ -16,30 +16,14 @@
 
 <style>
 body { font-family: 'Kaushan Script', sans-serif; margin: 0; }
-#map { height: 100vh; width: 95%; max-width: 1200px; margin: auto; border-radius: 8px; }
+#map { height: 60vh; width: 95%; max-width: 1200px; margin: auto; border-radius: 8px; }
 
-/* Marker numerati parcheggi */
-.marker-number div {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background-color: #1976d2;
-  color: white;
-  border-radius: 50%;
-  width: 32px;
-  height: 32px;
-  font-weight: bold;
-  border: 2px solid white;
-  font-family: 'Kaushan Script', cursive;
-  font-size: 12px;
-}
-
-/* Marker speciali */
+/* Marker speciali arancio (hotel) */
 .marker-special div {
   display: flex;
   align-items: center;
   justify-content: center;
-  background-color: #d81b60;
+  background-color: #FF9800; /* arancio */
   color: white;
   border-radius: 50%;
   width: 32px;
@@ -72,22 +56,13 @@ a:hover { text-decoration: underline; }
 
 <script>
 const CENTRO = { lat: 44.14919, lon: 12.13341 };
-const csvURL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTpG4awH9kgEmE8vB3cDGsgRpWZ5pWXbkT0PqFxjaDqa_Z3UeWPYlD1MiuNV-wmbxzKEWkPd63zLKc6/pub?output=csv";
+const csvURL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTpG4awH9kgEmE8vB3cDGsgRpWZ5pWXbkT0PqFxjaDqa_Z3UeWPYlD1MiuNV-wmbxzKEWkPd63zLKc6/pub?gid=436600834&single=true&output=csv";
 
 // Inizializza mappa
-const map = L.map('map').setView([CENTRO.lat, CENTRO.lon], 14);
+const map = L.map('map').setView([CENTRO.lat, CENTRO.lon], 15);
 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '© OpenStreetMap' }).addTo(map);
 
 // Funzioni per creare icone
-function createNumberIcon(text) {
-  return L.divIcon({
-    className: 'marker-number',
-    html: `<div>${text}</div>`,
-    iconSize: [32, 32],
-    iconAnchor: [16, 32]
-  });
-}
-
 function createSpecialIcon(symbol) {
   return L.divIcon({
     className: 'marker-special',
@@ -122,39 +97,39 @@ specialPoints.forEach(p => {
     .bindPopup(`
       <b>${p.label}</b><br>
       <a href="https://www.google.com/maps/dir/?api=1&destination=${p.lat},${p.lon}" target="_blank">
-        Naviga a qui
+        Naviga qui
       </a>
     `);
 });
 
-// Carica parcheggi da Google Sheet
+// Carica hotel dal CSV
 Papa.parse(csvURL, {
   download: true,
   header: true,
   skipEmptyLines: true,
   complete: function(results) {
-    const dati = results.data
-      .map((p, index) => {
+    const hotels = results.data
+      .map(p => {
         const lat = parseFloat(p.Latitudine);
         const lon = parseFloat(p.Longitudine);
         if (isNaN(lat) || isNaN(lon)) return null;
         return {
-          label: p.Descrizione || "Parcheggio",
+          label: p.Descrizione || "Hotel",
           indirizzo: p.Indirizzo || "-",
           telefono: p.telefono || "-",
           lat, lon
         };
       }).filter(Boolean);
 
-    dati.forEach((p, index) => {
-      L.marker([p.lat, p.lon], { icon: createNumberIcon(`P${String(index+1).padStart(2,'0')}`) })
+    hotels.forEach(p => {
+      L.marker([p.lat, p.lon], { icon: createSpecialIcon('🛏') })
         .addTo(map)
         .bindPopup(`
           <b>${p.label}</b><br>
           ${p.indirizzo}<br>
-          Telfeono: ${p.telefono}<br>
+          Telefono: ${p.telefono}<br>
           <a href="https://www.google.com/maps/dir/?api=1&destination=${p.lat},${p.lon}" target="_blank">
-            Naviga a qui
+            Naviga qui
           </a>
         `);
     });
