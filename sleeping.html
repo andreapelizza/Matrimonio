@@ -2,7 +2,7 @@
 <html lang="it">
 <head>
 <meta charset="UTF-8">
-<title>Mappa Parcheggi e Luoghi</title>
+<title>Mappa Hotel</title>
 
 <!-- Font Kaushan Script -->
 <link href="https://fonts.googleapis.com/css2?family=Kaushan+Script&display=swap" rel="stylesheet">
@@ -72,7 +72,7 @@ a:hover { text-decoration: underline; }
 
 <script>
 const CENTRO = { lat: 44.14919, lon: 12.13341 };
-const csvURL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQoiq8woGXo_hibNIDK3gsBSR56zgU4FEvPP0-lmdfv24Bt_l0hz6Jyh0jCsG8W_pKYsB2JKEGzaURo/pub?output=csv";
+const csvURL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTpG4awH9kgEmE8vB3cDGsgRpWZ5pWXbkT0PqFxjaDqa_Z3UeWPYlD1MiuNV-wmbxzKEWkPd63zLKc6/pub?gid=436600834&single=true&output=csv";
 
 // Inizializza mappa
 const map = L.map('map').setView([CENTRO.lat, CENTRO.lon], 15);
@@ -141,11 +141,7 @@ Papa.parse(csvURL, {
         return {
           label: p.Descrizione || "Parcheggio",
           indirizzo: p.Indirizzo || "-",
-          posti: p.Posti || "-",
-          accessibilita: p.Accessibilità || "-",
-          distanza: p["Distanza in linea d'aria"] || "-",
-          percorso: p["Lunghezza del percorso"] || "-",
-          dislivello: p.Dislivello || "-",
+          telefono: p.telefono || "-",
           lat, lon
         };
       }).filter(Boolean);
@@ -156,11 +152,7 @@ Papa.parse(csvURL, {
         .bindPopup(`
           <b>${p.label}</b><br>
           ${p.indirizzo}<br>
-          Posti: ${p.posti}<br>
-          Accessibilità: ${p.accessibilita}<br>
-          Distanza: ${p.distanza} m<br>
-          Percorso: ${p.percorso} m<br>
-          Dislivello: ${p.dislivello} m<br>
+          Telfeono: ${p.telefono}<br>
           <a href="https://www.google.com/maps/dir/?api=1&destination=${p.lat},${p.lon}" target="_blank">
             Naviga a qui
           </a>
