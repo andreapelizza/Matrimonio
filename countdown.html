@@ -5,16 +5,16 @@
 <title>Countdown Evento</title>
 <link href="https://fonts.googleapis.com/css2?family=Kaushan+Script&display=swap" rel="stylesheet">
 <style>
-  /* Reset base */
-  * { box-sizing: border-box; margin: 0; padding: 0; }
+  * { box-sizing: border-box; margin:0; padding:0; }
+  html, body { height:100%; }
 
   body {
     display: flex;
     justify-content: center;
     align-items: center;
-    height: 100vh;
     font-family: 'Kaushan Script', cursive;
-    transition: background 0.5s, color 0.5s;
+    transition: background 1s;
+    color: red; /* testo rosso fisso */
   }
 
   #countdown {
@@ -30,30 +30,19 @@
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    background: white;
-    color: black;
+    background: rgba(255,255,255,0.1); /* semitrasparente per vedere il cielo */
     padding: 25px;
     border-radius: 20px;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.15);
     min-width: 90px;
-    transition: background 0.5s, color 0.5s;
+    transition: background 1s;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.2);
   }
 
-  .number {
-    font-size: 2.5em;
-  }
+  .number { font-size: 2.5em; }
+  .label { font-size: 1em; margin-top:5px; }
 
-  .label {
-    font-size: 1em;
-    margin-top: 5px;
-  }
-
-  /* Responsive */
-  @media (max-width: 600px) {
-    .box {
-      min-width: 70px;
-      padding: 15px;
-    }
+  @media (max-width:600px){
+    .box { min-width: 70px; padding: 15px; }
     .number { font-size: 2em; }
     .label { font-size: 0.9em; }
   }
@@ -69,7 +58,7 @@
 </div>
 
 <script>
-const targetDate = new Date("2026-06-04T16:00:00"); // Data evento
+const targetDate = new Date("2026-06-04T16:00:00");
 
 function updateCountdown() {
   const now = new Date();
@@ -80,9 +69,9 @@ function updateCountdown() {
     return;
   }
 
-  const giorni = Math.floor(diff / (1000 * 60 * 60 * 24));
-  const ore = Math.floor((diff / (1000 * 60 * 60)) % 24);
-  const minuti = Math.floor((diff / (1000 * 60)) % 60);
+  const giorni = Math.floor(diff / (1000*60*60*24));
+  const ore = Math.floor((diff / (1000*60*60)) % 24);
+  const minuti = Math.floor((diff / (1000*60)) % 60);
   const secondi = Math.floor((diff / 1000) % 60);
 
   document.getElementById("days").textContent = giorni;
@@ -91,39 +80,31 @@ function updateCountdown() {
   document.getElementById("seconds").textContent = secondi;
 }
 
-// 🌙 Tema chiaro/scuro automatico basato su alba/tramonto Bertinoro
-function applyTheme() {
+// 🌅 Funzione per gradiente alba/tramonto
+function applySkyGradient() {
   const now = new Date();
-  const utcOffset = 1; // CET
-  const isDST = (now.getMonth() > 2 && now.getMonth() < 10); // Marzo-Ottobre
+  const utcOffset = 1; 
+  const isDST = (now.getMonth() > 2 && now.getMonth() < 10);
   const romaHour = now.getUTCHours() + utcOffset + (isDST ? 1 : 0);
 
-  // Alba ~6:00, Tramonto ~20:00
-  if (romaHour >= 20 || romaHour < 6) {
-    // Notte
-    document.body.style.background = "#121212";
-    document.body.style.color = "#f5f5f5";
-    document.querySelectorAll(".box").forEach(box => {
-      box.style.background = "#1e1e1e";
-      box.style.color = "#f5f5f5";
-      box.style.boxShadow = "0 10px 30px rgba(255,255,255,0.05)";
-    });
+  let gradient = "";
+  if (romaHour >= 6 && romaHour < 8) {
+    gradient = "linear-gradient(to top, #ff4500, #ffb347)"; // alba
+  } else if (romaHour >= 8 && romaHour < 18) {
+    gradient = "linear-gradient(to top, #87ceeb, #ffffff)"; // giorno
+  } else if (romaHour >= 18 && romaHour < 20) {
+    gradient = "linear-gradient(to top, #ff7f50, #ff4500)"; // tramonto
   } else {
-    // Giorno
-    document.body.style.background = "#f0f0f0";
-    document.body.style.color = "#000";
-    document.querySelectorAll(".box").forEach(box => {
-      box.style.background = "white";
-      box.style.color = "black";
-      box.style.boxShadow = "0 10px 30px rgba(0,0,0,0.15)";
-    });
+    gradient = "linear-gradient(to top, #0f2027, #203a43, #2c5364)"; // notte
   }
+
+  document.body.style.background = gradient;
 }
 
 updateCountdown();
-applyTheme();
+applySkyGradient();
 setInterval(updateCountdown, 1000);
-setInterval(applyTheme, 60000); // Aggiorna tema ogni minuto
+setInterval(applySkyGradient, 60000); // aggiorna sfondo ogni minuto
 </script>
 
 </body>
