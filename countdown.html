@@ -2,26 +2,29 @@
 <html lang="it">
 <head>
 <meta charset="UTF-8">
-<title>Countdown Evento</title>
+<title>Countdown Evento Piccolo</title>
 <link href="https://fonts.googleapis.com/css2?family=Kaushan+Script&display=swap" rel="stylesheet">
 <style>
 * { box-sizing: border-box; margin:0; padding:0; }
 html, body { height:100%; background: transparent; }
 
 body {
-  display: flex;
-  justify-content: center;
-  align-items: center;
   font-family: 'Kaushan Script', cursive;
   color: red; /* testo rosso */
+  position: relative;
 }
 
+/* Posizioniamo il countdown in alto a destra */
 #countdown {
+  position: fixed;
+  top: 20px;
+  right: 20px;
   display: flex;
-  gap: 15px;
+  gap: 10px;
   flex-wrap: wrap;
-  justify-content: center;
+  justify-content: flex-end;
   align-items: center;
+  z-index: 1000;
 }
 
 .box {
@@ -29,21 +32,28 @@ body {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 25px;
-  border-radius: 20px;
-  min-width: 90px;
-  color: red; /* testo rosso */
-  box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-  transition: background 1s linear; /* transizione graduale */
+  padding: 10px 15px;
+  border-radius: 15px;
+  min-width: 60px;
+  color: red;
+  box-shadow: 0 0 10px rgba(255,0,0,0.4);
+  transition: background 1s linear, box-shadow 1s linear;
+  animation: glow 3s ease-in-out infinite alternate;
 }
 
-.number { font-size: 2.5em; }
-.label { font-size: 1em; margin-top:5px; }
+@keyframes glow {
+  0% { box-shadow: 0 0 5px rgba(255,0,0,0.2); }
+  50% { box-shadow: 0 0 15px rgba(255,0,0,0.5); }
+  100% { box-shadow: 0 0 25px rgba(255,0,0,0.7); }
+}
+
+.number { font-size: 1.5em; }
+.label { font-size: 0.8em; margin-top:3px; }
 
 @media (max-width:600px){
-  .box { min-width: 70px; padding: 15px; }
-  .number { font-size: 2em; }
-  .label { font-size: 0.9em; }
+  .box { min-width: 50px; padding: 8px 10px; }
+  .number { font-size: 1.2em; }
+  .label { font-size: 0.7em; }
 }
 </style>
 </head>
@@ -59,7 +69,7 @@ body {
 <script>
 const targetDate = new Date("2026-06-04T16:00:00");
 
-// Funzione per aggiornare i numeri del countdown
+// Aggiorna countdown
 function updateCountdown() {
   const now = new Date();
   const diff = targetDate - now;
@@ -80,16 +90,24 @@ function updateCountdown() {
   document.getElementById("seconds").textContent = secondi;
 }
 
-// Gradiente fluido basato sull’ora di Bertinoro
+// Interpolazione colore tra due RGB
+function interpolateColor(c1, c2, t){
+  return [
+    Math.round(c1[0] + (c2[0]-c1[0])*t),
+    Math.round(c1[1] + (c2[1]-c1[1])*t),
+    Math.round(c1[2] + (c2[2]-c1[2])*t)
+  ];
+}
+
+// Aggiorna gradiente fluido
 function updateBoxColors() {
   const now = new Date();
   const utcOffset = 1; 
   const isDST = (now.getMonth() > 2 && now.getMonth() < 10);
   const romaHour = now.getUTCHours() + utcOffset + (isDST ? 1 : 0);
   const romaMinute = now.getMinutes();
-  const timeDecimal = romaHour + romaMinute/60; // ora come decimale
+  const timeDecimal = romaHour + romaMinute/60;
 
-  // Calcoliamo gradienti intermedi tra alba(6-8), giorno(8-18), tramonto(18-20), notte(20-6)
   let topColor, bottomColor;
 
   if(timeDecimal >= 6 && timeDecimal < 8){ // alba
@@ -116,19 +134,10 @@ function updateBoxColors() {
   });
 }
 
-// Funzione per interpolare due colori [r,g,b]
-function interpolateColor(c1, c2, t){
-  return [
-    Math.round(c1[0] + (c2[0]-c1[0])*t),
-    Math.round(c1[1] + (c2[1]-c1[1])*t),
-    Math.round(c1[2] + (c2[2]-c1[2])*t)
-  ];
-}
-
 updateCountdown();
 updateBoxColors();
 setInterval(updateCountdown, 1000);
-setInterval(updateBoxColors, 1000); // aggiorna gradiente ogni secondo per effetto fluido
+setInterval(updateBoxColors, 1000);
 </script>
 
 </body>
