@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<title>Mappa Hotel e Punti</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Kaushan+Script&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css">
+<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+<script src="https://unpkg.com/papaparse@5.4.1/papaparse.min.js"></script>
+
+<style>
+body { margin:0; font-family:'Kaushan Script', cursive; }
+#map { height:95vh; width:95%; max-width:1200px; margin:auto; }
+
+.marker-special div{
+  width:28px;height:28px;
+  border-radius:50%;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  color:#fff;
+  border:2px solid #fff;
+  font-size:14px;
+  font-family:'Kaushan Script', cursive;
+}
+
+.leaflet-control-layers{
+  font-family:'Kaushan Script', cursive;
+}
+
+.layer-title{
+  font-weight:bold;
+  text-align:center;
+  margin-bottom:6px;
+}
+
+.layer-icon{
+  width:20px;height:20px;
+  border-radius:50%;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  color:#fff;
+  font-size:13px;
+  margin-right:6px;
+}
+
+.leaflet-popup-content,
+.leaflet-popup-content-wrapper {
+  font-family: 'Kaushan Script', cursive;
+}
+
+</style>
+</head>
+
+<body>
+<div id="map"></div>
+
+<script>
+const CENTRO = { lat:44.15058, lon:12.141665 }; /*44.14819, 12.139405, 44.15058, 12.141665*/
+const csvURL = "guest.html";
+
+const map = L.map('map').setView([CENTRO.lat, CENTRO.lon], 13);
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{
+  attribution:'© OpenStreetMap'
+}).addTo(map);
+
+function createIcon(symbol, color){
+  return L.divIcon({
+    className:'marker-special',
+    html:`<div style="background:${color}">${symbol}</div>`,
+    iconSize:[28,28],
+    iconAnchor:[14,28]
+  });
+}
+
+// icone SOLO per le checkbox
+const checkboxIcons = {
+  "Punti principali": {symbol:"⭐", color:"#d81b60"},
+  "Hotel": {symbol:"🛏", color:"#ff9800"},
+  "Pizzerie e Ristoranti": {symbol:"🍕", color:"#1e8f2e"},
+  "Parcheggi": {symbol:"P", color:"#1976d2"}
+};
+
+const layers = {};
+
+Papa.parse(csvURL,{
+  download:true,
+  header:true,
+  skipEmptyLines:true,
+  complete:(res)=>{
+
+    res.data.forEach((p,i)=>{
+        const lat = parseFloat(p.Latitudine);
+        const lon = parseFloat(p.Longitudine);
+        if(isNaN(lat)||isNaN(lon)) return;
+
+        let categoria = p.Categoria || "Altro";
+        if(categoria.toLowerCase()==="pizzeria") categoria="Pizzerie e Ristoranti";
+        if(i<4) categoria="Punti principali";
+
+        if(!layers[categoria]) layers[categoria]=L.layerGroup();
+
+        const simbolo = p.Simbolo || "❓";
+        const colore  = p.Colore  || "#999";
+
+        let popup = "";
+
+        // campi da ESCLUDERE
+        const exclude = [
+        "Categoria",
+        "Latitudine",
+        "Longitudine",
+        "Colore",
+        "Simbolo"
+        ];
+
+        Object.keys(p).forEach(key => {
+        const value = p[key];
+        if (!value || exclude.includes(key)) return;
+
+        const k = key.toLowerCase();
+
+        // DESCRIZIONE → solo testo, senza "Descrizione:"
+        if (k === "descrizione") {
+            popup += `<b>${value}</b><br><br>`;
+        }
+
+        // TELEFONO
+        else if (k.includes("telefono")) {
+            popup += `📞 <b><a href="tel:${value}">${value}</a></b><br>`;
+        }
+
+        // LINK
+        else if (k === "link") {
+            popup += `🌐 <b><a href="${value}" target="_blank">Apri sito</a></b><br>`;
+        }
+
+        // NOTE
+        else if (k === "note") {
+            popup += `Note: <b>${value}</b><br>`;
+        }
+
+        // TUTTO IL RESTO
+        else {
+            popup += `${key}: <b>${value}</b><br>`;
+        }
+        });
+
+        // LINK NAVIGAZIONE
+        popup += `
+        <br>
+        🚗 <a href="https://www.google.com/maps/dir/?api=1&destination=${lat},${lon}" target="_blank">
+        <b>Naviga qui</b>
+        </a>
+        `;
+
+
+      const m = L.marker([lat,lon],{
+        icon:createIcon(simbolo,colore)
+      }).bindPopup(popup);
+
+      layers[categoria].addLayer(m);
+    });
+
+    // aggiungi tutti i layer alla mappa
+    /*Object.values(layers).forEach(l=>l.addTo(map));*/
+    // livelli visibili di default
+    if (layers["Parcheggi"]) {
+    layers["Parcheggi"].addTo(map);
+    }
+
+    if (layers["Punti principali"]) {
+    layers["Punti principali"].addTo(map);
+    }
+
+    const control = L.control.layers(null,layers,{collapsed:false}).addTo(map);
+
+    // --- SISTEMA TITOLO E ICONE ---
+    setTimeout(()=>{
+      const c = control.getContainer();
+
+      const title=document.createElement("div");
+      title.className="layer-title";
+      title.textContent="Livelli";
+      c.prepend(title);
+
+      Object.keys(layers).forEach(cat=>{
+        const label=[...c.querySelectorAll("label")]
+          .find(l=>l.textContent.trim()===cat);
+        if(label && checkboxIcons[cat]){
+          const ic=document.createElement("span");
+          ic.className="layer-icon";
+          ic.style.background=checkboxIcons[cat].color;
+          ic.textContent=checkboxIcons[cat].symbol;
+          label.prepend(ic);
+        }
+      });
+    },100);
+  }
+});
+</script>
+</body>
+</html>
