@@ -167,12 +167,12 @@ Papa.parse(csvURL,{
     // aggiungi tutti i layer alla mappa
     /*Object.values(layers).forEach(l=>l.addTo(map));*/
     // livelli visibili di default
-    if (layers["Punti principali"]) {
-    layers["Punti principali"].addTo(map);
-    }
-
     if (layers["Parcheggi"]) {
     layers["Parcheggi"].addTo(map);
+    }
+    
+    if (layers["Punti principali"]) {
+    layers["Punti principali"].addTo(map);
     }
 
     const control = L.control.layers(null,layers,{collapsed:false}).addTo(map);
