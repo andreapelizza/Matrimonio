@@ -96,9 +96,16 @@ Papa.parse(csvURL,{
         const lon = parseFloat(p.Longitudine);
         if(isNaN(lat)||isNaN(lon)) return;
 
-        let categoria = p.Categoria || "Altro";
-        if(categoria.toLowerCase()==="pizzeria") categoria="Pizzerie e Ristoranti";
-        if(i<1) categoria="Punti principali";
+        let categoria;
+
+        // SOLO il primo record è Punto principale
+        if (i === 0) {
+        categoria = "Punti principali";
+        } 
+        // TUTTI gli altri sono Parcheggi
+        else {
+        categoria = "Parcheggi";
+        }
 
         if(!layers[categoria]) layers[categoria]=L.layerGroup();
 
