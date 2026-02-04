@@ -2,22 +2,55 @@
 <html lang="it">
 <head>
 <meta charset="UTF-8">
-<title>Mappa Hotel</title>
+<title>Mappa Hotel e Punti</title>
 <link href="https://fonts.googleapis.com/css2?family=Kaushan+Script&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
 <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 <script src="https://unpkg.com/papaparse@5.4.1/papaparse.min.js"></script>
 <style>
-body { font-family: 'Kaushan Script', sans-serif; margin:0; }
-#map { height:100vh; width:95%; max-width:1200px; margin:auto; border-radius:8px; }
+body {
+    font-family: 'Kaushan Script', sans-serif;
+    margin:0;
+}
+#map {
+    height:90vh;
+    width:95%;
+    max-width:1200px;
+    margin:auto;
+    border-radius:8px;
+}
+#controls {
+    width:95%;
+    max-width:1200px;
+    margin:auto;
+    padding:5px 0;
+    display:flex;
+    flex-wrap:wrap;
+    gap:10px;
+    font-family: 'Kaushan Script', sans-serif;
+}
+.marker-special div {
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    color:white;
+    border-radius:50%;
+    width:28px;
+    height:28px;
+    border:2px solid white;
+    font-size:14px; /* testo più piccolo */
+}
 a { color:#1976d2; text-decoration:none; }
 a:hover { text-decoration:underline; }
 </style>
 </head>
 <body>
+
+<div id="controls"></div>
 <div id="map"></div>
+
 <script>
-const CENTRO = { lat: 44.14919, lon: 12.13341 }; // centro iniziale mappa
+const CENTRO = { lat: 44.14919, lon: 12.13341 };
 const csvURL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQb906YKDfS2Y2Ly7LynAAaYSegdjv0zOKP4paY_i0oBIK8nii4h9v3htSkT-1VigcLfvv08ar4iC6Z/pub?gid=1561792900&single=true&output=csv";
 
 // Inizializza mappa
@@ -28,41 +61,83 @@ L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution:
 function createIcon(symbol, color="#FF9800") {
     return L.divIcon({
         className: 'marker-special',
-        html: `<div style="background-color:${color}; display:flex; align-items:center; justify-content:center; color:white; border-radius:50%; width:32px; height:32px; border:2px solid white; font-size:18px;">${symbol}</div>`,
-        iconSize: [32,32],
-        iconAnchor: [16,32]
+        html: `<div style="background-color:${color}">${symbol}</div>`,
+        iconSize: [28,28],
+        iconAnchor: [14,28]
     });
 }
 
-// Carica punti dal CSV
+const categoryMarkers = {}; // oggetti per categoria
+
+// Carica CSV
 Papa.parse(csvURL, {
     download: true,
     header: true,
     skipEmptyLines: true,
     complete: function(results) {
+        const categories = new Set();
         const points = results.data.map(p => {
             const lat = parseFloat(p['Latitudine']);
             const lon = parseFloat(p['Longitudine']);
-            if (isNaN(lat) || isNaN(lon)) return null;
-            return {
+            if(isNaN(lat) || isNaN(lon)) return null;
+
+            const category = p['Categoria'] || 'Altro';
+            categories.add(category);
+
+            const point = {
                 label: p['Descrizione'] || 'Punto',
                 indirizzo: p['Indirizzo'] || '',
                 telefono: p['Telefono'] || '',
                 symbol: p['Simbolo'] || '❓',
                 color: p['Colore'] || '#FF9800',
-                lat, lon
+                lat, lon,
+                category,
+                posti: p['Posti auto'] || '',
+                accessibilita: p['Accessibilità'] || '',
+                distanza: p['Distanza dal Comune'] || '',
+                lunghezza: p['Lunghezza percorso dal Comune'] || '',
+                dislivello: p['Dislivello'] || ''
             };
+            return point;
         }).filter(Boolean);
+
+        // crea markers per categoria
+        categories.forEach(cat => { categoryMarkers[cat] = []; });
 
         points.forEach(p => {
             let popupHTML = `<b>${p.label}</b>`;
             if(p.indirizzo) popupHTML += `<br>${p.indirizzo}`;
             if(p.telefono) popupHTML += `<br>Tel: <a href="tel:${p.telefono}">${p.telefono}</a>`;
+            if(p.category.toLowerCase().includes('parcheggio')) {
+                popupHTML += `<br>Posti: ${p.posti}`;
+                popupHTML += `<br>Accessibilità: ${p.accessibilita}`;
+                popupHTML += `<br>Distanza: ${p.distanza}`;
+                popupHTML += `<br>Lunghezza percorso: ${p.lunghezza}`;
+                popupHTML += `<br>Dislivello: ${p.dislivello}`;
+            }
             popupHTML += `<br><a href="https://www.google.com/maps/dir/?api=1&destination=${p.lat},${p.lon}" target="_blank">Naviga qui</a>`;
 
-            L.marker([p.lat, p.lon], { icon: createIcon(p.symbol, p.color) })
-             .addTo(map)
-             .bindPopup(popupHTML);
+            const marker = L.marker([p.lat,p.lon], { icon: createIcon(p.symbol, p.color) }).bindPopup(popupHTML);
+            marker.addTo(map);
+            categoryMarkers[p.category].push(marker);
+        });
+
+        // crea checkbox categorie
+        const controlsDiv = document.getElementById('controls');
+        categories.forEach(cat => {
+            const id = `chk-${cat.replace(/\s+/g,'')}`;
+            const label = document.createElement('label');
+            label.style.fontFamily = "'Kaushan Script', sans-serif";
+            label.innerHTML = `<input type="checkbox" id="${id}" checked> ${cat}`;
+            controlsDiv.appendChild(label);
+
+            document.getElementById(id).addEventListener('change', e => {
+                const show = e.target.checked;
+                categoryMarkers[cat].forEach(m => {
+                    if(show) m.addTo(map);
+                    else map.removeLayer(m);
+                });
+            });
         });
     }
 });
