@@ -21,14 +21,21 @@ body {
   margin: 0;
 }
 
-#controls {
-  padding: 10px;
-  background: white;
-  font-size: 14px;
+#map {
+  height: 100vh;
+  width: 100%;
 }
 
-#map {
-  height: calc(100vh - 140px);
+#controls {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  z-index: 1000;
+  background: white;
+  padding: 10px;
+  border-radius: 8px;
+  max-width: 300px;
+  font-size: 14px;
 }
 
 .legend-item {
@@ -57,6 +64,41 @@ button {
   background: #1976d2;
   color: white;
   font-size: 14px;
+  cursor: pointer;
+}
+
+button:hover {
+  background: #125aa0;
+}
+
+.leaflet-popup-content {
+  font-size: 15px;
+  line-height: 1.4;
+}
+
+.leaflet-popup-content a {
+  display: inline-block;
+  margin-top: 6px;
+  padding: 6px 10px;
+  background: #1976d2;
+  color: white;
+  border-radius: 6px;
+  text-decoration: none;
+  font-size: 14px;
+}
+
+.leaflet-popup-content a:hover {
+  background: #125aa0;
+}
+
+@media (max-width: 600px) {
+  #controls {
+    max-width: 90%;
+    font-size: 16px;
+  }
+  .leaflet-popup-content {
+    font-size: 16px;
+  }
 }
 </style>
 </head>
@@ -115,10 +157,12 @@ Papa.parse(csvURL, {
       let symbol = r.Simbolo?.trim();
       const color = r.Colore || '#FF9800';
 
+      // 🅿️ Parcheggi numerazione automatica
       if (cat === 'Parcheggi' && !symbol) {
         symbol = 'P' + parkingCounter++;
       }
 
+      // cluster per categoria
       if (!categoryLayers[cat]) {
         categoryLayers[cat] = L.markerClusterGroup({
           iconCreateFunction: cluster => {
@@ -132,17 +176,22 @@ Papa.parse(csvURL, {
         categoryInfo[cat] = { symbol, color };
       }
 
+      // popup
       let popup = `<b>${r.Descrizione}</b><br>${r.Indirizzo || ''}<br>`;
 
       if (cat === 'Parcheggi') {
         popup += `
           Posti auto: ${r['Posti auto'] || '-'}<br>
+          Accessibilità: ${r.Accessibilità || '-'}<br>
           Distanza: ${r['Distanza in linea d\'aria dal Comune'] || '-'} m<br>
+          Percorso: ${r['Lunghezza Percorso dal Comune'] || '-'} m<br>
+          Dislivello: ${r.Dislivello || '-'} m<br>
+          ${r.Note ? `<em>${r.Note}</em><br>` : ''}
         `;
         parkingData.push({ lat, lon, markerData: r });
       }
 
-      if (r.Telefono) popup += `<a href="tel:${r.Telefono}">📞 Chiama</a><br>`;
+      if (cat !== 'Parcheggi' && r.Telefono) popup += `<a href="tel:${r.Telefono}">📞 Chiama</a><br>`;
       if (r.Link) popup += `<a href="${r.Link}" target="_blank">🧭 Naviga</a>`;
 
       categoryLayers[cat].addLayer(
@@ -178,4 +227,28 @@ function buildControls() {
   });
 }
 
-function toggleLayer(cat, on)
+function toggleLayer(cat, on) {
+  if (on) map.addLayer(categoryLayers[cat]);
+  else map.removeLayer(categoryLayers[cat]);
+}
+
+// PARCHEGGI PIÙ VICINI
+function showNearestParking() {
+  Object.values(categoryLayers).forEach(l => map.removeLayer(l));
+
+  parkingData
+    .sort((a,b) =>
+      parseFloat(a.markerData['Distanza in linea d\'aria dal Comune']) -
+      parseFloat(b.markerData['Distanza in linea d\'aria dal Comune'])
+    )
+    .slice(0,5)
+    .forEach(p => {
+      L.marker([p.lat, p.lon], { icon: icon('P', '#FF9800') })
+        .bindPopup(`<b>${p.markerData.Descrizione}</b><br>${p.markerData.Indirizzo || ''}<br><a href="${p.markerData.Link}" target="_blank">🧭 Naviga</a>`)
+        .addTo(map);
+    });
+}
+</script>
+
+</body>
+</html>
