@@ -87,8 +87,8 @@ Papa.parse(csvURL, {
 
             const marker = L.marker([lat,lon], { icon: createIcon(p['Simbolo'] || '❓', p['Colore'] || '#FF9800') }).bindPopup(popupHTML);
 
-            // prime 4 righe sempre visibili
-            if(index>=1 && index<=4){
+            // prime 4 righe sempre visibili /*MODIFICATO!!!*/
+            if(index>=0 && index<=3){
                 marker.addTo(map);
                 alwaysVisibleMarkers.push(marker);
             } else {
