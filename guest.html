@@ -2,173 +2,114 @@
 <html lang="it">
 <head>
 <meta charset="UTF-8">
-<title>Mappa Matrimonio</title>
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mappa Punti</title>
 
 <link href="https://fonts.googleapis.com/css2?family=Kaushan+Script&display=swap" rel="stylesheet">
-
-<link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css">
-<link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster/dist/MarkerCluster.css">
-<link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster/dist/MarkerCluster.Default.css">
-
+<link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
 <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
-<script src="https://unpkg.com/leaflet.markercluster/dist/leaflet.markercluster.js"></script>
 <script src="https://unpkg.com/papaparse@5.4.1/papaparse.min.js"></script>
 
 <style>
-body { font-family: 'Kaushan Script', cursive; margin: 0; }
-#map { height: 100vh; width: 100%; }
-#controlsPanel {
-  position: absolute; top: 10px; right: 10px; z-index: 1000;
-  background: white; padding: 10px; border-radius: 8px; max-width: 250px; font-size: 14px;
+body { font-family: 'Kaushan Script', sans-serif; margin: 0; }
+#map { height: 100vh; width: 95%; max-width: 1200px; margin: auto; border-radius: 8px; }
+
+.marker-municipio div {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #8e24aa;
+  color: white;
+  border-radius: 50%;
+  width: 32px;
+  height: 32px;
+  border: 2px solid white;
+  font-size: 18px;
 }
-.legend-item { display: flex; align-items: center; gap: 6px; margin-bottom: 4px; }
-.legend-icon { width: 24px; height: 24px; border-radius: 50%; color: white; display: flex; align-items: center; justify-content: center; font-size: 13px; }
-.leaflet-popup-content { font-size: 15px; line-height: 1.4; }
-.leaflet-popup-content a {
-  display: inline-block; margin-top: 6px; padding: 6px 10px;
-  background: #1976d2; color: white; border-radius: 6px; text-decoration: none; font-size: 14px;
-}
-.leaflet-popup-content a:hover { background: #125aa0; }
-@media (max-width: 600px) {
-  #controlsPanel { max-width: 90%; font-size: 16px; }
-  .leaflet-popup-content { font-size: 16px; }
-}
+
+a { color: #1976d2; text-decoration: none; }
+a:hover { text-decoration: underline; }
 </style>
 </head>
-
 <body>
-
-<div id="controlsPanel">
-  <b>Livelli</b><br>
-  <div id="checkboxes"></div>
-  <hr>
-  <b>Legenda</b>
-  <div id="legend"></div>
-</div>
 
 <div id="map"></div>
 
 <script>
 const CENTRO = { lat: 44.14919, lon: 12.13341 };
-const map = L.map('map').setView([CENTRO.lat, CENTRO.lon], 13);
-L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
 
-// Layer e info categorie
-const categoryLayers = {};
-const categoryInfo = {};
-let parkingCounter = 1;
+// URL CSV
+const CSV_PUNTI_PRINCIPALI = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQb906YKDfS2Y2Ly7LynAAaYSegdjv0zOKP4paY_i0oBIK8nii4h9v3htSkT-1VigcLfvv08ar4iC6Z/pub?gid=1432190131&single=true&output=csv";
+const CSV_PARCHEGGI = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQb906YKDfS2Y2Ly7LynAAaYSegdjv0zOKP4paY_i0oBIK8nii4h9v3htSkT-1VigcLfvv08ar4iC6Z/pub?gid=0&single=true&output=csv";
+const CSV_ALTRI_PUNTI = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQb906YKDfS2Y2Ly7LynAAaYSegdjv0zOKP4paY_i0oBIK8nii4h9v3htSkT-1VigcLfvv08ar4iC6Z/pub?gid=1044807949&single=true&output=csv";
 
-// Funzione per creare icone
-function icon(symbol, color) {
+// Inizializza mappa
+const map = L.map('map').setView([CENTRO.lat, CENTRO.lon], 14);
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '© OpenStreetMap' }).addTo(map);
+
+// Funzioni icone
+function createIcon(symbol, color) {
   return L.divIcon({
-    html: `<div style="background:${color};width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:white;border:2px solid white">${symbol}</div>`,
-    iconSize: [32,32],
-    iconAnchor: [16,32]
+    className: 'marker-special',
+    html: `<div style="background-color:${color}; display:flex; align-items:center; justify-content:center; color:white; border-radius:50%; width:32px; height:32px; border:2px solid white; font-size:18px;">${symbol}</div>`,
+    iconSize: [32, 32],
+    iconAnchor: [16, 32]
   });
 }
 
-// Funzione per aggiungere marker da CSV
-function addMarkersFromCSV(url, type) {
+function createMunicipioIcon() {
+  return L.divIcon({
+    className: 'marker-municipio',
+    html: `<div>🏛️</div>`,
+    iconSize: [32, 32],
+    iconAnchor: [16, 32]
+  });
+}
+
+// Aggiungi Municipio
+L.marker([CENTRO.lat, CENTRO.lon], { icon: createMunicipioIcon() }).addTo(map);
+
+// Funzione generica per caricare CSV e aggiungere marker
+function caricaCSV(url, isParcheggio=false) {
   Papa.parse(url, {
     download: true,
     header: true,
     skipEmptyLines: true,
-    complete: res => {
-      res.data.forEach(r => {
-        let lat, lon, cat, symbol, color, label, phone, link;
+    complete: function(results) {
+      const punti = results.data.map((p, idx) => {
+        const lat = parseFloat(p.Latitudine);
+        const lon = parseFloat(p.Longitudine);
+        if (isNaN(lat) || isNaN(lon)) return null;
 
-        if(type === 'parcheggi') {
-          lat = parseFloat(r['L']?.trim());
-          lon = parseFloat(r['M']?.trim());
-          cat = r['D']?.trim() || 'Parcheggi';
-          label = r['C']?.trim() || '';
-          color = r['B']?.trim() || '#FF9800';
-          symbol = label || 'P' + String(parkingCounter).padStart(2,'0');
-          parkingCounter++;
-          phone = null;
-          link = `https://www.google.com/maps/search/?api=1&query=${lat},${lon}`;
-        } else {
-          lat = parseFloat(r['H']?.trim());
-          lon = parseFloat(r['I']?.trim());
-          cat = r['D']?.trim() || 'Altro';
-          symbol = r['A']?.trim() || '';
-          color = r['B']?.trim() || '#2196F3';
-          label = r['C']?.trim() || '';
-          phone = r['G']?.trim() || '';
-          link = r['F']?.trim() || `https://www.google.com/maps/search/?api=1&query=${lat},${lon}`;
+        // Simbolo e colore
+        let symbol = isParcheggio ? `P${String(idx+1).padStart(2,'0')}` : p[Object.keys(p)[0]];
+        let color = isParcheggio ? "#1976d2" : p[Object.keys(p)[1]];
+
+        // Popup con tutte le colonne
+        let popup = "";
+        for (let key in p) {
+          if (key !== Object.keys(p)[0] && key !== Object.keys(p)[1] && p[key]) {
+            popup += `<b>${key}:</b> ${p[key]}<br>`;
+          }
         }
+        popup += `<a href="https://www.google.com/maps/dir/?api=1&destination=${lat},${lon}" target="_blank">Naviga qui</a>`;
 
-        if(isNaN(lat) || isNaN(lon)) return;
+        return { lat, lon, symbol, color, popup };
+      }).filter(Boolean);
 
-        // Crea layer se non esiste
-        if(!categoryLayers[cat]) {
-          categoryLayers[cat] = L.markerClusterGroup({
-            iconCreateFunction: cluster => {
-              const info = categoryInfo[cat] || {color:'#2196F3'};
-              return L.divIcon({
-                html: `<div style="background:${info.color};color:white;border-radius:50%;width:40px;height:40px;display:flex;align-items:center;justify-content:center">${cluster.getChildCount()}</div>`,
-                iconSize: [40,40]
-              });
-            }
-          });
-          categoryInfo[cat] = { symbol, color };
-        }
-
-        let popup = `<b>${label}</b><br>`;
-        if(phone) popup += `<a href="tel:${phone}">📞 Chiama</a><br>`;
-        popup += `<a href="${link}" target="_blank">🧭 Naviga a</a>`;
-
-        categoryLayers[cat].addLayer(L.marker([lat, lon], {icon: icon(symbol, color)}).bindPopup(popup));
+      punti.forEach(p => {
+        L.marker([p.lat, p.lon], { icon: createIcon(p.symbol, p.color) })
+          .addTo(map)
+          .bindPopup(p.popup);
       });
-
-      buildControls();
     }
   });
 }
 
-// Costruzione checkbox e legenda
-function buildControls() {
-  const cb = document.getElementById('checkboxes');
-  const lg = document.getElementById('legend');
-
-  cb.innerHTML = '';
-  lg.innerHTML = '';
-
-  Object.keys(categoryLayers).forEach(cat => {
-    // legenda
-    lg.innerHTML += `<div class="legend-item">
-      <div class="legend-icon" style="background:${categoryInfo[cat].color}">${categoryInfo[cat].symbol || ''}</div>
-      ${cat}
-    </div>`;
-
-    // checkbox per layer
-    cb.innerHTML += `<label>
-      <input type="checkbox" checked onchange="toggleLayer('${cat}', this.checked)">
-      ${cat}
-    </label><br>`;
-
-    // aggiungi layer alla mappa inizialmente
-    map.addLayer(categoryLayers[cat]);
-  });
-}
-
-function toggleLayer(cat, on) {
-  if(on) map.addLayer(categoryLayers[cat]);
-  else map.removeLayer(categoryLayers[cat]);
-}
-
-// CSV URLs
-const csvParcheggi = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQb906YKDfS2Y2Ly7LynAAaYSegdjv0zOKP4paY_i0oBIK8nii4h9v3htSkT-1VigcLfvv08ar4iC6Z/pub?gid=0&single=true&output=csv";
-const csvPuntiVari = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQb906YKDfS2Y2Ly7LynAAaYSegdjv0zOKP4paY_i0oBIK8nii4h9v3htSkT-1VigcLfvv08ar4iC6Z/pub?gid=1044807949&single=true&output=csv";
-const csvPuntiPrincipali = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQb906YKDfS2Y2Ly7LynAAaYSegdjv0zOKP4paY_i0oBIK8nii4h9v3htSkT-1VigcLfvv08ar4iC6Z/pub?gid=1432190131&single=true&output=csv";
-
-// Caricamento dati
-addMarkersFromCSV(csvParcheggi, 'parcheggi');
-addMarkersFromCSV(csvPuntiVari, 'vari');
-addMarkersFromCSV(csvPuntiPrincipali, 'principali');
+// Carica i CSV
+caricaCSV(CSV_PUNTI_PRINCIPALI);
+caricaCSV(CSV_PARCHEGGI, true);
+caricaCSV(CSV_ALTRI_PUNTI);
 
 </script>
-
 </body>
 </html>
