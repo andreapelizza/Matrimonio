@@ -26,7 +26,8 @@ body {
   width: 100%;
 }
 
-#controls {
+/* pannello livelli in alto a sinistra */
+#layersPanel {
   position: absolute;
   top: 10px;
   left: 10px;
@@ -34,7 +35,20 @@ body {
   background: white;
   padding: 10px;
   border-radius: 8px;
-  max-width: 300px;
+  max-width: 250px;
+  font-size: 14px;
+}
+
+/* legenda in alto a destra */
+#legendPanel {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  z-index: 1000;
+  background: white;
+  padding: 10px;
+  border-radius: 8px;
+  max-width: 200px;
   font-size: 14px;
 }
 
@@ -57,8 +71,8 @@ body {
 }
 
 button {
-  margin-top: 8px;
-  padding: 8px 12px;
+  margin-top: 6px;
+  padding: 6px 10px;
   border: none;
   border-radius: 6px;
   background: #1976d2;
@@ -92,7 +106,7 @@ button:hover {
 }
 
 @media (max-width: 600px) {
-  #controls {
+  #layersPanel, #legendPanel {
     max-width: 90%;
     font-size: 16px;
   }
@@ -105,11 +119,13 @@ button:hover {
 
 <body>
 
-<div id="controls">
+<div id="layersPanel">
   <b>Livelli</b><br>
   <div id="checkboxes"></div>
   <button onclick="showNearestParking()">🅿️ Parcheggi più vicini</button>
-  <hr>
+</div>
+
+<div id="legendPanel">
   <b>Legenda</b>
   <div id="legend"></div>
 </div>
@@ -157,7 +173,7 @@ Papa.parse(csvURL, {
       let symbol = r.Simbolo?.trim();
       const color = r.Colore || '#FF9800';
 
-      // 🅿️ Parcheggi numerazione automatica
+      // numerazione automatica parcheggi
       if (cat === 'Parcheggi' && !symbol) {
         symbol = 'P' + parkingCounter++;
       }
