@@ -13,19 +13,6 @@
 body { font-family: 'Kaushan Script', sans-serif; margin: 0; }
 #map { height: 100vh; width: 95%; max-width: 1200px; margin: auto; border-radius: 8px; }
 
-.marker-municipio div {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background-color: #8e24aa;
-  color: white;
-  border-radius: 50%;
-  width: 32px;
-  height: 32px;
-  border: 2px solid white;
-  font-size: 18px;
-}
-
 a { color: #1976d2; text-decoration: none; }
 a:hover { text-decoration: underline; }
 </style>
@@ -46,7 +33,7 @@ const CSV_ALTRI_PUNTI = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQb906Y
 const map = L.map('map').setView([CENTRO.lat, CENTRO.lon], 14);
 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '© OpenStreetMap' }).addTo(map);
 
-// Funzioni icone
+// Funzione icone
 function createIcon(symbol, color) {
   return L.divIcon({
     className: 'marker-special',
@@ -56,58 +43,43 @@ function createIcon(symbol, color) {
   });
 }
 
-function createMunicipioIcon() {
-  return L.divIcon({
-    className: 'marker-municipio',
-    html: `<div>🏛️</div>`,
-    iconSize: [32, 32],
-    iconAnchor: [16, 32]
-  });
-}
-
-// Aggiungi Municipio
-L.marker([CENTRO.lat, CENTRO.lon], { icon: createMunicipioIcon() }).addTo(map);
-
-// Funzione generica per caricare CSV e aggiungere marker
-function caricaCSV(url, isParcheggio=false) {
+// Funzione generica per caricare CSV
+function caricaCSV(url) {
   Papa.parse(url, {
     download: true,
     header: true,
     skipEmptyLines: true,
     complete: function(results) {
-      const punti = results.data.map((p, idx) => {
-        const lat = parseFloat(p.Latitudine);
-        const lon = parseFloat(p.Longitudine);
-        if (isNaN(lat) || isNaN(lon)) return null;
+      const headers = results.meta.fields.map(h => h.trim());
 
-        // Simbolo e colore
-        let symbol = isParcheggio ? `P${String(idx+1).padStart(2,'0')}` : p[Object.keys(p)[0]];
-        let color = isParcheggio ? "#1976d2" : p[Object.keys(p)[1]];
+      results.data.forEach(row => {
+        const p = {};
+        headers.forEach(h => p[h] = row[h] ? row[h].trim() : "");
 
-        // Popup con tutte le colonne
+        const lat = parseFloat(p["Latitudine"]);
+        const lon = parseFloat(p["Longitudine"]);
+        if (isNaN(lat) || isNaN(lon)) return;
+
+        const symbol = p[headers[0]] || "📍";
+        const color = p[headers[1]] || "#FF9800";
+
         let popup = "";
-        for (let key in p) {
-          if (key !== Object.keys(p)[0] && key !== Object.keys(p)[1] && p[key]) {
-            popup += `<b>${key}:</b> ${p[key]}<br>`;
-          }
-        }
+        headers.forEach((h, i) => {
+          if (i > 1 && p[h]) popup += `<b>${h}:</b> ${p[h]}<br>`;
+        });
         popup += `<a href="https://www.google.com/maps/dir/?api=1&destination=${lat},${lon}" target="_blank">Naviga qui</a>`;
 
-        return { lat, lon, symbol, color, popup };
-      }).filter(Boolean);
-
-      punti.forEach(p => {
-        L.marker([p.lat, p.lon], { icon: createIcon(p.symbol, p.color) })
+        L.marker([lat, lon], { icon: createIcon(symbol, color) })
           .addTo(map)
-          .bindPopup(p.popup);
+          .bindPopup(popup);
       });
     }
   });
 }
 
-// Carica i CSV
+// Carica tutti i CSV
 caricaCSV(CSV_PUNTI_PRINCIPALI);
-caricaCSV(CSV_PARCHEGGI, true);
+caricaCSV(CSV_PARCHEGGI);
 caricaCSV(CSV_ALTRI_PUNTI);
 
 </script>
