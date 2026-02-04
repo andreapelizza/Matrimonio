@@ -61,7 +61,7 @@ body { margin:0; font-family:'Kaushan Script', cursive; }
 const CENTRO = { lat:44.14919, lon:12.13341 }; /*44.14819, 12.139405, 44.15058, 12.141665, 44.14919, 12.13341*/
 const csvURL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQb906YKDfS2Y2Ly7LynAAaYSegdjv0zOKP4paY_i0oBIK8nii4h9v3htSkT-1VigcLfvv08ar4iC6Z/pub?gid=1838219729&single=true&output=csv";
 
-const map = L.map('map').setView([CENTRO.lat, CENTRO.lon], 15);
+const map = L.map('map').setView([CENTRO.lat, CENTRO.lon], 16);
 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{
   attribution:'© OpenStreetMap'
 }).addTo(map);
