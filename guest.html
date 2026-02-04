@@ -123,12 +123,12 @@ Papa.parse(csvURL,{
 
         // TELEFONO
         else if (k.includes("telefono")) {
-            popup += `Telefono: <b><a href="tel:${value}">${value}</a></b><br>`;
+            popup += `Chiama: <b><a href="tel:${value}">📞 ${value}</a></b><br>`;
         }
 
         // LINK
         else if (k === "link") {
-            popup += `Link: <b><a href="${value}" target="_blank">Apri sito</a></b><br>`;
+            popup += `Link: <b><a href="${value}" target="_blank">🌐 Apri sito</a></b><br>`;
         }
 
         // NOTE
