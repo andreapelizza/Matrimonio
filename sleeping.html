@@ -113,7 +113,7 @@ Papa.parse(csvURL, {
         .bindPopup(`
           <b>${p.label}</b><br>
           ${p.indirizzo}<br>
-          Telefono: ${p.telefono}<br>
+          Telefono: <a href="tel:${p.telefono}">${p.telefono}</a><br>
           <a href="https://www.google.com/maps/dir/?api=1&destination=${p.lat},${p.lon}" target="_blank">
             Naviga qui
           </a>
