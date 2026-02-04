@@ -3,46 +3,80 @@
 <head>
 <meta charset="UTF-8">
 <title>Countdown Evento</title>
-
-<!-- Font -->
 <link href="https://fonts.googleapis.com/css2?family=Kaushan+Script&display=swap" rel="stylesheet">
-
 <style>
-body{
-  margin:0;
-  display:flex;
-  justify-content:center;
-  align-items:center;
-  height:100vh;
-  background:transparent;
-  font-family:'Kaushan Script', cursive;
-}
+  /* Reset base */
+  * { box-sizing: border-box; margin: 0; padding: 0; }
 
-#countdown{
-  font-size:32px;
-  background:white;
-  padding:25px 40px;
-  border-radius:20px;
-  box-shadow:0 10px 30px rgba(0,0,0,0.15);
-}
+  body {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    font-family: 'Kaushan Script', cursive;
+    transition: background 0.5s, color 0.5s;
+  }
+
+  #countdown {
+    display: flex;
+    gap: 15px;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .box {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background: white;
+    color: black;
+    padding: 25px;
+    border-radius: 20px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+    min-width: 90px;
+    transition: background 0.5s, color 0.5s;
+  }
+
+  .number {
+    font-size: 2.5em;
+  }
+
+  .label {
+    font-size: 1em;
+    margin-top: 5px;
+  }
+
+  /* Responsive */
+  @media (max-width: 600px) {
+    .box {
+      min-width: 70px;
+      padding: 15px;
+    }
+    .number { font-size: 2em; }
+    .label { font-size: 0.9em; }
+  }
 </style>
 </head>
-
 <body>
 
-<div id="countdown">Caricamento…</div>
+<div id="countdown">
+  <div class="box"><div class="number" id="days">0</div><div class="label">Giorni</div></div>
+  <div class="box"><div class="number" id="hours">0</div><div class="label">Ore</div></div>
+  <div class="box"><div class="number" id="minutes">0</div><div class="label">Minuti</div></div>
+  <div class="box"><div class="number" id="seconds">0</div><div class="label">Secondi</div></div>
+</div>
 
 <script>
-/* 🔴 INSERISCI QUI LA DATA */
-const targetDate = new Date("2026-06-04T16:00:00");
+const targetDate = new Date("2026-06-04T16:00:00"); // Data evento
 
-function updateCountdown(){
+function updateCountdown() {
   const now = new Date();
   const diff = targetDate - now;
 
   if(diff <= 0){
-    document.getElementById("countdown").innerHTML =
-      "🎉 L'evento è iniziato!";
+    document.getElementById("countdown").innerHTML = "🎉 L'evento è iniziato!";
     return;
   }
 
@@ -51,15 +85,45 @@ function updateCountdown(){
   const minuti = Math.floor((diff / (1000 * 60)) % 60);
   const secondi = Math.floor((diff / 1000) % 60);
 
-  document.getElementById("countdown").innerHTML =
-    `⏳ <b>${giorni}</b> giorni 
-     <b>${ore}</b> ore 
-     <b>${minuti}</b> min 
-     <b>${secondi}</b> sec`;
+  document.getElementById("days").textContent = giorni;
+  document.getElementById("hours").textContent = ore;
+  document.getElementById("minutes").textContent = minuti;
+  document.getElementById("seconds").textContent = secondi;
+}
+
+// 🌙 Tema chiaro/scuro automatico basato su alba/tramonto Bertinoro
+function applyTheme() {
+  const now = new Date();
+  const utcOffset = 1; // CET
+  const isDST = (now.getMonth() > 2 && now.getMonth() < 10); // Marzo-Ottobre
+  const romaHour = now.getUTCHours() + utcOffset + (isDST ? 1 : 0);
+
+  // Alba ~6:00, Tramonto ~20:00
+  if (romaHour >= 20 || romaHour < 6) {
+    // Notte
+    document.body.style.background = "#121212";
+    document.body.style.color = "#f5f5f5";
+    document.querySelectorAll(".box").forEach(box => {
+      box.style.background = "#1e1e1e";
+      box.style.color = "#f5f5f5";
+      box.style.boxShadow = "0 10px 30px rgba(255,255,255,0.05)";
+    });
+  } else {
+    // Giorno
+    document.body.style.background = "#f0f0f0";
+    document.body.style.color = "#000";
+    document.querySelectorAll(".box").forEach(box => {
+      box.style.background = "white";
+      box.style.color = "black";
+      box.style.boxShadow = "0 10px 30px rgba(0,0,0,0.15)";
+    });
+  }
 }
 
 updateCountdown();
+applyTheme();
 setInterval(updateCountdown, 1000);
+setInterval(applyTheme, 60000); // Aggiorna tema ogni minuto
 </script>
 
 </body>
