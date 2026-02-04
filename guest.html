@@ -14,7 +14,7 @@ body { font-family: 'Kaushan Script', sans-serif; margin:0; }
 a { color:#1976d2; text-decoration:none; font-family: 'Kaushan Script', sans-serif; }
 a:hover { text-decoration:underline; font-family: 'Kaushan Script', sans-serif; }
 .leaflet-control-layers-overlays label { font-family: 'Kaushan Script', sans-serif; display:flex; align-items:center; gap:4px; }
-.leaflet-control-layers-overlays img { width:20px; height:20px; }
+.leaflet-control-layers-overlays img { width:20px; height:20px; margin-bottom:4px; }
 .legend { background:white; padding:8px; border-radius:6px; line-height:1.4; font-family: 'Kaushan Script', sans-serif; }
 .legend .item { display:flex; align-items:center; margin-bottom:4px; }
 .legend .symbol { width:20px; height:20px; display:flex; align-items:center; justify-content:center; border-radius:50%; color:white; margin-right:6px; font-size:14px; border:1px solid #ccc; }
@@ -47,10 +47,9 @@ Papa.parse(csvURL, {
     header: true,
     skipEmptyLines: true,
     complete: function(results) {
-        const categories = new Set();
         const first4 = results.data.slice(0,4); // prime 4 righe sempre visibili
 
-        // legenda punti principali
+        // Legenda dei primi 4 punti
         const legend = L.control({position:'topright'});
         legend.onAdd = function(map) {
             const div = L.DomUtil.create('div','legend');
@@ -66,6 +65,7 @@ Papa.parse(csvURL, {
         };
         legend.addTo(map);
 
+        // Ciclo su tutti i punti
         results.data.forEach((p,index) => {
             const lat = parseFloat(p['Latitudine']);
             const lon = parseFloat(p['Longitudine']);
@@ -96,48 +96,39 @@ Papa.parse(csvURL, {
 
             const marker = L.marker([lat,lon], { icon: createIcon(symbol, color) }).bindPopup(popupHTML);
 
-            // Prime 4 righe sempre visibili
             if(index>=0 && index<=3){
+                // prime 4 sempre visibili
                 marker.addTo(map);
-                alwaysVisibleMarkers.push(marker); 
+                alwaysVisibleMarkers.push(marker);
             } else {
-                // Aggiungi marker al LayerGroup invece che direttamente alla mappa
+                // Aggiungi marker al LayerGroup
                 if(!categoryMarkers[category]) categoryMarkers[category] = L.layerGroup();
                 categoryMarkers[category].addLayer(marker);
             }
         });
 
-        // Aggiungi tutti i layerGroups alla mappa e al controllo layer
+        // Crea overlays e aggiungi LayerGroup al map
         const overlays = {};
-        Object.keys(categoryMarkers).forEach(cat => { 
+        Object.keys(categoryMarkers).forEach(cat => {
             categoryMarkers[cat].addTo(map); // aggiunti di default
-            overlays[cat] = categoryMarkers[cat]; 
+            overlays[cat] = categoryMarkers[cat];
         });
 
-        L.control.layers(null, overlays, {collapsed:false}).addTo(
-
-
-        // Crea control layers (checkbox) per categorie normali, spuntate di default
-        const overlays = {};
-        Object.keys(categoryMarkers).forEach(cat => { 
-            overlays[cat] = L.layerGroup(categoryMarkers[cat]); 
-        });
-
+        // Control layers con checkbox
         const layerControl = L.control.layers(null, overlays, {collapsed:false}).addTo(map);
 
-        // forza checkbox spuntate di default
+        // Forza checkbox spuntate di default
         setTimeout(()=> {
             const container = layerControl.getContainer();
             const inputs = container.querySelectorAll('input[type=checkbox]');
             inputs.forEach(inp => inp.checked = true);
         },100);
-        
-        // Aggiungi logo vicino alle checkbox (sopra controllo layer)
+
+        // Aggiungi logo sopra i checkbox
         const logoUrl = 'https://upload.wikimedia.org/wikipedia/commons/3/3f/Logo_example.png'; // sostituire con logo reale
         const container = layerControl.getContainer();
         const logoImg = document.createElement('img');
         logoImg.src = logoUrl;
-        logoImg.style.marginRight = '6px';
         container.prepend(logoImg);
     }
 });
