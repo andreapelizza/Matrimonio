@@ -127,19 +127,21 @@ L.marker([CENTRO.lat, CENTRO.lon], {
 }).addTo(map);
 
 // CSV
+const FIXED_CATS = ['Ristorante','Brindisi','Casa','Municipio'];
+
 Papa.parse(csvURL, {
   download: true,
   header: true,
   skipEmptyLines: true,
   complete: res => {
     res.data.forEach(r => {
-      const lat = parseFloat(r.Latitudine);
-      const lon = parseFloat(r.Longitudine);
+      const lat = parseFloat(r['Latitudine']?.trim());
+      const lon = parseFloat(r['Longitudine']?.trim());
       if (isNaN(lat) || isNaN(lon)) return;
 
-      const cat = r.Categoria || 'Altro';
-      let symbol = r.Simbolo?.trim();
-      const color = r.Colore || '#FF9800';
+      const cat = r['Categoria']?.trim() || 'Altro';
+      let symbol = r['Simbolo']?.trim();
+      const color = r['Colore']?.trim() || '#FF9800';
 
       // Parcheggi numerati P01, P02...
       if (cat === 'Parcheggi' && !symbol) {
@@ -157,14 +159,15 @@ Papa.parse(csvURL, {
             });
           }
         });
-        map.addLayer(categoryLayers[cat]);
+        // aggiungi subito layer fisso se è categoria fissa
+        if (FIXED_CATS.includes(cat)) map.addLayer(categoryLayers[cat]);
         categoryInfo[cat] = { symbol, color };
       }
 
       // popup
-      let popup = `<b>${r.Descrizione}</b><br>${r.Indirizzo || ''}<br>`;
-      if (cat !== 'Parcheggi' && r.Telefono) popup += `<a href="tel:${r.Telefono}">📞 Chiama</a><br>`;
-      if (r.Link) popup += `<a href="${r.Link}" target="_blank">🧭 Naviga</a>`;
+      let popup = `<b>${r['Descrizione']}</b><br>${r['Indirizzo'] || ''}<br>`;
+      if (cat !== 'Parcheggi' && r['Telefono']) popup += `<a href="tel:${r['Telefono']}">📞 Chiama</a><br>`;
+      if (r['Link']) popup += `<a href="${r['Link']}" target="_blank">🧭 Naviga</a>`;
 
       categoryLayers[cat].addLayer(
         L.marker([lat, lon], { icon: icon(symbol, color) }).bindPopup(popup)
@@ -175,8 +178,35 @@ Papa.parse(csvURL, {
   }
 });
 
-// CHECKBOX + LEGENDA
 function buildControls() {
+  const cb = document.getElementById('checkboxes');
+  const lg = document.getElementById('legend');
+
+  Object.keys(categoryLayers).forEach(cat => {
+    // LEGGENDA
+    lg.innerHTML += `
+      <div class="legend-item">
+        <div class="legend-icon" style="background:${categoryInfo[cat].color}">
+          ${categoryInfo[cat].symbol || ''}
+        </div>
+        ${cat}
+      </div>
+    `;
+
+    // CHECKBOX solo se non è categoria fissa
+    if (!FIXED_CATS.includes(cat)) {
+      cb.innerHTML += `
+        <label>
+          <input type="checkbox" checked onchange="toggleLayer('${cat}', this.checked)">
+          ${cat}
+        </label><br>
+      `;
+      // aggiungi layer inizialmente visibile
+      map.addLayer(categoryLayers[cat]);
+    }
+  });
+}
+
   const cb = document.getElementById('checkboxes');
   const lg = document.getElementById('legend');
 
