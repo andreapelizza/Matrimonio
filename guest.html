@@ -96,16 +96,26 @@ Papa.parse(csvURL, {
 
             const marker = L.marker([lat,lon], { icon: createIcon(symbol, color) }).bindPopup(popupHTML);
 
+            // Prime 4 righe sempre visibili
             if(index>=0 && index<=3){
                 marker.addTo(map);
-                alwaysVisibleMarkers.push(marker);
+                alwaysVisibleMarkers.push(marker); 
             } else {
-                if(!categoryMarkers[category]) categoryMarkers[category] = [];
-                categoryMarkers[category].push(marker);
-                marker.addTo(map);
+                // Aggiungi marker al LayerGroup invece che direttamente alla mappa
+                if(!categoryMarkers[category]) categoryMarkers[category] = L.layerGroup();
+                categoryMarkers[category].addLayer(marker);
             }
-            categories.add(category);
         });
+
+        // Aggiungi tutti i layerGroups alla mappa e al controllo layer
+        const overlays = {};
+        Object.keys(categoryMarkers).forEach(cat => { 
+            categoryMarkers[cat].addTo(map); // aggiunti di default
+            overlays[cat] = categoryMarkers[cat]; 
+        });
+
+        L.control.layers(null, overlays, {collapsed:false}).addTo(
+
 
         // Crea control layers (checkbox) per categorie normali, spuntate di default
         const overlays = {};
