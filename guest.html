@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<title>Mappa Categorie CSV</title>
+
+<!-- Leaflet -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css">
+<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+
+<!-- MarkerCluster -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster/dist/MarkerCluster.css">
+<link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster/dist/MarkerCluster.Default.css">
+<script src="https://unpkg.com/leaflet.markercluster/dist/leaflet.markercluster.js"></script>
+
+<!-- PapaParse -->
+<script src="https://unpkg.com/papaparse@5.4.1/papaparse.min.js"></script>
+
+<style>
+body { margin:0; }
+#map { height:100vh; }
+
+#controls, #legend {
+  position: fixed;
+  background: white;
+  padding: 10px;
+  border-radius: 10px;
+  box-shadow: 0 4px 10px rgba(0,0,0,.25);
+  font-size: 14px;
+  z-index: 1000;
+}
+
+#controls { top: 10px; left: 10px; }
+#legend { bottom: 10px; left: 10px; }
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  margin-bottom: 4px;
+}
+
+.legend-icon {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 6px;
+  font-size: 14px;
+}
+</style>
+</head>
+<body>
+
+<div id="controls"></div>
+<div id="legend"></div>
+<div id="map"></div>
+
+<script>
+// ================= MAP =================
+const map = L.map('map').setView([44.149, 12.133], 14);
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{
+  attribution:'© OpenStreetMap'
+}).addTo(map);
+
+// ================= DATA STRUCTURES =================
+const layers = {};        // uno per categoria
+const clusters = {};     // cluster per categoria
+const legendData = {};   // simbolo + colore per categoria
+
+// ================= ICON =================
+function createIcon(symbol, color){
+  return L.divIcon({
+    className:'',
+    html:`<div style="
+      width:30px;height:30px;
+      background:${color};
+      border-radius:50%;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      color:white;
+      font-size:16px;
+      border:2px solid white;
+    ">${symbol||''}</div>`,
+    iconSize:[30,30],
+    iconAnchor:[15,30]
+  });
+}
+
+// ================= CSV =================
+const csvURL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQBV9faZqgv88uu4_Z790474hIu-ik9XnOOQckWEWuPeMKSQ26VQrXwGCBeFn-WLRb7nbU0sd1pqkBg/pub?gid=10105076&single=true&output=csv";
+
+Papa.parse(csvURL,{
+  download:true,
+  header:true,
+  skipEmptyLines:true,
+  complete: res => {
+
+    res.data.forEach((r,i)=>{
+
+      const lat = parseFloat(r.O);
+      const lon = parseFloat(r.P);
+      if(isNaN(lat)||isNaN(lon)) return;
+
+      const categoria = (r.D || 'Altro').trim();
+      const simbolo = r.A || '';
+      const colore  = r.B || '#FF9800';
+
+      // crea layer + cluster se non esiste
+      if(!layers[categoria]){
+        layers[categoria] = L.layerGroup().addTo(map);
+        clusters[categoria] = L.markerClusterGroup();
+        layers[categoria].addLayer(clusters[categoria]);
+        legendData[categoria] = { simbolo, colore };
+      }
+
+      // ===== POPUP DINAMICO =====
+      let popup = `<b>${r.C||''}</b><br>${r.E||''}<br>`;
+
+      if(categoria.toLowerCase()==='parcheggi'){
+        popup += `
+        Posti auto: ${r.I||'-'}<br>
+        Accessibilità: ${r.Q||'-'}<br>
+        <a href="${r.F||''}" target="_blank">🧭 Naviga</a>`;
+      }
+      else if(categoria.toLowerCase()==='casa'){
+        popup += `<a href="${r.F||''}" target="_blank">🧭 Naviga</a>`;
+      }
+      else {
+        popup += `
+        <a href="tel:${r.G||''}">${r.G||''}</a><br>
+        <a href="${r.F||''}" target="_blank">🧭 Naviga</a>`;
+      }
+
+      // ===== MARKER =====
+      const marker = L.marker([lat,lon],{
+        icon:createIcon(simbolo,colore)
+      }).bindPopup(popup);
+
+      clusters[categoria].addLayer(marker);
+    });
+
+    buildControls();
+    buildLegend();
+  }
+});
+
+// ================= CONTROLS =================
+function buildControls(){
+  const c = document.getElementById('controls');
+  c.innerHTML = '<b>Livelli</b><br>';
+
+  Object.keys(layers).forEach(cat=>{
+    const id = 'chk_'+cat.replace(/\s/g,'_');
+    c.innerHTML += `
+      <label>
+        <input type="checkbox" id="${id}" checked>
+        ${cat}
+      </label><br>`;
+    
+    document.getElementById(id).addEventListener('change',e=>{
+      e.target.checked
+        ? map.addLayer(layers[cat])
+        : map.removeLayer(layers[cat]);
+    });
+  });
+}
+
+// ================= LEGEND =================
+function buildLegend(){
+  const l = document.getElementById('legend');
+  l.innerHTML = '<b>Legenda</b><br>';
+
+  Object.keys(legendData).forEach(cat=>{
+    const d = legendData[cat];
+    l.innerHTML += `
+      <div class="legend-item">
+        <div class="legend-icon" style="background:${d.colore}">
+          ${d.simbolo||''}
+        </div>
+        ${cat}
+      </div>`;
+  });
+}
+</script>
+
+</body>
+</html>
