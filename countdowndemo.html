@@ -2,47 +2,112 @@
 <html lang="it">
 <head>
 <meta charset="UTF-8">
-<title>Rotazione del Sole Demo</title>
+<title>Countdown Evento</title>
+<link href="https://fonts.googleapis.com/css2?family=Kaushan+Script&display=swap" rel="stylesheet">
 <style>
+* { box-sizing: border-box; margin:0; padding:0; }
+html, body { height:100%; background: transparent; }
+
 body {
   display: flex;
   justify-content: center;
   align-items: center;
-  height: 100vh;
-  background: linear-gradient(to top, #87ceeb, #ffffff); /* cielo azzurro */
+  font-family: 'Kaushan Script', cursive;
+  color: red; /* testo rosso fisso */
 }
 
-.day-box {
-  position: relative;
-  width: 200px;
-  height: 200px;
-  border-radius: 50%;
-  border: 2px solid rgba(0,0,0,0.1);
-  overflow: visible;
+#countdown {
+  display: flex;
+  gap: 15px;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
 }
 
-.sun {
-  position: absolute;
-  width: 30px;
-  height: 30px;
-  background: yellow;
-  border-radius: 50%;
-  top: 50%; left: 50%;
-  transform-origin: -85px center; /* distanza dal centro */
-  animation: rotateDay 10s linear infinite; /* un “giorno” in 10 secondi */
+.box {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 25px;
+  border-radius: 20px;
+  min-width: 90px;
+  color: red; /* testo rosso */
+  box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+  transition: background 1s;
 }
 
-@keyframes rotateDay {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+.number { font-size: 2.5em; }
+.label { font-size: 1em; margin-top:5px; }
+
+@media (max-width:600px){
+  .box { min-width: 70px; padding: 15px; }
+  .number { font-size: 2em; }
+  .label { font-size: 0.9em; }
 }
 </style>
 </head>
 <body>
 
-<div class="day-box">
-  <div class="sun"></div>
+<div id="countdown">
+  <div class="box" id="box-days"><div class="number" id="days">0</div><div class="label">Giorni</div></div>
+  <div class="box" id="box-hours"><div class="number" id="hours">0</div><div class="label">Ore</div></div>
+  <div class="box" id="box-minutes"><div class="number" id="minutes">0</div><div class="label">Minuti</div></div>
+  <div class="box" id="box-seconds"><div class="number" id="seconds">0</div><div class="label">Secondi</div></div>
 </div>
+
+<script>
+const targetDate = new Date("2026-06-04T16:00:00");
+
+// Aggiorna i numeri del countdown
+function updateCountdown() {
+  const now = new Date();
+  const diff = targetDate - now;
+
+  if(diff <= 0){
+    document.getElementById("countdown").innerHTML = "🎉 L'evento è iniziato!";
+    return;
+  }
+
+  const giorni = Math.floor(diff / (1000*60*60*24));
+  const ore = Math.floor((diff / (1000*60*60)) % 24);
+  const minuti = Math.floor((diff / (1000*60)) % 60);
+  const secondi = Math.floor((diff / 1000) % 60);
+
+  document.getElementById("days").textContent = giorni;
+  document.getElementById("hours").textContent = ore;
+  document.getElementById("minutes").textContent = minuti;
+  document.getElementById("seconds").textContent = secondi;
+}
+
+// Gradiente dinamico per i box
+function updateBoxColors() {
+  const now = new Date();
+  const utcOffset = 1; 
+  const isDST = (now.getMonth() > 2 && now.getMonth() < 10); 
+  const romaHour = now.getUTCHours() + utcOffset + (isDST ? 1 : 0);
+
+  let gradient = "";
+  if (romaHour >= 6 && romaHour < 8) {
+    gradient = "linear-gradient(to top, #ff4500, #ffb347)"; // alba
+  } else if (romaHour >= 8 && romaHour < 18) {
+    gradient = "linear-gradient(to top, #87ceeb, #ffffff)"; // giorno
+  } else if (romaHour >= 18 && romaHour < 20) {
+    gradient = "linear-gradient(to top, #ff7f50, #ff4500)"; // tramonto
+  } else {
+    gradient = "linear-gradient(to top, #0f2027, #2c5364)"; // notte
+  }
+
+  document.querySelectorAll(".box").forEach(box => {
+    box.style.background = gradient;
+  });
+}
+
+updateCountdown();
+updateBoxColors();
+setInterval(updateCountdown, 1000);
+setInterval(updateBoxColors, 60000); // aggiorna gradiente ogni minuto
+</script>
 
 </body>
 </html>
