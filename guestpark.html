@@ -98,7 +98,7 @@ Papa.parse(csvURL,{
 
         let categoria = p.Categoria || "Altro";
         if(categoria.toLowerCase()==="pizzeria") categoria="Pizzerie e Ristoranti";
-        if(i<4) categoria="Punti principali";
+        if(i===0) categoria="Punti principali";
 
         if(!layers[categoria]) layers[categoria]=L.layerGroup();
 
