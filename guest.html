@@ -29,7 +29,7 @@ body {
 /* pannello livelli in alto a sinistra */
 #layersPanel {
   position: absolute;
-  top: 10px;
+  top: 60px; /* spostato per non coprire pulsanti zoom */
   left: 10px;
   z-index: 1000;
   background: white;
@@ -70,21 +70,6 @@ body {
   font-size: 13px;
 }
 
-button {
-  margin-top: 6px;
-  padding: 6px 10px;
-  border: none;
-  border-radius: 6px;
-  background: #1976d2;
-  color: white;
-  font-size: 14px;
-  cursor: pointer;
-}
-
-button:hover {
-  background: #125aa0;
-}
-
 .leaflet-popup-content {
   font-size: 15px;
   line-height: 1.4;
@@ -122,7 +107,6 @@ button:hover {
 <div id="layersPanel">
   <b>Livelli</b><br>
   <div id="checkboxes"></div>
-  <button onclick="showNearestParking()">🅿️ Parcheggi più vicini</button>
 </div>
 
 <div id="legendPanel">
@@ -141,10 +125,9 @@ L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
 
 const categoryLayers = {};
 const categoryInfo = {};
-let parkingData = [];
 let parkingCounter = 1;
 
-// ICONA
+// FUNZIONE ICONA
 function icon(symbol, color) {
   return L.divIcon({
     html: `<div style="background:${color};width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:white;border:2px solid white">${symbol}</div>`,
@@ -173,9 +156,10 @@ Papa.parse(csvURL, {
       let symbol = r.Simbolo?.trim();
       const color = r.Colore || '#FF9800';
 
-      // numerazione automatica parcheggi
+      // Parcheggi numerati P01, P02...
       if (cat === 'Parcheggi' && !symbol) {
-        symbol = 'P' + parkingCounter++;
+        symbol = 'P' + String(parkingCounter).padStart(2,'0');
+        parkingCounter++;
       }
 
       // cluster per categoria
@@ -194,19 +178,6 @@ Papa.parse(csvURL, {
 
       // popup
       let popup = `<b>${r.Descrizione}</b><br>${r.Indirizzo || ''}<br>`;
-
-      if (cat === 'Parcheggi') {
-        popup += `
-          Posti auto: ${r['Posti auto'] || '-'}<br>
-          Accessibilità: ${r.Accessibilità || '-'}<br>
-          Distanza: ${r['Distanza in linea d\'aria dal Comune'] || '-'} m<br>
-          Percorso: ${r['Lunghezza Percorso dal Comune'] || '-'} m<br>
-          Dislivello: ${r.Dislivello || '-'} m<br>
-          ${r.Note ? `<em>${r.Note}</em><br>` : ''}
-        `;
-        parkingData.push({ lat, lon, markerData: r });
-      }
-
       if (cat !== 'Parcheggi' && r.Telefono) popup += `<a href="tel:${r.Telefono}">📞 Chiama</a><br>`;
       if (r.Link) popup += `<a href="${r.Link}" target="_blank">🧭 Naviga</a>`;
 
@@ -246,23 +217,6 @@ function buildControls() {
 function toggleLayer(cat, on) {
   if (on) map.addLayer(categoryLayers[cat]);
   else map.removeLayer(categoryLayers[cat]);
-}
-
-// PARCHEGGI PIÙ VICINI
-function showNearestParking() {
-  Object.values(categoryLayers).forEach(l => map.removeLayer(l));
-
-  parkingData
-    .sort((a,b) =>
-      parseFloat(a.markerData['Distanza in linea d\'aria dal Comune']) -
-      parseFloat(b.markerData['Distanza in linea d\'aria dal Comune'])
-    )
-    .slice(0,5)
-    .forEach(p => {
-      L.marker([p.lat, p.lon], { icon: icon('P', '#FF9800') })
-        .bindPopup(`<b>${p.markerData.Descrizione}</b><br>${p.markerData.Indirizzo || ''}<br><a href="${p.markerData.Link}" target="_blank">🧭 Naviga</a>`)
-        .addTo(map);
-    });
 }
 </script>
 
