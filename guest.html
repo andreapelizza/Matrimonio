@@ -39,6 +39,13 @@ function createIcon(symbol, color="#FF9800") {
     });
 }
 
+// Simboli e colori per categorie fisse
+const categorySymbols = {
+    "Pizzerie e Ristoranti": {symbol:"🍕", color:"#1e8f2e"},
+    "Parcheggi": {symbol:"P", color:"#1976d2"},
+    "Hotel": {symbol:"🛏", color:"#ff9800"}
+};
+
 const categoryMarkers = {};
 const alwaysVisibleMarkers = [];
 
@@ -47,9 +54,9 @@ Papa.parse(csvURL, {
     header: true,
     skipEmptyLines: true,
     complete: function(results) {
-        const first4 = results.data.slice(0,4); // prime 4 righe sempre visibili
+        const first4 = results.data.slice(0,4);
 
-        // Legenda dei primi 4 punti
+        // Legenda primi 4 punti
         const legend = L.control({position:'topright'});
         legend.onAdd = function(map) {
             const div = L.DomUtil.create('div','legend');
@@ -58,14 +65,12 @@ Papa.parse(csvURL, {
                 const color = p['Colore'] || "#FF9800";
                 const symbol = p['Simbolo'] || "❓";
                 const label = p['Descrizione'] || "Punto";
-                const item = `<div class="item"><div class="symbol" style="background-color:${color}">${symbol}</div>${label}</div>`;
-                div.innerHTML += item;
+                div.innerHTML += `<div class="item"><div class="symbol" style="background-color:${color}">${symbol}</div>${label}</div>`;
             });
             return div;
         };
         legend.addTo(map);
 
-        // Ciclo su tutti i punti
         results.data.forEach((p,index) => {
             const lat = parseFloat(p['Latitudine']);
             const lon = parseFloat(p['Longitudine']);
@@ -74,12 +79,19 @@ Papa.parse(csvURL, {
             let category = p['Categoria'] || 'Altro';
             if(category.toLowerCase() === 'pizzeria') category = 'Pizzerie e Ristoranti';
 
-            // simbolo speciale per parcheggi
             let symbol = p['Simbolo'] || '❓';
             let color = p['Colore'] || '#FF9800';
             if(category.toLowerCase().includes('parcheggio')) {
                 symbol = 'P';
-                color = '#2196F3'; // blu
+                color = '#1976d2';
+            }
+            if(category.toLowerCase() === "hotel") {
+                symbol = "🛏";
+                color = "#ff9800";
+            }
+            if(category.toLowerCase() === "pizzerie e ristoranti") {
+                symbol = "🍕";
+                color = "#1e8f2e";
             }
 
             let popupHTML = `<b>${p['Descrizione'] || 'Punto'}</b>`;
@@ -97,24 +109,21 @@ Papa.parse(csvURL, {
             const marker = L.marker([lat,lon], { icon: createIcon(symbol, color) }).bindPopup(popupHTML);
 
             if(index>=0 && index<=3){
-                // prime 4 sempre visibili
                 marker.addTo(map);
                 alwaysVisibleMarkers.push(marker);
             } else {
-                // Aggiungi marker al LayerGroup
                 if(!categoryMarkers[category]) categoryMarkers[category] = L.layerGroup();
                 categoryMarkers[category].addLayer(marker);
             }
         });
 
-        // Crea overlays e aggiungi LayerGroup al map
+        // LayerGroup e controllo layer
         const overlays = {};
         Object.keys(categoryMarkers).forEach(cat => {
-            categoryMarkers[cat].addTo(map); // aggiunti di default
+            categoryMarkers[cat].addTo(map);
             overlays[cat] = categoryMarkers[cat];
         });
 
-        // Control layers con checkbox
         const layerControl = L.control.layers(null, overlays, {collapsed:false}).addTo(map);
 
         // Forza checkbox spuntate di default
@@ -122,10 +131,30 @@ Papa.parse(csvURL, {
             const container = layerControl.getContainer();
             const inputs = container.querySelectorAll('input[type=checkbox]');
             inputs.forEach(inp => inp.checked = true);
+
+            // Aggiungi simbolo e colore accanto a ogni checkbox
+            Object.keys(categoryMarkers).forEach(cat => {
+                const label = [...container.querySelectorAll('label')].find(l => l.textContent.trim() === cat);
+                if(label && categorySymbols[cat]) {
+                    const sym = document.createElement('div');
+                    sym.style.backgroundColor = categorySymbols[cat].color;
+                    sym.style.color = "white";
+                    sym.style.width = "20px";
+                    sym.style.height = "20px";
+                    sym.style.borderRadius = "50%";
+                    sym.style.display = "flex";
+                    sym.style.alignItems = "center";
+                    sym.style.justifyContent = "center";
+                    sym.style.fontSize = "14px";
+                    sym.style.marginRight = "4px";
+                    sym.textContent = categorySymbols[cat].symbol;
+                    label.prepend(sym);
+                }
+            });
         },100);
 
         // Aggiungi logo sopra i checkbox
-        const logoUrl = 'https://upload.wikimedia.org/wikipedia/commons/3/3f/Logo_example.png'; // sostituire con logo reale
+        const logoUrl = 'https://upload.wikimedia.org/wikipedia/commons/3/3f/Logo_example.png';
         const container = layerControl.getContainer();
         const logoImg = document.createElement('img');
         logoImg.src = logoUrl;
