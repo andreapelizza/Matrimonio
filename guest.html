@@ -2,190 +2,180 @@
 <html lang="it">
 <head>
 <meta charset="UTF-8">
-<title>Mappa Categorie CSV</title>
+<title>Mappa Matrimonio</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<!-- Leaflet -->
+<link href="https://fonts.googleapis.com/css2?family=Kaushan+Script&display=swap" rel="stylesheet">
+
 <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css">
-<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
-
-<!-- MarkerCluster -->
 <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster/dist/MarkerCluster.css">
 <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster/dist/MarkerCluster.Default.css">
-<script src="https://unpkg.com/leaflet.markercluster/dist/leaflet.markercluster.js"></script>
 
-<!-- PapaParse -->
+<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+<script src="https://unpkg.com/leaflet.markercluster/dist/leaflet.markercluster.js"></script>
 <script src="https://unpkg.com/papaparse@5.4.1/papaparse.min.js"></script>
 
 <style>
-body { margin:0; }
-#map { height:100vh; }
-
-#controls, #legend {
-  position: fixed;
-  background: white;
-  padding: 10px;
-  border-radius: 10px;
-  box-shadow: 0 4px 10px rgba(0,0,0,.25);
-  font-size: 14px;
-  z-index: 1000;
+body {
+  font-family: 'Kaushan Script', cursive;
+  margin: 0;
 }
 
-#controls { top: 10px; left: 10px; }
-#legend { bottom: 10px; left: 10px; }
+#controls {
+  padding: 10px;
+  background: white;
+  font-size: 14px;
+}
+
+#map {
+  height: calc(100vh - 140px);
+}
 
 .legend-item {
   display: flex;
   align-items: center;
+  gap: 6px;
   margin-bottom: 4px;
 }
 
 .legend-icon {
-  width: 22px;
-  height: 22px;
+  width: 24px;
+  height: 24px;
   border-radius: 50%;
   color: white;
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-right: 6px;
+  font-size: 13px;
+}
+
+button {
+  margin-top: 8px;
+  padding: 8px 12px;
+  border: none;
+  border-radius: 6px;
+  background: #1976d2;
+  color: white;
   font-size: 14px;
 }
 </style>
 </head>
+
 <body>
 
-<div id="controls"></div>
-<div id="legend"></div>
+<div id="controls">
+  <b>Livelli</b><br>
+  <div id="checkboxes"></div>
+  <button onclick="showNearestParking()">🅿️ Parcheggi più vicini</button>
+  <hr>
+  <b>Legenda</b>
+  <div id="legend"></div>
+</div>
+
 <div id="map"></div>
 
 <script>
-// ================= MAP =================
-const map = L.map('map').setView([44.149, 12.133], 14);
-L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{
-  attribution:'© OpenStreetMap'
-}).addTo(map);
+const CENTRO = { lat: 44.14919, lon: 12.13341 };
+const csvURL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQBV9faZqgv88uu4_Z790474hIu-ik9XnOOQckWEWuPeMKSQ26VQrXwGCBeFn-WLRb7nbU0sd1pqkBg/pub?output=csv";
 
-// ================= DATA STRUCTURES =================
-const layers = {};        // uno per categoria
-const clusters = {};     // cluster per categoria
-const legendData = {};   // simbolo + colore per categoria
+const map = L.map('map').setView([CENTRO.lat, CENTRO.lon], 13);
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
 
-// ================= ICON =================
-function createIcon(symbol, color){
+const categoryLayers = {};
+const categoryInfo = {};
+let parkingData = [];
+let parkingCounter = 1;
+
+// ICONA
+function icon(symbol, color) {
   return L.divIcon({
-    className:'',
-    html:`<div style="
-      width:30px;height:30px;
-      background:${color};
-      border-radius:50%;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      color:white;
-      font-size:16px;
-      border:2px solid white;
-    ">${symbol||''}</div>`,
-    iconSize:[30,30],
-    iconAnchor:[15,30]
+    html: `<div style="background:${color};width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:white;border:2px solid white">${symbol}</div>`,
+    iconSize: [32,32],
+    iconAnchor: [16,32]
   });
 }
 
-// ================= CSV =================
-const csvURL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQBV9faZqgv88uu4_Z790474hIu-ik9XnOOQckWEWuPeMKSQ26VQrXwGCBeFn-WLRb7nbU0sd1pqkBg/pub?gid=10105076&single=true&output=csv";
+// MUNICIPIO
+L.marker([CENTRO.lat, CENTRO.lon], {
+  icon: icon('🏛️', '#8e24aa')
+}).addTo(map);
 
-Papa.parse(csvURL,{
-  download:true,
-  header:true,
-  skipEmptyLines:true,
+// CSV
+Papa.parse(csvURL, {
+  download: true,
+  header: true,
+  skipEmptyLines: true,
   complete: res => {
+    res.data.forEach(r => {
+      const lat = parseFloat(r.Latitudine);
+      const lon = parseFloat(r.Longitudine);
+      if (isNaN(lat) || isNaN(lon)) return;
 
-    res.data.forEach((r,i)=>{
+      const cat = r.Categoria || 'Altro';
+      let symbol = r.Simbolo?.trim();
+      const color = r.Colore || '#FF9800';
 
-      const lat = parseFloat(r.O);
-      const lon = parseFloat(r.P);
-      if(isNaN(lat)||isNaN(lon)) return;
-
-      const categoria = (r.D || 'Altro').trim();
-      const simbolo = r.A || '';
-      const colore  = r.B || '#FF9800';
-
-      // crea layer + cluster se non esiste
-      if(!layers[categoria]){
-        layers[categoria] = L.layerGroup().addTo(map);
-        clusters[categoria] = L.markerClusterGroup();
-        layers[categoria].addLayer(clusters[categoria]);
-        legendData[categoria] = { simbolo, colore };
+      if (cat === 'Parcheggi' && !symbol) {
+        symbol = 'P' + parkingCounter++;
       }
 
-      // ===== POPUP DINAMICO =====
-      let popup = `<b>${r.C||''}</b><br>${r.E||''}<br>`;
+      if (!categoryLayers[cat]) {
+        categoryLayers[cat] = L.markerClusterGroup({
+          iconCreateFunction: cluster => {
+            return L.divIcon({
+              html: `<div style="background:${color};color:white;border-radius:50%;width:40px;height:40px;display:flex;align-items:center;justify-content:center">${cluster.getChildCount()}</div>`,
+              iconSize: [40,40]
+            });
+          }
+        });
+        map.addLayer(categoryLayers[cat]);
+        categoryInfo[cat] = { symbol, color };
+      }
 
-      if(categoria.toLowerCase()==='parcheggi'){
+      let popup = `<b>${r.Descrizione}</b><br>${r.Indirizzo || ''}<br>`;
+
+      if (cat === 'Parcheggi') {
         popup += `
-        Posti auto: ${r.I||'-'}<br>
-        Accessibilità: ${r.Q||'-'}<br>
-        <a href="${r.F||''}" target="_blank">🧭 Naviga</a>`;
-      }
-      else if(categoria.toLowerCase()==='casa'){
-        popup += `<a href="${r.F||''}" target="_blank">🧭 Naviga</a>`;
-      }
-      else {
-        popup += `
-        <a href="tel:${r.G||''}">${r.G||''}</a><br>
-        <a href="${r.F||''}" target="_blank">🧭 Naviga</a>`;
+          Posti auto: ${r['Posti auto'] || '-'}<br>
+          Distanza: ${r['Distanza in linea d\'aria dal Comune'] || '-'} m<br>
+        `;
+        parkingData.push({ lat, lon, markerData: r });
       }
 
-      // ===== MARKER =====
-      const marker = L.marker([lat,lon],{
-        icon:createIcon(simbolo,colore)
-      }).bindPopup(popup);
+      if (r.Telefono) popup += `<a href="tel:${r.Telefono}">📞 Chiama</a><br>`;
+      if (r.Link) popup += `<a href="${r.Link}" target="_blank">🧭 Naviga</a>`;
 
-      clusters[categoria].addLayer(marker);
+      categoryLayers[cat].addLayer(
+        L.marker([lat, lon], { icon: icon(symbol, color) }).bindPopup(popup)
+      );
     });
 
     buildControls();
-    buildLegend();
   }
 });
 
-// ================= CONTROLS =================
-function buildControls(){
-  const c = document.getElementById('controls');
-  c.innerHTML = '<b>Livelli</b><br>';
+// CHECKBOX + LEGENDA
+function buildControls() {
+  const cb = document.getElementById('checkboxes');
+  const lg = document.getElementById('legend');
 
-  Object.keys(layers).forEach(cat=>{
-    const id = 'chk_'+cat.replace(/\s/g,'_');
-    c.innerHTML += `
+  Object.keys(categoryLayers).forEach(cat => {
+    cb.innerHTML += `
       <label>
-        <input type="checkbox" id="${id}" checked>
+        <input type="checkbox" checked onchange="toggleLayer('${cat}', this.checked)">
         ${cat}
-      </label><br>`;
-    
-    document.getElementById(id).addEventListener('change',e=>{
-      e.target.checked
-        ? map.addLayer(layers[cat])
-        : map.removeLayer(layers[cat]);
-    });
-  });
-}
+      </label><br>
+    `;
 
-// ================= LEGEND =================
-function buildLegend(){
-  const l = document.getElementById('legend');
-  l.innerHTML = '<b>Legenda</b><br>';
-
-  Object.keys(legendData).forEach(cat=>{
-    const d = legendData[cat];
-    l.innerHTML += `
+    lg.innerHTML += `
       <div class="legend-item">
-        <div class="legend-icon" style="background:${d.colore}">
-          ${d.simbolo||''}
+        <div class="legend-icon" style="background:${categoryInfo[cat].color}">
+          ${categoryInfo[cat].symbol || ''}
         </div>
         ${cat}
-      </div>`;
+      </div>
+    `;
   });
 }
-</script>
 
-</body>
-</html>
+function toggleLayer(cat, on)
