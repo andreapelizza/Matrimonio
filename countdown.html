@@ -2,64 +2,71 @@
 <html lang="it">
 <head>
 <meta charset="UTF-8">
-<title>Countdown Evento</title>
+<title>Countdown Evento Scenico</title>
 <link href="https://fonts.googleapis.com/css2?family=Kaushan+Script&display=swap" rel="stylesheet">
 <style>
-  * { box-sizing: border-box; margin:0; padding:0; }
-  html, body { height:100%; }
+* { box-sizing: border-box; margin:0; padding:0; }
+html, body { height:100%; background: transparent; }
 
-  body {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    font-family: 'Kaushan Script', cursive;
-    transition: background 1s;
-    color: red; /* testo rosso fisso */
-  }
+body {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-family: 'Kaushan Script', cursive;
+  color: red; /* testo rosso */
+}
 
-  #countdown {
-    display: flex;
-    gap: 15px;
-    flex-wrap: wrap;
-    justify-content: center;
-    align-items: center;
-  }
+#countdown {
+  display: flex;
+  gap: 20px;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+}
 
-  .box {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    background: rgba(255,255,255,0.1); /* semitrasparente per vedere il cielo */
-    padding: 25px;
-    border-radius: 20px;
-    min-width: 90px;
-    transition: background 1s;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-  }
+.box {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 25px;
+  border-radius: 20px;
+  min-width: 90px;
+  color: red; /* testo rosso */
+  box-shadow: 0 0 20px rgba(255,0,0,0.4);
+  transition: background 1s linear, box-shadow 1s linear;
+  animation: glow 3s ease-in-out infinite alternate;
+}
 
-  .number { font-size: 2.5em; }
-  .label { font-size: 1em; margin-top:5px; }
+@keyframes glow {
+  0% { box-shadow: 0 0 15px rgba(255,0,0,0.2); }
+  50% { box-shadow: 0 0 25px rgba(255,0,0,0.5); }
+  100% { box-shadow: 0 0 35px rgba(255,0,0,0.7); }
+}
 
-  @media (max-width:600px){
-    .box { min-width: 70px; padding: 15px; }
-    .number { font-size: 2em; }
-    .label { font-size: 0.9em; }
-  }
+.number { font-size: 2.5em; }
+.label { font-size: 1em; margin-top:5px; }
+
+@media (max-width:600px){
+  .box { min-width: 70px; padding: 15px; }
+  .number { font-size: 2em; }
+  .label { font-size: 0.9em; }
+}
 </style>
 </head>
 <body>
 
 <div id="countdown">
-  <div class="box"><div class="number" id="days">0</div><div class="label">Giorni</div></div>
-  <div class="box"><div class="number" id="hours">0</div><div class="label">Ore</div></div>
-  <div class="box"><div class="number" id="minutes">0</div><div class="label">Minuti</div></div>
-  <div class="box"><div class="number" id="seconds">0</div><div class="label">Secondi</div></div>
+  <div class="box" id="box-days"><div class="number" id="days">0</div><div class="label">Giorni</div></div>
+  <div class="box" id="box-hours"><div class="number" id="hours">0</div><div class="label">Ore</div></div>
+  <div class="box" id="box-minutes"><div class="number" id="minutes">0</div><div class="label">Minuti</div></div>
+  <div class="box" id="box-seconds"><div class="number" id="seconds">0</div><div class="label">Secondi</div></div>
 </div>
 
 <script>
 const targetDate = new Date("2026-06-04T16:00:00");
 
+// Aggiorna countdown
 function updateCountdown() {
   const now = new Date();
   const diff = targetDate - now;
@@ -80,31 +87,54 @@ function updateCountdown() {
   document.getElementById("seconds").textContent = secondi;
 }
 
-// 🌅 Funzione per gradiente alba/tramonto
-function applySkyGradient() {
+// Interpolazione colore tra due RGB
+function interpolateColor(c1, c2, t){
+  return [
+    Math.round(c1[0] + (c2[0]-c1[0])*t),
+    Math.round(c1[1] + (c2[1]-c1[1])*t),
+    Math.round(c1[2] + (c2[2]-c1[2])*t)
+  ];
+}
+
+// Aggiorna gradiente fluido
+function updateBoxColors() {
   const now = new Date();
   const utcOffset = 1; 
   const isDST = (now.getMonth() > 2 && now.getMonth() < 10);
   const romaHour = now.getUTCHours() + utcOffset + (isDST ? 1 : 0);
+  const romaMinute = now.getMinutes();
+  const timeDecimal = romaHour + romaMinute/60;
 
-  let gradient = "";
-  if (romaHour >= 6 && romaHour < 8) {
-    gradient = "linear-gradient(to top, #ff4500, #ffb347)"; // alba
-  } else if (romaHour >= 8 && romaHour < 18) {
-    gradient = "linear-gradient(to top, #87ceeb, #ffffff)"; // giorno
-  } else if (romaHour >= 18 && romaHour < 20) {
-    gradient = "linear-gradient(to top, #ff7f50, #ff4500)"; // tramonto
-  } else {
-    gradient = "linear-gradient(to top, #0f2027, #203a43, #2c5364)"; // notte
+  let topColor, bottomColor;
+
+  if(timeDecimal >= 6 && timeDecimal < 8){ // alba
+    let t = (timeDecimal - 6)/2;
+    topColor = interpolateColor([255,69,0],[255,179,71], t);
+    bottomColor = interpolateColor([255,200,150],[255,223,127], t);
+  } else if(timeDecimal >= 8 && timeDecimal < 18){ // giorno
+    let t = (timeDecimal - 8)/10;
+    topColor = interpolateColor([135,206,235],[255,255,255], t);
+    bottomColor = interpolateColor([200,230,255],[255,255,255], t);
+  } else if(timeDecimal >= 18 && timeDecimal < 20){ // tramonto
+    let t = (timeDecimal - 18)/2;
+    topColor = interpolateColor([255,127,80],[255,69,0], t);
+    bottomColor = interpolateColor([255,180,150],[255,120,50], t);
+  } else { // notte
+    let t = (timeDecimal>=20 ? (timeDecimal-20)/10 : (timeDecimal+4)/10);
+    topColor = interpolateColor([15,32,39],[44,83,100], t);
+    bottomColor = interpolateColor([30,50,60],[20,30,40], t);
   }
 
-  document.body.style.background = gradient;
+  const gradient = `linear-gradient(to top, rgb(${topColor.join(',')}), rgb(${bottomColor.join(',')}))`;
+  document.querySelectorAll(".box").forEach(box => {
+    box.style.background = gradient;
+  });
 }
 
 updateCountdown();
-applySkyGradient();
+updateBoxColors();
 setInterval(updateCountdown, 1000);
-setInterval(applySkyGradient, 60000); // aggiorna sfondo ogni minuto
+setInterval(updateBoxColors, 1000);
 </script>
 
 </body>
