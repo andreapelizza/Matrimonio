@@ -26,21 +26,8 @@ body {
   width: 100%;
 }
 
-/* pannello livelli in alto a sinistra */
-#layersPanel {
-  position: absolute;
-  top: 60px; /* spostato per non coprire pulsanti zoom */
-  left: 10px;
-  z-index: 1000;
-  background: white;
-  padding: 10px;
-  border-radius: 8px;
-  max-width: 250px;
-  font-size: 14px;
-}
-
-/* legenda in alto a destra */
-#legendPanel {
+/* pannello livelli + legenda a destra */
+#controlsPanel {
   position: absolute;
   top: 10px;
   right: 10px;
@@ -48,7 +35,7 @@ body {
   background: white;
   padding: 10px;
   border-radius: 8px;
-  max-width: 200px;
+  max-width: 250px;
   font-size: 14px;
 }
 
@@ -91,7 +78,7 @@ body {
 }
 
 @media (max-width: 600px) {
-  #layersPanel, #legendPanel {
+  #controlsPanel {
     max-width: 90%;
     font-size: 16px;
   }
@@ -104,12 +91,10 @@ body {
 
 <body>
 
-<div id="layersPanel">
+<div id="controlsPanel">
   <b>Livelli</b><br>
   <div id="checkboxes"></div>
-</div>
-
-<div id="legendPanel">
+  <hr>
   <b>Legenda</b>
   <div id="legend"></div>
 </div>
@@ -118,7 +103,7 @@ body {
 
 <script>
 const CENTRO = { lat: 44.14919, lon: 12.13341 };
-const csvURL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQBV9faZqgv88uu4_Z790474hIu-ik9XnOOQckWEWuPeMKSQ26VQrXwGCBeFn-WLRb7nbU0sd1pqkBg/pub?output=csv";
+const csvURL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQBV9faZqgv88uu4_Z790474hIu-ik9XnOOQckWEWuPeMKSQ26VQrXwGCBeFn-WLRb7nbU0sd1pqkBg/pub?gid=10105076&single=true&output=csv";
 
 const map = L.map('map').setView([CENTRO.lat, CENTRO.lon], 13);
 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
