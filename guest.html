@@ -16,75 +16,23 @@
 <script src="https://unpkg.com/papaparse@5.4.1/papaparse.min.js"></script>
 
 <style>
-body {
-  font-family: 'Kaushan Script', cursive;
-  margin: 0;
-}
-
-#map {
-  height: 100vh;
-  width: 100%;
-}
-
-/* pannello livelli + legenda a destra */
+body { font-family: 'Kaushan Script', cursive; margin: 0; }
+#map { height: 100vh; width: 100%; }
 #controlsPanel {
-  position: absolute;
-  top: 10px;
-  right: 10px;
-  z-index: 1000;
-  background: white;
-  padding: 10px;
-  border-radius: 8px;
-  max-width: 250px;
-  font-size: 14px;
+  position: absolute; top: 10px; right: 10px; z-index: 1000;
+  background: white; padding: 10px; border-radius: 8px; max-width: 250px; font-size: 14px;
 }
-
-.legend-item {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  margin-bottom: 4px;
-}
-
-.legend-icon {
-  width: 24px;
-  height: 24px;
-  border-radius: 50%;
-  color: white;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 13px;
-}
-
-.leaflet-popup-content {
-  font-size: 15px;
-  line-height: 1.4;
-}
-
+.legend-item { display: flex; align-items: center; gap: 6px; margin-bottom: 4px; }
+.legend-icon { width: 24px; height: 24px; border-radius: 50%; color: white; display: flex; align-items: center; justify-content: center; font-size: 13px; }
+.leaflet-popup-content { font-size: 15px; line-height: 1.4; }
 .leaflet-popup-content a {
-  display: inline-block;
-  margin-top: 6px;
-  padding: 6px 10px;
-  background: #1976d2;
-  color: white;
-  border-radius: 6px;
-  text-decoration: none;
-  font-size: 14px;
+  display: inline-block; margin-top: 6px; padding: 6px 10px;
+  background: #1976d2; color: white; border-radius: 6px; text-decoration: none; font-size: 14px;
 }
-
-.leaflet-popup-content a:hover {
-  background: #125aa0;
-}
-
+.leaflet-popup-content a:hover { background: #125aa0; }
 @media (max-width: 600px) {
-  #controlsPanel {
-    max-width: 90%;
-    font-size: 16px;
-  }
-  .leaflet-popup-content {
-    font-size: 16px;
-  }
+  #controlsPanel { max-width: 90%; font-size: 16px; }
+  .leaflet-popup-content { font-size: 16px; }
 }
 </style>
 </head>
@@ -112,6 +60,9 @@ const categoryLayers = {};
 const categoryInfo = {};
 let parkingCounter = 1;
 
+// Categorie fisse
+const FIXED_CATS = ['Ristorante','Brindisi','Casa','Municipio'];
+
 // FUNZIONE ICONA
 function icon(symbol, color) {
   return L.divIcon({
@@ -121,14 +72,10 @@ function icon(symbol, color) {
   });
 }
 
-// MUNICIPIO
-L.marker([CENTRO.lat, CENTRO.lon], {
-  icon: icon('🏛️', '#8e24aa')
-}).addTo(map);
+// MUNICIPIO marker manuale
+L.marker([CENTRO.lat, CENTRO.lon], { icon: icon('🏛️', '#8e24aa') }).addTo(map);
 
-// CSV
-const FIXED_CATS = ['Ristorante','Brindisi','Casa','Municipio'];
-
+// CARICAMENTO CSV
 Papa.parse(csvURL, {
   download: true,
   header: true,
@@ -143,41 +90,36 @@ Papa.parse(csvURL, {
       let symbol = r['Simbolo']?.trim();
       const color = r['Colore']?.trim() || '#FF9800';
 
-      // Parcheggi numerati P01, P02...
       if (cat === 'Parcheggi' && !symbol) {
         symbol = 'P' + String(parkingCounter).padStart(2,'0');
         parkingCounter++;
       }
 
-      // cluster per categoria
       if (!categoryLayers[cat]) {
         categoryLayers[cat] = L.markerClusterGroup({
-          iconCreateFunction: cluster => {
-            return L.divIcon({
-              html: `<div style="background:${color};color:white;border-radius:50%;width:40px;height:40px;display:flex;align-items:center;justify-content:center">${cluster.getChildCount()}</div>`,
-              iconSize: [40,40]
-            });
-          }
+          iconCreateFunction: cluster => L.divIcon({
+            html: `<div style="background:${color};color:white;border-radius:50%;width:40px;height:40px;display:flex;align-items:center;justify-content:center">${cluster.getChildCount()}</div>`,
+            iconSize: [40,40]
+          })
         });
-        // aggiungi subito layer fisso se è categoria fissa
-        if (FIXED_CATS.includes(cat)) map.addLayer(categoryLayers[cat]);
         categoryInfo[cat] = { symbol, color };
+
+        // Aggiungi subito alla mappa se categoria fissa
+        if (FIXED_CATS.includes(cat)) map.addLayer(categoryLayers[cat]);
       }
 
-      // popup
       let popup = `<b>${r['Descrizione']}</b><br>${r['Indirizzo'] || ''}<br>`;
       if (cat !== 'Parcheggi' && r['Telefono']) popup += `<a href="tel:${r['Telefono']}">📞 Chiama</a><br>`;
       if (r['Link']) popup += `<a href="${r['Link']}" target="_blank">🧭 Naviga</a>`;
 
-      categoryLayers[cat].addLayer(
-        L.marker([lat, lon], { icon: icon(symbol, color) }).bindPopup(popup)
-      );
+      categoryLayers[cat].addLayer(L.marker([lat, lon], { icon: icon(symbol, color) }).bindPopup(popup));
     });
 
     buildControls();
   }
 });
 
+// CREAZIONE LEGGENDA E CHECKBOX
 function buildControls() {
   const cb = document.getElementById('checkboxes');
   const lg = document.getElementById('legend');
@@ -193,7 +135,7 @@ function buildControls() {
       </div>
     `;
 
-    // CHECKBOX solo se non è categoria fissa
+    // checkbox solo se non è categoria fissa
     if (!FIXED_CATS.includes(cat)) {
       cb.innerHTML += `
         <label>
@@ -201,34 +143,12 @@ function buildControls() {
           ${cat}
         </label><br>
       `;
-      // aggiungi layer inizialmente visibile
       map.addLayer(categoryLayers[cat]);
     }
   });
 }
 
-  const cb = document.getElementById('checkboxes');
-  const lg = document.getElementById('legend');
-
-  Object.keys(categoryLayers).forEach(cat => {
-    cb.innerHTML += `
-      <label>
-        <input type="checkbox" checked onchange="toggleLayer('${cat}', this.checked)">
-        ${cat}
-      </label><br>
-    `;
-
-    lg.innerHTML += `
-      <div class="legend-item">
-        <div class="legend-icon" style="background:${categoryInfo[cat].color}">
-          ${categoryInfo[cat].symbol || ''}
-        </div>
-        ${cat}
-      </div>
-    `;
-  });
-}
-
+// FUNZIONE toggle layer
 function toggleLayer(cat, on) {
   if (on) map.addLayer(categoryLayers[cat]);
   else map.removeLayer(categoryLayers[cat]);
