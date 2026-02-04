@@ -86,57 +86,69 @@ Papa.parse(csvURL,{
   complete:(res)=>{
 
     res.data.forEach((p,i)=>{
-      const lat = parseFloat(p.Latitudine);
-      const lon = parseFloat(p.Longitudine);
-      if(isNaN(lat)||isNaN(lon)) return;
+        const lat = parseFloat(p.Latitudine);
+        const lon = parseFloat(p.Longitudine);
+        if(isNaN(lat)||isNaN(lon)) return;
 
-      let categoria = p.Categoria || "Altro";
-      if(categoria.toLowerCase()==="pizzeria") categoria="Pizzerie e Ristoranti";
-      if(i<4) categoria="Punti principali";
+        let categoria = p.Categoria || "Altro";
+        if(categoria.toLowerCase()==="pizzeria") categoria="Pizzerie e Ristoranti";
+        if(i<4) categoria="Punti principali";
 
-      if(!layers[categoria]) layers[categoria]=L.layerGroup();
+        if(!layers[categoria]) layers[categoria]=L.layerGroup();
 
-      const simbolo = p.Simbolo || "❓";
-      const colore  = p.Colore  || "#999";
+        const simbolo = p.Simbolo || "❓";
+        const colore  = p.Colore  || "#999";
 
-      let popup = "";
+        let popup = "";
 
-// campi da ESCLUDERE
-const exclude = [
-  "Categoria",
-  "Latitudine",
-  "Longitudine",
-  "Colore",
-  "Simbolo"
-];
+        // campi da ESCLUDERE
+        const exclude = [
+        "Categoria",
+        "Latitudine",
+        "Longitudine",
+        "Colore",
+        "Simbolo"
+        ];
 
-Object.keys(p).forEach(key => {
-  const value = p[key];
-  if (!value || exclude.includes(key)) return;
+        Object.keys(p).forEach(key => {
+        const value = p[key];
+        if (!value || exclude.includes(key)) return;
 
-  // TELEFONO
-  if (key.toLowerCase().includes("telefono")) {
-    popup += `${key}: <b><a href="tel:${value}">${value}</a></b><br>`;
-  }
+        const k = key.toLowerCase();
 
-  // LINK
-  else if (key.toLowerCase() === "link") {
-    popup += `${key}: <b><a href="${value}" target="_blank">Apri link</a></b><br>`;
-  }
+        // DESCRIZIONE → solo testo, senza "Descrizione:"
+        if (k === "descrizione") {
+            popup += `<b>${value}</b><br><br>`;
+        }
 
-  // NOTE
-  else if (key.toLowerCase() === "note") {
-    popup += `${key}: <b>${value}</b><br>`;
-  }
+        // TELEFONO
+        else if (k.includes("telefono")) {
+            popup += `Telefono: <b><a href="tel:${value}">${value}</a></b><br>`;
+        }
 
-  // TUTTO IL RESTO
-  else {
-    popup += `${key}: <b>${value}</b><br>`;
-  }
-});
+        // LINK
+        else if (k === "link") {
+            popup += `Link: <b><a href="${value}" target="_blank">Apri sito</a></b><br>`;
+        }
 
-// LINK NAVIGAZIONE
-popup += `<a href="https://www.google.com/maps/dir/?api=1&destination=${lat},${lon}" target="_blank"><b>Naviga qui</b></a>`;
+        // NOTE
+        else if (k === "note") {
+            popup += `Note: <b>${value}</b><br>`;
+        }
+
+        // TUTTO IL RESTO
+        else {
+            popup += `${key}: <b>${value}</b><br>`;
+        }
+        });
+
+        // LINK NAVIGAZIONE
+        popup += `
+        <br>
+        <a href="https://www.google.com/maps/dir/?api=1&destination=${lat},${lon}" target="_blank">
+        <b>📍 Naviga qui</b>
+        </a>
+        `;
 
 
       const m = L.marker([lat,lon],{
