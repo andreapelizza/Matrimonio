@@ -13,7 +13,8 @@ body { font-family: 'Kaushan Script', sans-serif; margin:0; }
 .marker-special div { display:flex; align-items:center; justify-content:center; color:white; border-radius:50%; width:28px; height:28px; border:2px solid white; font-size:14px; font-family: 'Kaushan Script', sans-serif; }
 a { color:#1976d2; text-decoration:none; font-family: 'Kaushan Script', sans-serif; }
 a:hover { text-decoration:underline; font-family: 'Kaushan Script', sans-serif; }
-.leaflet-control-layers-overlays label { font-family: 'Kaushan Script', sans-serif; }
+.leaflet-control-layers-overlays label { font-family: 'Kaushan Script', sans-serif; display:flex; align-items:center; gap:4px; }
+.leaflet-control-layers-overlays img { width:20px; height:20px; }
 .legend { background:white; padding:8px; border-radius:6px; line-height:1.4; font-family: 'Kaushan Script', sans-serif; }
 .legend .item { display:flex; align-items:center; margin-bottom:4px; }
 .legend .symbol { width:20px; height:20px; display:flex; align-items:center; justify-content:center; border-radius:50%; color:white; margin-right:6px; font-size:14px; border:1px solid #ccc; }
@@ -23,7 +24,7 @@ a:hover { text-decoration:underline; font-family: 'Kaushan Script', sans-serif; 
 <div id="map"></div>
 
 <script>
-const CENTRO = { lat: 44.139605, lon: 12.140695 };/*44.139605, 12.140695*/
+const CENTRO = { lat: 44.139605, lon: 12.140695 };
 const csvURL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQb906YKDfS2Y2Ly7LynAAaYSegdjv0zOKP4paY_i0oBIK8nii4h9v3htSkT-1VigcLfvv08ar4iC6Z/pub?gid=1561792900&single=true&output=csv";
 
 const map = L.map('map').setView([CENTRO.lat, CENTRO.lon], 14);
@@ -38,8 +39,8 @@ function createIcon(symbol, color="#FF9800") {
     });
 }
 
-const categoryMarkers = {}; // markers divisi per categoria
-const alwaysVisibleMarkers = []; // marker che non si possono nascondere
+const categoryMarkers = {};
+const alwaysVisibleMarkers = [];
 
 Papa.parse(csvURL, {
     download: true,
@@ -47,9 +48,9 @@ Papa.parse(csvURL, {
     skipEmptyLines: true,
     complete: function(results) {
         const categories = new Set();
-        const first4 = results.data.slice(0,4); // righe 2→5 (prime 4 da visualizzare sempre)
+        const first4 = results.data.slice(0,4); // prime 4 righe sempre visibili
 
-        // crea marker sempre visibili e legenda
+        // legenda punti principali
         const legend = L.control({position:'topright'});
         legend.onAdd = function(map) {
             const div = L.DomUtil.create('div','legend');
@@ -73,6 +74,14 @@ Papa.parse(csvURL, {
             let category = p['Categoria'] || 'Altro';
             if(category.toLowerCase() === 'pizzeria') category = 'Pizzerie e Ristoranti';
 
+            // simbolo speciale per parcheggi
+            let symbol = p['Simbolo'] || '❓';
+            let color = p['Colore'] || '#FF9800';
+            if(category.toLowerCase().includes('parcheggio')) {
+                symbol = 'P';
+                color = '#2196F3'; // blu
+            }
+
             let popupHTML = `<b>${p['Descrizione'] || 'Punto'}</b>`;
             if(p['Indirizzo']) popupHTML += `<br>${p['Indirizzo']}`;
             if(p['Telefono']) popupHTML += `<br>Tel: <a href="tel:${p['Telefono']}">${p['Telefono']}</a>`;
@@ -85,9 +94,8 @@ Papa.parse(csvURL, {
             }
             popupHTML += `<br><a href="https://www.google.com/maps/dir/?api=1&destination=${lat},${lon}" target="_blank">Naviga qui</a>`;
 
-            const marker = L.marker([lat,lon], { icon: createIcon(p['Simbolo'] || '❓', p['Colore'] || '#FF9800') }).bindPopup(popupHTML);
+            const marker = L.marker([lat,lon], { icon: createIcon(symbol, color) }).bindPopup(popupHTML);
 
-            // prime 4 righe sempre visibili /*MODIFICATO!!!*/
             if(index>=0 && index<=3){
                 marker.addTo(map);
                 alwaysVisibleMarkers.push(marker);
@@ -99,11 +107,28 @@ Papa.parse(csvURL, {
             categories.add(category);
         });
 
-        // Crea control layers (checkbox) solo per categorie normali
+        // Crea control layers (checkbox) per categorie normali, spuntate di default
         const overlays = {};
-        Object.keys(categoryMarkers).forEach(cat => { overlays[cat] = L.layerGroup(categoryMarkers[cat]); });
-        L.control.layers(null, overlays, {collapsed:false}).addTo(map);
+        Object.keys(categoryMarkers).forEach(cat => { 
+            overlays[cat] = L.layerGroup(categoryMarkers[cat]); 
+        });
 
+        const layerControl = L.control.layers(null, overlays, {collapsed:false}).addTo(map);
+
+        // forza checkbox spuntate di default
+        setTimeout(()=> {
+            const container = layerControl.getContainer();
+            const inputs = container.querySelectorAll('input[type=checkbox]');
+            inputs.forEach(inp => inp.checked = true);
+        },100);
+        
+        // Aggiungi logo vicino alle checkbox (sopra controllo layer)
+        const logoUrl = 'https://upload.wikimedia.org/wikipedia/commons/3/3f/Logo_example.png'; // sostituire con logo reale
+        const container = layerControl.getContainer();
+        const logoImg = document.createElement('img');
+        logoImg.src = logoUrl;
+        logoImg.style.marginRight = '6px';
+        container.prepend(logoImg);
     }
 });
 </script>
