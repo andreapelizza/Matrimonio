@@ -3,120 +3,142 @@
 <head>
 <meta charset="UTF-8">
 <title>Mappa Hotel e Punti</title>
+
 <link href="https://fonts.googleapis.com/css2?family=Kaushan+Script&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+<link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css">
 <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 <script src="https://unpkg.com/papaparse@5.4.1/papaparse.min.js"></script>
+
 <style>
-body { font-family: 'Kaushan Script', sans-serif; margin:0; }
-#map { height:95vh; width:95%; max-width:1200px; margin:auto; border-radius:8px; }
-.marker-special div { display:flex; align-items:center; justify-content:center; color:white; border-radius:50%; width:28px; height:28px; border:2px solid white; font-size:14px; font-family: 'Kaushan Script', sans-serif; }
-a { color:#1976d2; text-decoration:none; font-family: 'Kaushan Script', sans-serif; }
-a:hover { text-decoration:underline; font-family: 'Kaushan Script', sans-serif; }
-.leaflet-control-layers-overlays label { font-family: 'Kaushan Script', sans-serif; display:flex; align-items:center; gap:4px; }
-.leaflet-control-layers-overlays div.control-title { font-weight:bold; margin-bottom:4px; font-family:'Kaushan Script', sans-serif; }
+body { margin:0; font-family:'Kaushan Script', cursive; }
+#map { height:95vh; width:95%; max-width:1200px; margin:auto; }
+
+.marker-special div{
+  width:28px;height:28px;
+  border-radius:50%;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  color:#fff;
+  border:2px solid #fff;
+  font-size:14px;
+  font-family:'Kaushan Script', cursive;
+}
+
+.leaflet-control-layers{
+  font-family:'Kaushan Script', cursive;
+}
+
+.layer-title{
+  font-weight:bold;
+  text-align:center;
+  margin-bottom:6px;
+}
+
+.layer-icon{
+  width:20px;height:20px;
+  border-radius:50%;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  color:#fff;
+  font-size:13px;
+  margin-right:6px;
+}
 </style>
 </head>
+
 <body>
 <div id="map"></div>
+
 <script>
-const CENTRO = { lat: 44.139605, lon: 12.140695 };
+const CENTRO = { lat:44.139605, lon:12.140695 };
 const csvURL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQb906YKDfS2Y2Ly7LynAAaYSegdjv0zOKP4paY_i0oBIK8nii4h9v3htSkT-1VigcLfvv08ar4iC6Z/pub?gid=1561792900&single=true&output=csv";
 
 const map = L.map('map').setView([CENTRO.lat, CENTRO.lon], 13);
-L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '© OpenStreetMap' }).addTo(map);
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{
+  attribution:'© OpenStreetMap'
+}).addTo(map);
 
-function createIcon(symbol, color="#FF9800") {
-    return L.divIcon({
-        className: 'marker-special',
-        html: `<div style="background-color:${color}">${symbol}</div>`,
-        iconSize: [28,28],
-        iconAnchor: [14,28]
-    });
+function createIcon(symbol, color){
+  return L.divIcon({
+    className:'marker-special',
+    html:`<div style="background:${color}">${symbol}</div>`,
+    iconSize:[28,28],
+    iconAnchor:[14,28]
+  });
 }
 
-const categorySymbols = {
-    "Pizzerie e Ristoranti": {symbol:"🍕", color:"#1e8f2e"},
-    "Parcheggi": {symbol:"P", color:"#1976d2"},
-    "Hotel": {symbol:"🛏", color:"#ff9800"},
-    "Punti principali": {symbol:"⭐", color:"#d81b60"}
+// icone SOLO per le checkbox
+const checkboxIcons = {
+  "Punti principali": {symbol:"⭐", color:"#d81b60"},
+  "Hotel": {symbol:"🛏", color:"#ff9800"},
+  "Pizzerie e Ristoranti": {symbol:"🍕", color:"#1e8f2e"},
+  "Parcheggi": {symbol:"P", color:"#1976d2"}
 };
 
-const categoryMarkers = {};
+const layers = {};
 
-Papa.parse(csvURL, {
-    download: true,
-    header: true,
-    skipEmptyLines: true,
-    complete: function(results) {
-        const data = results.data;
+Papa.parse(csvURL,{
+  download:true,
+  header:true,
+  skipEmptyLines:true,
+  complete:(res)=>{
 
-        // crea markers per ciascun punto
-        data.forEach((p, index) => {
-            const lat = parseFloat(p['Latitudine']);
-            const lon = parseFloat(p['Longitudine']);
-            if(isNaN(lat) || isNaN(lon)) return;
+    res.data.forEach((p,i)=>{
+      const lat = parseFloat(p.Latitudine);
+      const lon = parseFloat(p.Longitudine);
+      if(isNaN(lat)||isNaN(lon)) return;
 
-            let category = p['Categoria'] || 'Altro';
-            if(category.toLowerCase() === 'pizzeria') category = 'Pizzerie e Ristoranti';
-            if(index < 4) category = 'Punti principali'; // primi 4
+      let categoria = p.Categoria || "Altro";
+      if(categoria.toLowerCase()==="pizzeria") categoria="Pizzerie e Ristoranti";
+      if(i<4) categoria="Punti principali";
 
-            let symbol = p['Simbolo'] || '❓';
-            let color = p['Colore'] || '#FF9800';
+      if(!layers[categoria]) layers[categoria]=L.layerGroup();
 
-            // regole simbolo/colore checkbox
-            if(category === "Punti principali") { symbol='⭐'; color='#d81b60'; }
-            else if(category.toLowerCase() === 'hotel') { symbol='🛏'; color='#ff9800'; }
-            else if(category.toLowerCase() === 'pizzerie e ristoranti') { symbol='🍕'; color='#1e8f2e'; }
-            else if(category.toLowerCase().includes('parcheggio')) { color='#1976d2'; }
+      const simbolo = p.Simbolo || "❓";
+      const colore  = p.Colore  || "#999";
 
-            let popupHTML='';
-            for(let key in p) if(p[key]) popupHTML += `<b>${key}</b>: ${p[key]}<br>`;
-            popupHTML += `<a href="https://www.google.com/maps/dir/?api=1&destination=${lat},${lon}" target="_blank">Naviga qui</a>`;
+      let popup="";
+      Object.keys(p).forEach(k=>{
+        if(p[k]) popup+=`<b>${k}</b>: ${p[k]}<br>`;
+      });
+      popup+=`<a href="https://www.google.com/maps/dir/?api=1&destination=${lat},${lon}" target="_blank">Naviga qui</a>`;
 
-            const marker = L.marker([lat, lon], {icon:createIcon(symbol,color)}).bindPopup(popupHTML);
+      const m = L.marker([lat,lon],{
+        icon:createIcon(simbolo,colore)
+      }).bindPopup(popup);
 
-            if(!categoryMarkers[category]) categoryMarkers[category] = L.layerGroup();
-            categoryMarkers[category].addLayer(marker);
-        });
+      layers[categoria].addLayer(m);
+    });
 
-        // overlay
-        const overlays = {};
-        Object.keys(categoryMarkers).forEach(cat => overlays[cat] = categoryMarkers[cat]);
+    // aggiungi tutti i layer alla mappa
+    Object.values(layers).forEach(l=>l.addTo(map));
 
-        const layerControl = L.control.layers(null, overlays, {collapsed:false}).addTo(map);
+    const control = L.control.layers(null,layers,{collapsed:false}).addTo(map);
 
-        // titolo Livelli
-        const container = layerControl.getContainer();
-        const titleDiv = document.createElement('div');
-        titleDiv.className = "control-title";
-        titleDiv.textContent = "Livelli";
-        container.prepend(titleDiv);
+    // --- SISTEMA TITOLO E ICONE ---
+    setTimeout(()=>{
+      const c = control.getContainer();
 
-        // aggiungi simboli/colori a ciascuna checkbox
-        setTimeout(()=>{
-            Object.keys(overlays).forEach(cat=>{
-                const label = [...container.querySelectorAll('label')].find(l=>l.textContent.trim()===cat);
-                if(label){
-                    let sym = document.createElement('div');
-                    let color='gray', symbol='?';
-                    if(categorySymbols[cat]) { symbol=categorySymbols[cat].symbol; color=categorySymbols[cat].color; }
-                    sym.style.backgroundColor=color;
-                    sym.style.color='white';
-                    sym.style.width='20px';
-                    sym.style.height='20px';
-                    sym.style.borderRadius='50%';
-                    sym.style.display='flex';
-                    sym.style.alignItems='center';
-                    sym.style.justifyContent='center';
-                    sym.style.fontSize='14px';
-                    sym.style.marginRight='4px';
-                    sym.textContent = symbol;
-                    label.prepend(sym);
-                }
-            });
-        },100);
-    }
+      const title=document.createElement("div");
+      title.className="layer-title";
+      title.textContent="Livelli";
+      c.prepend(title);
+
+      Object.keys(layers).forEach(cat=>{
+        const label=[...c.querySelectorAll("label")]
+          .find(l=>l.textContent.trim()===cat);
+        if(label && checkboxIcons[cat]){
+          const ic=document.createElement("span");
+          ic.className="layer-icon";
+          ic.style.background=checkboxIcons[cat].color;
+          ic.textContent=checkboxIcons[cat].symbol;
+          label.prepend(ic);
+        }
+      });
+    },100);
+  }
 });
 </script>
 </body>
