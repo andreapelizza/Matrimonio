@@ -51,19 +51,15 @@ body { font-family: 'Kaushan Script', cursive; margin: 0; }
 
 <script>
 const CENTRO = { lat: 44.14919, lon: 12.13341 };
-const csvURL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQBV9faZqgv88uu4_Z790474hIu-ik9XnOOQckWEWuPeMKSQ26VQrXwGCBeFn-WLRb7nbU0sd1pqkBg/pub?gid=10105076&single=true&output=csv";
-
 const map = L.map('map').setView([CENTRO.lat, CENTRO.lon], 13);
 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
 
+// Layer e info categorie
 const categoryLayers = {};
 const categoryInfo = {};
 let parkingCounter = 1;
 
-// Categorie fisse
-const FIXED_CATS = ['Ristorante','Brindisi','Casa','Municipio'];
-
-// FUNZIONE ICONA
+// Funzione per creare icone
 function icon(symbol, color) {
   return L.divIcon({
     html: `<div style="background:${color};width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:white;border:2px solid white">${symbol}</div>`,
@@ -72,87 +68,106 @@ function icon(symbol, color) {
   });
 }
 
-// MUNICIPIO marker manuale
-L.marker([CENTRO.lat, CENTRO.lon], { icon: icon('🏛️', '#8e24aa') }).addTo(map);
+// Funzione per aggiungere marker da CSV
+function addMarkersFromCSV(url, type) {
+  Papa.parse(url, {
+    download: true,
+    header: true,
+    skipEmptyLines: true,
+    complete: res => {
+      res.data.forEach(r => {
+        let lat, lon, cat, symbol, color, label, phone, link;
 
-// CARICAMENTO CSV
-Papa.parse(csvURL, {
-  download: true,
-  header: true,
-  skipEmptyLines: true,
-  complete: res => {
-    res.data.forEach(r => {
-      const lat = parseFloat(r['Latitudine']?.trim());
-      const lon = parseFloat(r['Longitudine']?.trim());
-      if (isNaN(lat) || isNaN(lon)) return;
+        if(type === 'parcheggi') {
+          lat = parseFloat(r['L']?.trim());
+          lon = parseFloat(r['M']?.trim());
+          cat = r['D']?.trim() || 'Parcheggi';
+          label = r['C']?.trim() || '';
+          color = r['B']?.trim() || '#FF9800';
+          symbol = label || 'P' + String(parkingCounter).padStart(2,'0');
+          parkingCounter++;
+          phone = null;
+          link = `https://www.google.com/maps/search/?api=1&query=${lat},${lon}`;
+        } else {
+          lat = parseFloat(r['H']?.trim());
+          lon = parseFloat(r['I']?.trim());
+          cat = r['D']?.trim() || 'Altro';
+          symbol = r['A']?.trim() || '';
+          color = r['B']?.trim() || '#2196F3';
+          label = r['C']?.trim() || '';
+          phone = r['G']?.trim() || '';
+          link = r['F']?.trim() || `https://www.google.com/maps/search/?api=1&query=${lat},${lon}`;
+        }
 
-      const cat = r['Categoria']?.trim() || 'Altro';
-      let symbol = r['Simbolo']?.trim();
-      const color = r['Colore']?.trim() || '#FF9800';
+        if(isNaN(lat) || isNaN(lon)) return;
 
-      if (cat === 'Parcheggi' && !symbol) {
-        symbol = 'P' + String(parkingCounter).padStart(2,'0');
-        parkingCounter++;
-      }
+        // Crea layer se non esiste
+        if(!categoryLayers[cat]) {
+          categoryLayers[cat] = L.markerClusterGroup({
+            iconCreateFunction: cluster => {
+              const info = categoryInfo[cat] || {color:'#2196F3'};
+              return L.divIcon({
+                html: `<div style="background:${info.color};color:white;border-radius:50%;width:40px;height:40px;display:flex;align-items:center;justify-content:center">${cluster.getChildCount()}</div>`,
+                iconSize: [40,40]
+              });
+            }
+          });
+          categoryInfo[cat] = { symbol, color };
+        }
 
-      if (!categoryLayers[cat]) {
-        categoryLayers[cat] = L.markerClusterGroup({
-          iconCreateFunction: cluster => L.divIcon({
-            html: `<div style="background:${color};color:white;border-radius:50%;width:40px;height:40px;display:flex;align-items:center;justify-content:center">${cluster.getChildCount()}</div>`,
-            iconSize: [40,40]
-          })
-        });
-        categoryInfo[cat] = { symbol, color };
+        let popup = `<b>${label}</b><br>`;
+        if(phone) popup += `<a href="tel:${phone}">📞 Chiama</a><br>`;
+        popup += `<a href="${link}" target="_blank">🧭 Naviga a</a>`;
 
-        // Aggiungi subito alla mappa se categoria fissa
-        if (FIXED_CATS.includes(cat)) map.addLayer(categoryLayers[cat]);
-      }
+        categoryLayers[cat].addLayer(L.marker([lat, lon], {icon: icon(symbol, color)}).bindPopup(popup));
+      });
 
-      let popup = `<b>${r['Descrizione']}</b><br>${r['Indirizzo'] || ''}<br>`;
-      if (cat !== 'Parcheggi' && r['Telefono']) popup += `<a href="tel:${r['Telefono']}">📞 Chiama</a><br>`;
-      if (r['Link']) popup += `<a href="${r['Link']}" target="_blank">🧭 Naviga</a>`;
-
-      categoryLayers[cat].addLayer(L.marker([lat, lon], { icon: icon(symbol, color) }).bindPopup(popup));
-    });
-
-    buildControls();
-  }
-});
-
-// CREAZIONE LEGGENDA E CHECKBOX
-function buildControls() {
-  const cb = document.getElementById('checkboxes');
-  const lg = document.getElementById('legend');
-
-  Object.keys(categoryLayers).forEach(cat => {
-    // LEGGENDA
-    lg.innerHTML += `
-      <div class="legend-item">
-        <div class="legend-icon" style="background:${categoryInfo[cat].color}">
-          ${categoryInfo[cat].symbol || ''}
-        </div>
-        ${cat}
-      </div>
-    `;
-
-    // checkbox solo se non è categoria fissa
-    if (!FIXED_CATS.includes(cat)) {
-      cb.innerHTML += `
-        <label>
-          <input type="checkbox" checked onchange="toggleLayer('${cat}', this.checked)">
-          ${cat}
-        </label><br>
-      `;
-      map.addLayer(categoryLayers[cat]);
+      buildControls();
     }
   });
 }
 
-// FUNZIONE toggle layer
+// Costruzione checkbox e legenda
+function buildControls() {
+  const cb = document.getElementById('checkboxes');
+  const lg = document.getElementById('legend');
+
+  cb.innerHTML = '';
+  lg.innerHTML = '';
+
+  Object.keys(categoryLayers).forEach(cat => {
+    // legenda
+    lg.innerHTML += `<div class="legend-item">
+      <div class="legend-icon" style="background:${categoryInfo[cat].color}">${categoryInfo[cat].symbol || ''}</div>
+      ${cat}
+    </div>`;
+
+    // checkbox per layer
+    cb.innerHTML += `<label>
+      <input type="checkbox" checked onchange="toggleLayer('${cat}', this.checked)">
+      ${cat}
+    </label><br>`;
+
+    // aggiungi layer alla mappa inizialmente
+    map.addLayer(categoryLayers[cat]);
+  });
+}
+
 function toggleLayer(cat, on) {
-  if (on) map.addLayer(categoryLayers[cat]);
+  if(on) map.addLayer(categoryLayers[cat]);
   else map.removeLayer(categoryLayers[cat]);
 }
+
+// CSV URLs
+const csvParcheggi = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQb906YKDfS2Y2Ly7LynAAaYSegdjv0zOKP4paY_i0oBIK8nii4h9v3htSkT-1VigcLfvv08ar4iC6Z/pub?gid=0&single=true&output=csv";
+const csvPuntiVari = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQb906YKDfS2Y2Ly7LynAAaYSegdjv0zOKP4paY_i0oBIK8nii4h9v3htSkT-1VigcLfvv08ar4iC6Z/pub?gid=1044807949&single=true&output=csv";
+const csvPuntiPrincipali = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQb906YKDfS2Y2Ly7LynAAaYSegdjv0zOKP4paY_i0oBIK8nii4h9v3htSkT-1VigcLfvv08ar4iC6Z/pub?gid=1432190131&single=true&output=csv";
+
+// Caricamento dati
+addMarkersFromCSV(csvParcheggi, 'parcheggi');
+addMarkersFromCSV(csvPuntiVari, 'vari');
+addMarkersFromCSV(csvPuntiPrincipali, 'principali');
+
 </script>
 
 </body>
