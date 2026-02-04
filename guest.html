@@ -14,7 +14,7 @@ body { font-family: 'Kaushan Script', sans-serif; margin:0; }
 a { color:#1976d2; text-decoration:none; font-family: 'Kaushan Script', sans-serif; }
 a:hover { text-decoration:underline; font-family: 'Kaushan Script', sans-serif; }
 .leaflet-control-layers-overlays label { font-family: 'Kaushan Script', sans-serif; display:flex; align-items:center; gap:4px; }
-.leaflet-control-layers-overlays img { width:20px; height:20px; margin-bottom:4px; }
+.leaflet-control-layers-overlays div.control-title { font-weight:bold; margin-bottom:4px; font-family:'Kaushan Script', sans-serif; }
 </style>
 </head>
 <body>
@@ -38,11 +38,11 @@ function createIcon(symbol, color="#FF9800") {
 const categorySymbols = {
     "Pizzerie e Ristoranti": {symbol:"🍕", color:"#1e8f2e"},
     "Parcheggi": {symbol:"P", color:"#1976d2"},
-    "Hotel": {symbol:"🛏", color:"#ff9800"}
+    "Hotel": {symbol:"🛏", color:"#ff9800"},
+    "Punti principali": {symbol:"⭐", color:"#d81b60"}
 };
 
 const categoryMarkers = {};
-const first4Markers = L.layerGroup();
 
 Papa.parse(csvURL, {
     download: true,
@@ -50,43 +50,25 @@ Papa.parse(csvURL, {
     skipEmptyLines: true,
     complete: function(results) {
         const data = results.data;
-        const first4 = data.slice(0,4);
 
-        // primi 4 marker
-        first4.forEach(p => {
+        // crea markers per ciascun punto
+        data.forEach((p, index) => {
             const lat = parseFloat(p['Latitudine']);
             const lon = parseFloat(p['Longitudine']);
             if(isNaN(lat) || isNaN(lon)) return;
 
             let category = p['Categoria'] || 'Altro';
             if(category.toLowerCase() === 'pizzeria') category = 'Pizzerie e Ristoranti';
+            if(index < 4) category = 'Punti principali'; // primi 4
 
             let symbol = p['Simbolo'] || '❓';
             let color = p['Colore'] || '#FF9800';
 
-            let popupHTML = '';
-            for(let key in p) if(p[key]) popupHTML += `<b>${key}</b>: ${p[key]}<br>`;
-            popupHTML += `<a href="https://www.google.com/maps/dir/?api=1&destination=${lat},${lon}" target="_blank">Naviga qui</a>`;
-
-            const marker = L.marker([lat, lon], {icon:createIcon(symbol,color)}).bindPopup(popupHTML);
-            marker.addTo(map);
-            first4Markers.addLayer(marker);
-        });
-
-        // altri marker
-        data.slice(4).forEach(p => {
-            const lat = parseFloat(p['Latitudine']);
-            const lon = parseFloat(p['Longitudine']);
-            if(isNaN(lat) || isNaN(lon)) return;
-
-            let category = p['Categoria'] || 'Altro';
-            if(category.toLowerCase() === 'pizzeria') category = 'Pizzerie e Ristoranti';
-
-            let symbol = p['Simbolo'] || '❓';
-            let color = p['Colore'] || '#FF9800';
-            if(category.toLowerCase().includes('parcheggio')) { symbol = p['Simbolo'] || '❓'; color = p['Colore'] || '#2196F3'; }
-            if(category.toLowerCase() === 'hotel') { symbol='🛏'; color='#ff9800'; }
-            if(category.toLowerCase() === 'pizzerie e ristoranti') { symbol='🍕'; color='#1e8f2e'; }
+            // regole simbolo/colore checkbox
+            if(category === "Punti principali") { symbol='⭐'; color='#d81b60'; }
+            else if(category.toLowerCase() === 'hotel') { symbol='🛏'; color='#ff9800'; }
+            else if(category.toLowerCase() === 'pizzerie e ristoranti') { symbol='🍕'; color='#1e8f2e'; }
+            else if(category.toLowerCase().includes('parcheggio')) { color='#1976d2'; }
 
             let popupHTML='';
             for(let key in p) if(p[key]) popupHTML += `<b>${key}</b>: ${p[key]}<br>`;
@@ -100,29 +82,25 @@ Papa.parse(csvURL, {
 
         // overlay
         const overlays = {};
-        overlays["Punti principali"] = first4Markers;
         Object.keys(categoryMarkers).forEach(cat => overlays[cat] = categoryMarkers[cat]);
 
         const layerControl = L.control.layers(null, overlays, {collapsed:false}).addTo(map);
 
-        setTimeout(()=>{
-            const container = layerControl.getContainer();
-            const inputs = container.querySelectorAll('input[type=checkbox]');
-            inputs.forEach(inp=>{
-                inp.checked = true;
-                if(inp.parentElement.textContent.trim() === "Punti principali") {
-                    inp.disabled = true; // sempre disabilitata
-                }
-            });
+        // titolo Livelli
+        const container = layerControl.getContainer();
+        const titleDiv = document.createElement('div');
+        titleDiv.className = "control-title";
+        titleDiv.textContent = "Livelli";
+        container.prepend(titleDiv);
 
-            // aggiungi simboli/colori
+        // aggiungi simboli/colori a ciascuna checkbox
+        setTimeout(()=>{
             Object.keys(overlays).forEach(cat=>{
                 const label = [...container.querySelectorAll('label')].find(l=>l.textContent.trim()===cat);
                 if(label){
                     let sym = document.createElement('div');
                     let color='gray', symbol='?';
-                    if(cat==='Punti principali'){ symbol='⭐'; color='#d81b60'; }
-                    else if(categorySymbols[cat]){ symbol=categorySymbols[cat].symbol; color=categorySymbols[cat].color; }
+                    if(categorySymbols[cat]) { symbol=categorySymbols[cat].symbol; color=categorySymbols[cat].color; }
                     sym.style.backgroundColor=color;
                     sym.style.color='white';
                     sym.style.width='20px';
@@ -138,13 +116,6 @@ Papa.parse(csvURL, {
                 }
             });
         },100);
-
-        // logo sopra checkbox
-        const logoUrl = 'https://upload.wikimedia.org/wikipedia/commons/3/3f/Logo_example.png';
-        const container = layerControl.getContainer();
-        const logoImg = document.createElement('img');
-        logoImg.src = logoUrl;
-        container.prepend(logoImg);
     }
 });
 </script>
