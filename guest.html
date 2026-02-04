@@ -47,7 +47,7 @@ Papa.parse(csvURL, {
     skipEmptyLines: true,
     complete: function(results) {
         const categories = new Set();
-        const first4 = results.data.slice(1,5); // righe 2→5 (prime 4 da visualizzare sempre)
+        const first4 = results.data.slice(0,4); // righe 2→5 (prime 4 da visualizzare sempre)
 
         // crea marker sempre visibili e legenda
         const legend = L.control({position:'topright'});
