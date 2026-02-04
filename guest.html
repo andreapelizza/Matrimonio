@@ -98,13 +98,20 @@ Papa.parse(csvURL,{
 
         let categoria;
 
-        // SOLO il primo record è Punto principale
-        if (i <4) {
-        categoria = "Punti principali";
+        let categoria;
+
+        // PRIME 4 → Punti principali
+        if (i < 4) {
+          categoria = "Punti principali";
         } 
-        // TUTTI gli altri sono Parcheggi
+        // DAL 5° IN POI → categoria dal CSV
         else {
-        categoria = "Parcheggi";
+          categoria = p.Categoria || "Altro";
+
+          // normalizzazione eventuale
+          if (categoria.toLowerCase() === "pizzeria") {
+            categoria = "Pizzerie e Ristoranti";
+          }
         }
 
         if(!layers[categoria]) layers[categoria]=L.layerGroup();
