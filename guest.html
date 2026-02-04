@@ -129,12 +129,12 @@ Papa.parse(csvURL,{
 
         // TELEFONO
         else if (k.includes("telefono")) {
-            popup += `Chiama: <b><a href="tel:${value}">📞 ${value}</a></b><br>`;
+            popup += `Chiama: 📞 <b><a href="tel:${value}">${value}</a></b><br>`;
         }
 
         // LINK
         else if (k === "link") {
-            popup += `Link: <b><a href="${value}" target="_blank">🌐 Apri sito</a></b><br>`;
+            popup += `Link: 🌐 <b><a href="${value}" target="_blank">Apri sito</a></b><br>`;
         }
 
         // NOTE
@@ -152,7 +152,7 @@ Papa.parse(csvURL,{
         popup += `
         <br>
         <a href="https://www.google.com/maps/dir/?api=1&destination=${lat},${lon}" target="_blank">
-        <b>🚗 Naviga qui</b>
+        🚗 <b>Naviga qui</b>
         </a>
         `;
 
