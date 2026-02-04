@@ -15,7 +15,6 @@ a { color:#1976d2; text-decoration:none; font-family: 'Kaushan Script', sans-ser
 a:hover { text-decoration:underline; font-family: 'Kaushan Script', sans-serif; }
 .leaflet-control-layers-overlays label { font-family: 'Kaushan Script', sans-serif; display:flex; align-items:center; gap:4px; }
 .leaflet-control-layers-overlays img { width:20px; height:20px; margin-bottom:4px; }
-.hr-separator { border-top:1px solid #aaa; margin:4px 0; }
 </style>
 </head>
 <body>
@@ -44,7 +43,6 @@ const categorySymbols = {
 
 const categoryMarkers = {};
 const first4Markers = L.layerGroup();
-const alwaysVisibleMarkers = [];
 
 Papa.parse(csvURL, {
     download: true,
@@ -54,7 +52,7 @@ Papa.parse(csvURL, {
         const data = results.data;
         const first4 = data.slice(0,4);
 
-        // aggiungi primi 4 marker in layerGroup fisso
+        // primi 4 marker
         first4.forEach(p => {
             const lat = parseFloat(p['Latitudine']);
             const lon = parseFloat(p['Longitudine']);
@@ -63,8 +61,8 @@ Papa.parse(csvURL, {
             let category = p['Categoria'] || 'Altro';
             if(category.toLowerCase() === 'pizzeria') category = 'Pizzerie e Ristoranti';
 
-            let symbol = categorySymbols[category]?.symbol || p['Simbolo'] || '❓';
-            let color = categorySymbols[category]?.color || p['Colore'] || '#FF9800';
+            let symbol = p['Simbolo'] || '❓';
+            let color = p['Colore'] || '#FF9800';
 
             let popupHTML = '';
             for(let key in p) if(p[key]) popupHTML += `<b>${key}</b>: ${p[key]}<br>`;
@@ -75,7 +73,7 @@ Papa.parse(csvURL, {
             first4Markers.addLayer(marker);
         });
 
-        // aggiungi gli altri marker per categorie
+        // altri marker
         data.slice(4).forEach(p => {
             const lat = parseFloat(p['Latitudine']);
             const lon = parseFloat(p['Longitudine']);
@@ -84,18 +82,11 @@ Papa.parse(csvURL, {
             let category = p['Categoria'] || 'Altro';
             if(category.toLowerCase() === 'pizzeria') category = 'Pizzerie e Ristoranti';
 
-            let symbol = categorySymbols[category]?.symbol || p['Simbolo'] || '❓';
-            let color = categorySymbols[category]?.color || p['Colore'] || '#FF9800';
-            if(category.toLowerCase().includes('parcheggio')) {
-                symbol = 'P';
-                color = '#1976d2';
-            }
-            if(category.toLowerCase() === 'hotel') {
-                symbol = '🛏'; color='#ff9800';
-            }
-            if(category.toLowerCase() === 'pizzerie e ristoranti') {
-                symbol='🍕'; color='#1e8f2e';
-            }
+            let symbol = p['Simbolo'] || '❓';
+            let color = p['Colore'] || '#FF9800';
+            if(category.toLowerCase().includes('parcheggio')) { symbol = p['Simbolo'] || '❓'; color = p['Colore'] || '#2196F3'; }
+            if(category.toLowerCase() === 'hotel') { symbol='🛏'; color='#ff9800'; }
+            if(category.toLowerCase() === 'pizzerie e ristoranti') { symbol='🍕'; color='#1e8f2e'; }
 
             let popupHTML='';
             for(let key in p) if(p[key]) popupHTML += `<b>${key}</b>: ${p[key]}<br>`;
@@ -107,23 +98,21 @@ Papa.parse(csvURL, {
             categoryMarkers[category].addLayer(marker);
         });
 
-        // crea oggetti overlay per L.control.layers
+        // overlay
         const overlays = {};
-
-        // primi 4 punti fissi con checkbox disabilitate
         overlays["Punti principali"] = first4Markers;
-
-        // altre categorie
         Object.keys(categoryMarkers).forEach(cat => overlays[cat] = categoryMarkers[cat]);
 
         const layerControl = L.control.layers(null, overlays, {collapsed:false}).addTo(map);
 
-        // forza checkbox spuntate e simbolo/colori
         setTimeout(()=>{
             const container = layerControl.getContainer();
             const inputs = container.querySelectorAll('input[type=checkbox]');
-            inputs.forEach(inp=>{ inp.checked = true; 
-                if(inp.parentElement.textContent.trim() === "Punti principali") inp.disabled = true;
+            inputs.forEach(inp=>{
+                inp.checked = true;
+                if(inp.parentElement.textContent.trim() === "Punti principali") {
+                    inp.disabled = true; // sempre disabilitata
+                }
             });
 
             // aggiungi simboli/colori
@@ -132,7 +121,7 @@ Papa.parse(csvURL, {
                 if(label){
                     let sym = document.createElement('div');
                     let color='gray', symbol='?';
-                    if(cat==='Punti principali'){ symbol='⭐'; color='#ff9800'; }
+                    if(cat==='Punti principali'){ symbol='⭐'; color='#d81b60'; }
                     else if(categorySymbols[cat]){ symbol=categorySymbols[cat].symbol; color=categorySymbols[cat].color; }
                     sym.style.backgroundColor=color;
                     sym.style.color='white';
@@ -150,7 +139,7 @@ Papa.parse(csvURL, {
             });
         },100);
 
-        // logo sopra i checkbox
+        // logo sopra checkbox
         const logoUrl = 'https://upload.wikimedia.org/wikipedia/commons/3/3f/Logo_example.png';
         const container = layerControl.getContainer();
         const logoImg = document.createElement('img');
