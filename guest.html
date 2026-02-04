@@ -99,11 +99,45 @@ Papa.parse(csvURL,{
       const simbolo = p.Simbolo || "❓";
       const colore  = p.Colore  || "#999";
 
-      let popup="";
-      Object.keys(p).forEach(k=>{
-        if(p[k]) popup+=`<b>${k}</b>: ${p[k]}<br>`;
-      });
-      popup+=`<a href="https://www.google.com/maps/dir/?api=1&destination=${lat},${lon}" target="_blank">Naviga qui</a>`;
+      let popup = "";
+
+// campi da ESCLUDERE
+const exclude = [
+  "Categoria",
+  "Latitudine",
+  "Longitudine",
+  "Colore",
+  "Simbolo"
+];
+
+Object.keys(p).forEach(key => {
+  const value = p[key];
+  if (!value || exclude.includes(key)) return;
+
+  // TELEFONO
+  if (key.toLowerCase().includes("telefono")) {
+    popup += `${key}: <b><a href="tel:${value}">${value}</a></b><br>`;
+  }
+
+  // LINK
+  else if (key.toLowerCase() === "link") {
+    popup += `${key}: <b><a href="${value}" target="_blank">Apri link</a></b><br>`;
+  }
+
+  // NOTE
+  else if (key.toLowerCase() === "note") {
+    popup += `${key}: <b>${value}</b><br>`;
+  }
+
+  // TUTTO IL RESTO
+  else {
+    popup += `${key}: <b>${value}</b><br>`;
+  }
+});
+
+// LINK NAVIGAZIONE
+popup += `<a href="https://www.google.com/maps/dir/?api=1&destination=${lat},${lon}" target="_blank"><b>Naviga qui</b></a>`;
+
 
       const m = L.marker([lat,lon],{
         icon:createIcon(simbolo,colore)
