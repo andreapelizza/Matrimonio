@@ -27,7 +27,7 @@ a:hover { text-decoration:underline; font-family: 'Kaushan Script', sans-serif; 
 const CENTRO = { lat: 44.139605, lon: 12.140695 };
 const csvURL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQb906YKDfS2Y2Ly7LynAAaYSegdjv0zOKP4paY_i0oBIK8nii4h9v3htSkT-1VigcLfvv08ar4iC6Z/pub?gid=1561792900&single=true&output=csv";
 
-const map = L.map('map').setView([CENTRO.lat, CENTRO.lon], 14);
+const map = L.map('map').setView([CENTRO.lat, CENTRO.lon], 13);
 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '© OpenStreetMap' }).addTo(map);
 
 function createIcon(symbol, color="#FF9800") {
