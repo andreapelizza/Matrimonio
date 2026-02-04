@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<title>Rotazione del Sole Demo</title>
+<style>
+body {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  background: linear-gradient(to top, #87ceeb, #ffffff); /* cielo azzurro */
+}
+
+.day-box {
+  position: relative;
+  width: 200px;
+  height: 200px;
+  border-radius: 50%;
+  border: 2px solid rgba(0,0,0,0.1);
+  overflow: visible;
+}
+
+.sun {
+  position: absolute;
+  width: 30px;
+  height: 30px;
+  background: yellow;
+  border-radius: 50%;
+  top: 50%; left: 50%;
+  transform-origin: -85px center; /* distanza dal centro */
+  animation: rotateDay 10s linear infinite; /* un “giorno” in 10 secondi */
+}
+
+@keyframes rotateDay {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+</style>
+</head>
+<body>
+
+<div class="day-box">
+  <div class="sun"></div>
+</div>
+
+</body>
+</html>
