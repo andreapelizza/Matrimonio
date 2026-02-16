@@ -122,6 +122,30 @@ body {
   }
 }
 
+/* 📱 PORTRAIT */
+.portrait #countdown {
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.portrait .box {
+  width: 80px;
+  height: 80px;
+}
+
+.portrait .number {
+  font-size: 2em;
+}
+
+/* 📺 LANDSCAPE */
+.landscape .box {
+  width: 120px;
+  height: 120px;
+}
+
+.landscape .number {
+  font-size: 3em;
+}
 
 /* PULSANTE PLAY */
 #play-button {
@@ -278,6 +302,22 @@ function scaleToFit() {
 window.addEventListener("resize", scaleToFit);
 scaleToFit();
 
+function checkOrientation() {
+  const container = document.querySelector(".main-container");
+
+  if (window.innerHeight > window.innerWidth) {
+    // PORTRAIT (telefono verticale)
+    container.classList.add("portrait");
+    container.classList.remove("landscape");
+  } else {
+    // LANDSCAPE (telefono orizzontale / desktop)
+    container.classList.add("landscape");
+    container.classList.remove("portrait");
+  }
+}
+
+window.addEventListener("resize", checkOrientation);
+checkOrientation();
 
 </script>
 
