@@ -85,6 +85,60 @@ body {
   width:46px !important;
   height:46px !important;
 }
+
+/* ===============================
+   ADATTAMENTO ORIENTAMENTO
+================================ */
+
+/* 📱 VERTICALE */
+@media (orientation: portrait) {
+
+  .marker-special div {
+    width:34px;
+    height:34px;
+    font-size:18px;
+  }
+
+  .leaflet-popup-content {
+    font-size:17px;
+  }
+
+  .leaflet-control-layers {
+    font-size:17px;
+  }
+
+  .leaflet-control-layers-toggle {
+    width:48px !important;
+    height:48px !important;
+  }
+
+}
+
+/* 📱 ORIZZONTALE */
+@media (orientation: landscape) {
+
+  .marker-special div {
+    width:26px;
+    height:26px;
+    font-size:14px;
+  }
+
+  .leaflet-popup-content {
+    font-size:14px;
+  }
+
+  .leaflet-control-layers {
+    font-size:14px;
+    padding:6px;
+  }
+
+  .leaflet-control-layers-toggle {
+    width:40px !important;
+    height:40px !important;
+  }
+
+}
+
 </style>
 </head>
 
