@@ -7,37 +7,34 @@
 <link href="https://fonts.googleapis.com/css2?family=Kaushan+Script&display=swap" rel="stylesheet">
 <style>
 * { box-sizing: border-box; margin:0; padding:0; }
-html, body { height:100%; background:transparent; color:red; font-family:'Kaushan Script', cursive; overflow:hidden; }
+html, body { height:100%; background:transparent; font-family:'Kaushan Script', cursive; overflow:hidden; }
 
-/* ======= PLAY BUTTON CENTRALE ======= */
+/* ======= PULSANTE PLAY CENTRALE ======= */
 #centerPlay {
   position: fixed;
   top: 50%; left: 50%;
   transform: translate(-50%, -50%);
   background: rgba(255,255,255,0.2);
   color: red;
-  font-family: 'Kaushan Script', cursive;
   font-size: 48px;
   border: 2px solid red;
   border-radius: 20px;
   padding: 20px 40px;
   cursor: pointer;
   z-index: 1000;
+  transition: all 1s ease;
 }
 
-/* ======= MUSIC TOGGLE IN ALTO DESTRA ======= */
-#musicToggle {
-  position: fixed;
-  top: 20px; right: 20px; z-index: 1000;
-  background: rgba(255,255,255,0.2);
-  color: red;
-  border: 2px solid red;
-  border-radius: 12px;
-  padding: 10px 20px;
+/* ======= PULSANTE PLAY IN ALTO DESTRA ======= */
+#centerPlay.shrink {
+  top: 20px;
+  right: 20px;
+  left: auto;
+  transform: none;
   font-size: 20px;
-  font-family: 'Kaushan Script', cursive;
-  cursor: pointer;
-  display: none; /* appare solo dopo il play centrale */
+  padding: 8px 16px;
+  border-radius: 12px;
+  background: rgba(255,255,255,0.2);
 }
 
 /* ======= CONTENITORE ======= */
@@ -51,7 +48,6 @@ html, body { height:100%; background:transparent; color:red; font-family:'Kausha
   display: flex;
   flex-direction: column;
   align-items: center;
-  /* scroll partira via JS */
 }
 
 /* ======= TITOLI ======= */
@@ -65,14 +61,12 @@ html, body { height:100%; background:transparent; color:red; font-family:'Kausha
 /* ======= TESTO + ELENCO ======= */
 #pre-countdown-text {
   text-align: center;
-  font-family: 'Kaushan Script', cursive;
   font-size: 24px;
   margin-bottom: 10px;
   color: red;
 }
 
 #pre-countdown-list {
-  font-family: 'Kaushan Script', cursive;
   font-size: 24px;
   line-height: 1.6;
   margin-bottom: 40px;
@@ -131,7 +125,6 @@ html, body { height:100%; background:transparent; color:red; font-family:'Kausha
 .number { font-size: 3em; }
 .label { font-size: 1.2em; margin-top:5px; }
 
-/* Adattamento smartphone */
 @media (max-width:600px){
   #countdown-top-title, #countdown-title { font-size: 28px; }
   #pre-countdown-list { font-size: 18px; }
@@ -143,10 +136,8 @@ html, body { height:100%; background:transparent; color:red; font-family:'Kausha
 </head>
 <body>
 
-<!-- Pulsante centrale play -->
+<!-- Pulsante centrale -->
 <div id="centerPlay">▶ Play</div>
-<!-- Pulsante play/pause in alto destra -->
-<button id="musicToggle">⏸ Pause</button>
 
 <audio id="bgMusic" loop>
   <source src="https://raw.githubusercontent.com/username/repo/main/musica.mp3" type="audio/mpeg">
@@ -180,31 +171,20 @@ html, body { height:100%; background:transparent; color:red; font-family:'Kausha
 <script>
 const music = document.getElementById("bgMusic");
 const centerPlay = document.getElementById("centerPlay");
-const musicToggle = document.getElementById("musicToggle");
 const creditsContainer = document.querySelector(".credits-container");
 
-// imposta volume 50%
+// volume 50%
 music.volume = 0.5;
 
-// Funzione centrale play
+// play centrale
 centerPlay.addEventListener("click", () => {
   music.play();
-  centerPlay.style.display = "none";       // scompare pulsante centrale
-  musicToggle.style.display = "block";     // mostra pulsante in alto destra
 
-  // aggiungi animazione scroll
+  // trasforma pulsante in piccolo in alto a destra
+  centerPlay.classList.add("shrink");
+
+  // avvia scroll del testo
   creditsContainer.style.animation = "scroll-up 20s linear forwards";
-});
-
-// Pulsante play/pause in alto destra
-musicToggle.addEventListener("click", () => {
-  if(music.paused){
-    music.play();
-    musicToggle.textContent = "⏸ Pause";
-  } else {
-    music.pause();
-    musicToggle.textContent = "▶ Play";
-  }
 });
 
 // COUNTDOWN
@@ -272,7 +252,7 @@ function updateBoxColors() {
 updateBoxColors();
 setInterval(updateBoxColors,1000);
 
-// ANIMAZIONE SCROLL KEYFRAMES VIA JS
+// SCROLL KEYFRAMES
 const styleSheet = document.styleSheets[0];
 styleSheet.insertRule("@keyframes scroll-up {0% {transform: translateY(100%);} 100% {transform: translateY(0%);}}", styleSheet.cssRules.length);
 
