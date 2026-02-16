@@ -61,7 +61,7 @@ body {
   font-family: 'Kaushan Script', cursive;
   font-size: 24px;
   margin-bottom: 10px;
-  color: #red; /* rosso */
+  color: red; /* corretto */
 }
 
 #pre-countdown-list {
@@ -97,18 +97,14 @@ body {
   color: red;
 }
 
-
-
 /* =========================
-   COUNTDOWN BOX IN QUADRATO 2x2
+   COUNTDOWN BOX ORIZZONTALE
 ========================= */
 #countdown {
   display: flex;
   flex-direction: row;  /* orizzontale */
-  grid-template-columns: repeat(2, 1fr);
-  grid-template-rows: repeat(2, 1fr);
   gap: 20px;
-  justify-items: center;
+  justify-content: center;
   align-items: center;
   margin-bottom: 60px;
 }
@@ -148,19 +144,31 @@ body {
 </head>
 <body>
 
+<!-- =========================
+     MUSICA DI SFONDO
+========================= -->
+<audio id="bgMusic" autoplay loop>
+  <source src="Are You Ready For This.mp3" type="audio/mpeg">
+  Il tuo browser non supporta l'audio.
+</audio>
+
+<button style="position:fixed; top:10px; right:10px; z-index:1000; font-size:16px; padding:5px 10px;" 
+        onclick="document.getElementById('bgMusic').play()">
+  ▶ Musica
+</button>
+
 <div class="main-container">
   <div class="credits-container">
 
     <div id="countdown-top-title">Siete pronti?</div>
 
-  <div id="pre-countdown-text">Ricordatevi di portare:</div>
-  <ol id="pre-countdown-list">
-    <li>Il Vostro sorriso migliore!</li>
-    <li>Un costume!</li>
-    <li>Tanta voglia di divertirvi!</li>
-    <li>Scarpe Rosse e comode!</li>
-  </ol>
-
+    <div id="pre-countdown-text">Ricordatevi di portare:</div>
+    <ol id="pre-countdown-list">
+      <li>Il Vostro sorriso migliore!</li>
+      <li>Un costume!</li>
+      <li>Tanta voglia di divertirvi!</li>
+      <li>Scarpe Rosse e comode!</li>
+    </ol>
 
     <div id="countdown-title">...perché mancano solo...</div>
 
@@ -173,6 +181,7 @@ body {
 
   </div>
 </div>
+
 <script>
 const targetDate = new Date("2026-06-04T16:00:00");
 
@@ -239,7 +248,7 @@ function updateBoxColors() {
   document.querySelectorAll(".box").forEach(box => box.style.background = gradient);
 }
 
-// Aggiorna tutto subito
+// Aggiorna subito
 updateCountdown();
 updateBoxColors();
 setInterval(updateCountdown,1000);
