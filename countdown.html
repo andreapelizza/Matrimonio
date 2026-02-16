@@ -2,54 +2,110 @@
 <html lang="it">
 <head>
 <meta charset="UTF-8">
-<title>Countdown Evento Centrato - Box Grandi</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Countdown Evento - Titoli di Coda</title>
+
+<!-- Google Font Kaushan Script -->
 <link href="https://fonts.googleapis.com/css2?family=Kaushan+Script&display=swap" rel="stylesheet">
+
 <style>
+/* =========================
+   STILE GENERALE
+========================= */
 * { box-sizing: border-box; margin:0; padding:0; }
-html, body { height:100%; background: transparent; }
+html, body { height:100%; overflow:hidden; background:transparent; color:red; font-family:'Kaushan Script', cursive; }
 
 body {
   display: flex;
-  flex-direction: column;
-  justify-content: flex-start; /* allinea in alto */
-  align-items: center;          /* centrato orizzontalmente */
-  font-family: 'Kaushan Script', cursive;
-  color: red;
-  padding-top: 40px;            /* distanza dal bordo superiore */
-  padding-left: 20px;
-  padding-right: 20px;
-  min-height: 100vh;
+  justify-content: center;
+  align-items: flex-end;
+  padding: 20px;
 }
 
-/* Titoli centrati */
+/* Contenitore principale che scorre */
+.credits-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  animation: scroll-up 20s linear forwards;
+}
+
+/* =========================
+   ANIMAZIONE SCROLL
+========================= */
+@keyframes scroll-up {
+  0% { transform: translateY(100%); }
+  100% { transform: translateY(0%); }
+}
+
+/* =========================
+   TITOLI
+========================= */
 #countdown-top-title, #countdown-title {
   font-family: 'Kaushan Script', cursive;
   font-size: 34px;
   text-align: center;
-  color: red;
+  margin-bottom: 20px;
 }
 
-/* Elenco numerato centrato */
+/* =========================
+   ELENCO NUMERATO
+========================= */
 #pre-countdown-list {
-  margin: 10px 0 20px 0;
   font-family: 'Kaushan Script', cursive;
-  font-size: 20px;
-  text-align: center;
+  font-size: 24px;
   line-height: 1.6;
-  color: red;
+  margin-bottom: 40px;
+  text-align: center;
+}
+
+/* Adattamento smartphone */
+@media (max-width:600px){
+  #countdown-top-title, #countdown-title { font-size: 28px; }
+  #pre-countdown-list {
+  font-family: 'Kaushan Script', cursive;
+  font-size: 24px;
+  line-height: 1.6;
+  margin-bottom: 40px;
+  text-align: center;
+  counter-reset: item;
+  list-style: none;
 }
 
 #pre-countdown-list li {
-  margin: 6px 0;
+  margin: 10px 0;
+  position: relative;
 }
 
-/* Contenitore countdown */
+/* numeri personalizzati */
+#pre-countdown-list li::before {
+  counter-increment: item;
+  content: counter(item) ". ";
+  font-weight: bold;
+}
+
+/* primi 3 punti grigio chiaro */
+#pre-countdown-list li:nth-child(-n+3) {
+  color: #ddd; /* grigio chiaro/bianco */
+}
+
+/* quarto punto rosso */
+#pre-countdown-list li:nth-child(4) {
+  color: red;
+}
+
+}
+
+/* =========================
+   COUNTDOWN BOX
+========================= */
 #countdown {
   display: flex;
   gap: 25px;
   flex-wrap: wrap;
   justify-content: center;
   align-items: center;
+  margin-bottom: 60px;
 }
 
 .box {
@@ -63,7 +119,7 @@ body {
   color: red;
   box-shadow: 0 0 20px rgba(255,0,0,0.4);
   transition: background 1s linear, box-shadow 1s linear;
-  animation: glow 3s ease-in-out infinite alternate;
+  animation: glow 3s ease-in-out alternate;
 }
 
 @keyframes glow {
@@ -75,9 +131,8 @@ body {
 .number { font-size: 3em; }
 .label { font-size: 1.2em; margin-top:5px; }
 
+/* Adattamento smartphone */
 @media (max-width:600px){
-  #countdown-top-title, #countdown-title { font-size:28px; }
-  #pre-countdown-list { font-size:16px; }
   .box { min-width: 90px; padding: 25px 30px; }
   .number { font-size: 2em; }
   .label { font-size: 1em; }
@@ -86,31 +141,66 @@ body {
 </head>
 <body>
 
-<!-- Titolo principale -->
-<div id="countdown-top-title">Siete pronti?</div>
+<div class="credits-container">
+  <div id="countdown-top-title">Siete pronti?</div>
 
-<!-- Elenco numerato centrato -->
-<ol id="pre-countdown-list">
-  <li>Il Vostro sorriso migliore</li>
-  <li>Un costume</li>
-  <li>Tanta voglia di divertirvi</li>
-  <li>Scarpe Rosse e comode!</li>
-</ol>
 
-<!-- Titolo countdown -->
-<div id="countdown-title">...perché mancano solo...<br></div>
 
-<div id="countdown">
+  <ol id="pre-countdown-list">
+    Ricordatevi di portare:
+    <li>Il Vostro sorriso migliore!</li>
+    <li>Un costume!</li>
+    <li>Tanta voglia di divertirvi!</li>
+    <li>Scarpe Rosse e comode!</li>
+  </ol>
+
+  <div id="countdown-title">...perché mancano solo...</div>
+
+  <div id="countdown">
   <div class="box" id="box-days"><div class="number" id="days">0</div><div class="label">Giorni</div></div>
   <div class="box" id="box-hours"><div class="number" id="hours">0</div><div class="label">Ore</div></div>
   <div class="box" id="box-minutes"><div class="number" id="minutes">0</div><div class="label">Minuti</div></div>
   <div class="box" id="box-seconds"><div class="number" id="seconds">0</div><div class="label">Secondi</div></div>
 </div>
 
+<style>
+#countdown {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr); /* 2 colonne */
+  grid-template-rows: repeat(2, 1fr);    /* 2 righe */
+  gap: 20px;
+  justify-items: center;
+  align-items: center;
+  margin-bottom: 60px;
+}
+
+.box {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 120px;   /* quadrato fisso */
+  height: 120px;  /* stesso valore per altezza */
+  border-radius: 25px;
+  color: red;
+  box-shadow: 0 0 20px rgba(255,0,0,0.4);
+  animation: glow 3s ease-in-out alternate;
+}
+
+@media (max-width:600px){
+  .box {
+    width: 90px;
+    height: 90px;
+  }
+}
+</style>
+
+</div>
+
 <script>
 const targetDate = new Date("2026-06-04T16:00:00");
 
-// Aggiorna countdown
+// Funzione countdown
 function updateCountdown() {
   const now = new Date();
   const diff = targetDate - now;
@@ -131,7 +221,7 @@ function updateCountdown() {
   document.getElementById("seconds").textContent = secondi;
 }
 
-// Interpolazione colore tra due RGB
+// Interpolazione colore per gradienti dei box
 function interpolateColor(c1, c2, t){
   return [
     Math.round(c1[0] + (c2[0]-c1[0])*t),
@@ -140,7 +230,7 @@ function interpolateColor(c1, c2, t){
   ];
 }
 
-// Aggiorna gradiente fluido
+// Aggiorna gradienti box in base all'ora
 function updateBoxColors() {
   const now = new Date();
   const utcOffset = 1; 
@@ -151,34 +241,33 @@ function updateBoxColors() {
 
   let topColor, bottomColor;
 
-  if(timeDecimal >= 6 && timeDecimal < 8){ // alba
+  if(timeDecimal >= 6 && timeDecimal < 8){
     let t = (timeDecimal - 6)/2;
     topColor = interpolateColor([255,69,0],[255,179,71], t);
     bottomColor = interpolateColor([255,200,150],[255,223,127], t);
-  } else if(timeDecimal >= 8 && timeDecimal < 18){ // giorno
+  } else if(timeDecimal >= 8 && timeDecimal < 18){
     let t = (timeDecimal - 8)/10;
     topColor = interpolateColor([135,206,235],[255,255,255], t);
     bottomColor = interpolateColor([200,230,255],[255,255,255], t);
-  } else if(timeDecimal >= 18 && timeDecimal < 20){ // tramonto
+  } else if(timeDecimal >= 18 && timeDecimal < 20){
     let t = (timeDecimal - 18)/2;
     topColor = interpolateColor([255,127,80],[255,69,0], t);
     bottomColor = interpolateColor([255,180,150],[255,120,50], t);
-  } else { // notte
+  } else {
     let t = (timeDecimal>=20 ? (timeDecimal-20)/10 : (timeDecimal+4)/10);
     topColor = interpolateColor([15,32,39],[44,83,100], t);
     bottomColor = interpolateColor([30,50,60],[20,30,40], t);
   }
 
   const gradient = `linear-gradient(to top, rgb(${topColor.join(',')}), rgb(${bottomColor.join(',')}))`;
-  document.querySelectorAll(".box").forEach(box => {
-    box.style.background = gradient;
-  });
+  document.querySelectorAll(".box").forEach(box => box.style.background = gradient);
 }
 
+// Aggiorna tutto subito
 updateCountdown();
 updateBoxColors();
-setInterval(updateCountdown, 1000);
-setInterval(updateBoxColors, 1000);
+setInterval(updateCountdown,1000);
+setInterval(updateBoxColors,1000);
 </script>
 
 </body>
