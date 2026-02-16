@@ -31,23 +31,23 @@ body {
   will-change: transform;
   /* parte fuori dallo schermo sotto */
   transform: translateY(120%);
-  animation: scroll-up 15s linear forwards;
+  animation: scroll-up 18s linear forwards;
   animation-play-state: paused;
 }
 
 .center-countdown {
-  position: relative;
-  top: auto;
-  left: auto;
-  transform: scale(1.15);
-  margin-top: 20vh;
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) scale(1.15);
   transition: all 1.5s ease;
 }
 
 .fade-out {
   opacity: 0;
-  transition: opacity 1.5s ease;
-  pointer-events: none;
+  transform: translateY(-30px);
+  /*transition: opacity 1.5s ease;
+  pointer-events: none;*/
 }
 
 @keyframes zoomFinal {
@@ -238,12 +238,36 @@ function updateBoxColors(){
 // PLAY BUTTON
 playBtn.addEventListener("click", () => {
 
+  // toggle musica
   if(audio.paused){
     audio.play();
     playBtn.textContent = "⏸ Pause";
   } else {
     audio.pause();
     playBtn.textContent = "🎵 Play";
+  }
+
+  // avvia lo scroll SOLO la prima volta
+  if(!credits.classList.contains("started")){
+    credits.classList.add("started");
+    credits.style.animationPlayState = "running";
+
+    // dopo lo scroll → nasconde titoli e centra countdown
+    setTimeout(() => {
+
+      document.getElementById("countdown-top-title").classList.add("fade-out");
+      document.getElementById("pre-countdown-text").classList.add("fade-out");
+      document.getElementById("pre-countdown-list").classList.add("fade-out");
+      document.getElementById("countdown-title").classList.add("fade-out");
+
+      const countdown = document.getElementById("countdown");
+
+      setTimeout(() => {
+        countdown.classList.add("center-countdown");
+      }, 700);
+
+    }, 18000);
+
   }
 
 });
