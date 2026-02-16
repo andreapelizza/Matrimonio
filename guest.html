@@ -2,6 +2,10 @@
 <html lang="it">
 <head>
 <meta charset="UTF-8">
+
+<!-- ESSENZIALE PER SMARTPHONE -->
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
 <title>Mappa Punti</title>
 
 <link href="https://fonts.googleapis.com/css2?family=Kaushan+Script&display=swap" rel="stylesheet">
@@ -10,47 +14,77 @@
 <script src="https://unpkg.com/papaparse@5.4.1/papaparse.min.js"></script>
 
 <style>
-body { margin:0; font-family:'Kaushan Script', cursive; }
-#map { height:80vh; width:95%; max-width:1200px; margin:auto; }
+body {
+  margin:0;
+  font-family:'Kaushan Script', cursive;
+  background:#f5f5f5;
+}
 
+#map {
+  height:100vh;
+  width:100%;
+}
+
+/* Marker */
 .marker-special div{
-  width:28px;height:28px;
+  width:32px;
+  height:32px;
   border-radius:50%;
   display:flex;
   align-items:center;
   justify-content:center;
   color:#fff;
   border:2px solid #fff;
-  font-size:14px;
-  font-family:'Kaushan Script', cursive;
+  font-size:16px;
 }
 
-.leaflet-control-layers{
-  font-family:'Kaushan Script', cursive;
+/* POPUP LEGGIBILI */
+.leaflet-popup-content {
+  font-size:16px;
+  line-height:1.4;
 }
 
-.layer-title{
-  font-weight:bold;
+/* MENU LIVELLI MOBILE */
+.leaflet-control-layers {
+  font-size:16px;
+  border-radius:14px;
+  padding:10px;
+}
+
+.leaflet-control-layers label {
+  display:flex;
+  align-items:center;
+  padding:8px 6px;
+}
+
+.leaflet-control-layers input {
+  transform: scale(1.6);
+  margin-right:10px;
+}
+
+.layer-title {
+  font-size:18px;
   text-align:center;
-  margin-bottom:6px;
+  margin-bottom:8px;
 }
 
 .layer-icon{
-  width:20px;height:20px;
+  width:22px;
+  height:22px;
   border-radius:50%;
   display:inline-flex;
   align-items:center;
   justify-content:center;
   color:#fff;
-  font-size:13px;
-  margin-right:6px;
+  font-size:14px;
+  margin-right:8px;
 }
 
-.leaflet-popup-content,
-.leaflet-popup-content-wrapper {
-  font-family: 'Kaushan Script', cursive;
+/* pulsante toggle più grande */
+.leaflet-control-layers-toggle {
+  width:46px !important;
+  height:46px !important;
 }
-
 </style>
 </head>
 
@@ -58,24 +92,29 @@ body { margin:0; font-family:'Kaushan Script', cursive; }
 <div id="map"></div>
 
 <script>
-const CENTRO = { lat:44.15058, lon:12.141665 }; /*44.14819, 12.139405, 44.15058, 12.141665*/
+const CENTRO = { lat:44.15058, lon:12.141665 };
+
 const csvURL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQb906YKDfS2Y2Ly7LynAAaYSegdjv0zOKP4paY_i0oBIK8nii4h9v3htSkT-1VigcLfvv08ar4iC6Z/pub?gid=1561792900&single=true&output=csv";
 
 const map = L.map('map').setView([CENTRO.lat, CENTRO.lon], 13);
+
+// zoom in basso (più comodo su mobile)
+L.control.zoom({ position:'bottomleft' }).addTo(map);
+
 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{
   attribution:'© OpenStreetMap'
 }).addTo(map);
 
-function createIcon(symbol, color){
+function createIcon(symbol,color){
   return L.divIcon({
     className:'marker-special',
     html:`<div style="background:${color}">${symbol}</div>`,
-    iconSize:[28,28],
-    iconAnchor:[14,28]
+    iconSize:[32,32],
+    iconAnchor:[16,32]
   });
 }
 
-// icone SOLO per le checkbox
+// icone per checkbox
 const checkboxIcons = {
   "Punti principali": {symbol:"⭐", color:"#d81b60"},
   "Hotel": {symbol:"🛏", color:"#ff9800"},
@@ -86,131 +125,103 @@ const checkboxIcons = {
 const layers = {};
 
 Papa.parse(csvURL,{
-  download:true,
-  header:true,
-  skipEmptyLines:true,
-  complete:(res)=>{
+ download:true,
+ header:true,
+ skipEmptyLines:true,
+ complete:(res)=>{
 
-    res.data.forEach((p,i)=>{
-        const lat = parseFloat(p.Latitudine);
-        const lon = parseFloat(p.Longitudine);
-        if(isNaN(lat)||isNaN(lon)) return;
+  res.data.forEach((p,i)=>{
+    const lat=parseFloat(p.Latitudine);
+    const lon=parseFloat(p.Longitudine);
+    if(isNaN(lat)||isNaN(lon)) return;
 
-        let categoria;
+    let categoria;
 
-        // PRIME 4 → Punti principali
-        if (i < 4) {
-          categoria = "Punti principali";
-        } 
-        // DAL 5° IN POI → categoria dal CSV
-        else {
-          categoria = p.Categoria || "Altro";
+    if(i<4){
+      categoria="Punti principali";
+    } else {
+      categoria=p.Categoria || "Altro";
+      if(categoria.toLowerCase()==="pizzeria"){
+        categoria="Pizzerie e Ristoranti";
+      }
+    }
 
-          // normalizzazione eventuale
-          if (categoria.toLowerCase() === "pizzeria") {
-            categoria = "Pizzerie e Ristoranti";
-          }
-        }
+    if(!layers[categoria]) layers[categoria]=L.layerGroup();
 
-        if(!layers[categoria]) layers[categoria]=L.layerGroup();
+    const simbolo=p.Simbolo || "❓";
+    const colore=p.Colore || "#999";
 
-        const simbolo = p.Simbolo || "❓";
-        const colore  = p.Colore  || "#999";
+    let popup="";
+    const exclude=["Categoria","Latitudine","Longitudine","Colore","Simbolo"];
 
-        let popup = "";
+    Object.keys(p).forEach(key=>{
+      const value=p[key];
+      if(!value||exclude.includes(key)) return;
 
-        // campi da ESCLUDERE
-        const exclude = [
-        "Categoria",
-        "Latitudine",
-        "Longitudine",
-        "Colore",
-        "Simbolo"
-        ];
+      const k=key.toLowerCase();
 
-        Object.keys(p).forEach(key => {
-        const value = p[key];
-        if (!value || exclude.includes(key)) return;
-
-        const k = key.toLowerCase();
-
-        // DESCRIZIONE → solo testo, senza "Descrizione:"
-        if (k === "descrizione") {
-            popup += `<b>${value}</b><br><br>`;
-        }
-
-        // TELEFONO
-        else if (k.includes("telefono")) {
-            popup += `📞 <b><a href="tel:${value}">${value}</a></b><br>`;
-        }
-
-        // LINK
-        else if (k === "link") {
-            popup += `🌐 <b><a href="${value}" target="_blank">Apri sito</a></b><br>`;
-        }
-
-        // NOTE
-        else if (k === "note") {
-            popup += `✍️ <b>${value}</b><br>`;
-        }
-
-        // TUTTO IL RESTO
-        else {
-            popup += `${key}: <b>${value}</b><br>`;
-        }
-        });
-
-        // LINK NAVIGAZIONE
-        popup += `
-        <br>
-        🚗 <a href="https://www.google.com/maps/dir/?api=1&destination=${lat},${lon}" target="_blank">
-        <b>Naviga qui</b>
-        </a>
-        `;
-
-
-      const m = L.marker([lat,lon],{
-        icon:createIcon(simbolo,colore)
-      }).bindPopup(popup);
-
-      layers[categoria].addLayer(m);
+      if(k==="descrizione"){
+        popup+=`<b>${value}</b><br><br>`;
+      }
+      else if(k.includes("telefono")){
+        popup+=`📞 <b><a href="tel:${value}">${value}</a></b><br>`;
+      }
+      else if(k==="link"){
+        popup+=`🌐 <b><a href="${value}" target="_blank">Apri sito</a></b><br>`;
+      }
+      else if(k==="note"){
+        popup+=`✍️ <b>${value}</b><br>`;
+      }
+      else{
+        popup+=`${key}: <b>${value}</b><br>`;
+      }
     });
 
-    // aggiungi tutti i layer alla mappa
-    /*Object.values(layers).forEach(l=>l.addTo(map));*/
-    // livelli visibili di default
-    if (layers["Parcheggi"]) {
-    layers["Parcheggi"].addTo(map);
-    }
+    popup+=`
+    <br>
+    🚗 <a href="https://www.google.com/maps/dir/?api=1&destination=${lat},${lon}" target="_blank">
+    <b>Naviga qui</b>
+    </a>
+    `;
 
-    if (layers["Punti principali"]) {
-    layers["Punti principali"].addTo(map);
-    }
+    const marker=L.marker([lat,lon],{
+      icon:createIcon(simbolo,colore)
+    }).bindPopup(popup);
 
-    const control = L.control.layers(null,layers,{collapsed:false}).addTo(map);
+    layers[categoria].addLayer(marker);
+  });
 
-    // --- SISTEMA TITOLO E ICONE ---
-    setTimeout(()=>{
-      const c = control.getContainer();
+  // livelli visibili di default
+  if(layers["Parcheggi"]) layers["Parcheggi"].addTo(map);
+  if(layers["Punti principali"]) layers["Punti principali"].addTo(map);
 
-      const title=document.createElement("div");
-      title.className="layer-title";
-      title.textContent="Livelli";
-      c.prepend(title);
+  // controllo livelli (compatto mobile)
+  const control=L.control.layers(null,layers,{collapsed:true}).addTo(map);
 
-      Object.keys(layers).forEach(cat=>{
-        const label=[...c.querySelectorAll("label")]
-          .find(l=>l.textContent.trim()===cat);
-        if(label && checkboxIcons[cat]){
-          const ic=document.createElement("span");
-          ic.className="layer-icon";
-          ic.style.background=checkboxIcons[cat].color;
-          ic.textContent=checkboxIcons[cat].symbol;
-          label.prepend(ic);
-        }
-      });
-    },100);
-  }
+  // titolo + icone
+  setTimeout(()=>{
+    const c=control.getContainer();
+
+    const title=document.createElement("div");
+    title.className="layer-title";
+    title.textContent="Livelli";
+    c.prepend(title);
+
+    Object.keys(layers).forEach(cat=>{
+      const label=[...c.querySelectorAll("label")]
+      .find(l=>l.textContent.trim()===cat);
+
+      if(label && checkboxIcons[cat]){
+        const ic=document.createElement("span");
+        ic.className="layer-icon";
+        ic.style.background=checkboxIcons[cat].color;
+        ic.textContent=checkboxIcons[cat].symbol;
+        label.prepend(ic);
+      }
+    });
+  },100);
+
+ }
 });
 </script>
 </body>
