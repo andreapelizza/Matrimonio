@@ -10,11 +10,18 @@
 <style>
 * { box-sizing: border-box; margin:0; padding:0; }
 html, body { height:100%; overflow-x: hidden; overflow-y: hidden; background:transparent; font-family:'Kaushan Script', cursive; color:red; }
-body { display:flex; justify-content:center; align-items:flex-start; padding:20px; min-height: 100vh;}
+
+body {
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  min-height:100vh;
+  overflow:hidden;
+}
+
 
 .main-container {
-  transform: scale(0.9);
-  transform-origin: top center;
+  transform-origin: center center;
 }
 
 .credits-container {
@@ -26,6 +33,27 @@ body { display:flex; justify-content:center; align-items:flex-start; padding:20p
   transform: translateY(120%);
   animation: scroll-up 15s linear forwards;
   animation-play-state: paused;
+}
+
+.center-countdown {
+  position: relative;
+  top: auto;
+  left: auto;
+  transform: scale(1.15);
+  margin-top: 20vh;
+  transition: all 1.5s ease;
+}
+
+.fade-out {
+  opacity: 0;
+  transition: opacity 1.5s ease;
+  pointer-events: none;
+}
+
+@keyframes zoomFinal {
+  to {
+    transform: translate(-50%, -50%) scale(1.2);
+  }
 }
 
 @keyframes scroll-up {
@@ -159,6 +187,23 @@ playBtn.addEventListener("click",()=>{
   // Avvia scroll e countdown
   credits.style.animationPlayState="running";
 
+// finale senza salti
+setTimeout(() => {
+
+  document.getElementById("countdown-top-title").classList.add("fade-out");
+  document.getElementById("pre-countdown-text").classList.add("fade-out");
+  document.getElementById("pre-countdown-list").classList.add("fade-out");
+  document.getElementById("countdown-title").classList.add("fade-out");
+
+  const countdown = document.getElementById("countdown");
+
+  setTimeout(() => {
+    countdown.classList.add("center-countdown");
+  }, 800);
+
+}, 15000);
+
+
   // MOSTRA TESTO E LISTA CON FADE-IN
   document.getElementById("pre-countdown-text").style.opacity = "1";
   document.getElementById("pre-countdown-text").style.transform = "translateY(0)";
@@ -182,6 +227,24 @@ function toggleMusic() {
 // Toggle musica SOLO dopo l'avvio
 credits.addEventListener("click", toggleMusic);
 credits.addEventListener("touchstart", toggleMusic);
+
+function scaleToFit() {
+  const container = document.querySelector(".main-container");
+
+  const baseWidth = 900;   // larghezza di riferimento layout
+  const baseHeight = 700;  // altezza di riferimento
+
+  const scaleX = window.innerWidth / baseWidth;
+  const scaleY = window.innerHeight / baseHeight;
+
+  const scale = Math.min(scaleX, scaleY);
+
+  container.style.transform = `scale(${scale})`;
+}
+
+window.addEventListener("resize", scaleToFit);
+scaleToFit();
+
 </script>
 
 </body>
