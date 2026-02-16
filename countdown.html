@@ -89,12 +89,39 @@ body {
 .number { font-size:3em; } .label { font-size:1.2em; margin-top:5px; }
 
 @media(max-width:600px){
-  #countdown-top-title,#countdown-title{ font-size:28px; }
-  #pre-countdown-list{ font-size:18px; }
-  .box{ width:90px; height:90px; }
-  .number{ font-size:2em; }
-  .label{ font-size:1em; }
+
+  .main-container{
+    width: 100%;
+    padding: 10px;
+  }
+
+  #countdown-top-title,
+  #countdown-title{
+    font-size: 24px;
+  }
+
+  #pre-countdown-list{
+    font-size: 18px;
+  }
+
+  #countdown{
+    gap: 10px;
+  }
+
+  .box{
+    width:70px;
+    height:70px;
+  }
+
+  .number{
+    font-size:1.6em;
+  }
+
+  .label{
+    font-size:0.8em;
+  }
 }
+
 
 /* PULSANTE PLAY */
 #play-button {
@@ -231,8 +258,14 @@ credits.addEventListener("touchstart", toggleMusic);
 function scaleToFit() {
   const container = document.querySelector(".main-container");
 
-  const baseWidth = 900;   // larghezza di riferimento layout
-  const baseHeight = 700;  // altezza di riferimento
+  // se schermo piccolo (telefono)
+  if (window.innerWidth < 700) {
+    container.style.transform = "scale(1)";
+    return;
+  }
+
+  const baseWidth = 900;
+  const baseHeight = 700;
 
   const scaleX = window.innerWidth / baseWidth;
   const scaleY = window.innerHeight / baseHeight;
@@ -244,6 +277,7 @@ function scaleToFit() {
 
 window.addEventListener("resize", scaleToFit);
 scaleToFit();
+
 
 </script>
 
