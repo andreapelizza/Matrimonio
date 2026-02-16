@@ -148,26 +148,36 @@ body {
      MUSICA DI SFONDO
 ========================= -->
 <!-- Player musica di sottofondo -->
-<div id="music-controls" style="text-align:center; margin-bottom:20px; font-family: 'Kaushan Script', cursive;">
-  <audio id="bgMusic" loop>
-    <source src="Are You Ready For This.mp3" type="audio/mpeg">
-    Il tuo browser non supporta l'audio.
-  </audio>
-  <button onclick="playMusic()" style="font-size:24px; padding:8px 20px; margin-right:10px; font-family: 'Kaushan Script', cursive;">▶ Play</button>
-  <button onclick="pauseMusic()" style="font-size:24px; padding:8px 20px; font-family: 'Kaushan Script', cursive;">⏸ Pause</button>
-</div>
+<!-- Pulsante Play/Pause in alto a destra -->
+<button id="musicToggle" 
+        style="position: fixed; top: 20px; right: 20px; z-index: 1000; 
+               background: rgba(255,255,255,0.2); color: red; 
+               border: 2px solid red; border-radius: 12px; 
+               padding: 10px 20px; font-size: 20px; 
+               font-family: 'Kaushan Script', cursive; cursor: pointer;">
+  ▶ Play
+</button>
+
+<audio id="bgMusic" loop>
+  <source src="Are You Ready For This.mp3" type="audio/mpeg">
+  Il tuo browser non supporta l'audio.
+</audio>
 
 <script>
 const music = document.getElementById("bgMusic");
+const toggleBtn = document.getElementById("musicToggle");
 
-function playMusic(){
-  music.play();
-}
-
-function pauseMusic(){
-  music.pause();
-}
+toggleBtn.addEventListener("click", () => {
+  if (music.paused) {
+    music.play();
+    toggleBtn.textContent = "⏸ Pause";
+  } else {
+    music.pause();
+    toggleBtn.textContent = "▶ Play";
+  }
+});
 </script>
+
 
 
 <div class="main-container">
