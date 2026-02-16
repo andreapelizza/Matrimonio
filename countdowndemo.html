@@ -4,43 +4,57 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Countdown Evento - Titoli di Coda</title>
-
-<!-- Google Font Kaushan Script -->
 <link href="https://fonts.googleapis.com/css2?family=Kaushan+Script&display=swap" rel="stylesheet">
-
 <style>
-/* =========================
-   STILE GENERALE
-========================= */
 * { box-sizing: border-box; margin:0; padding:0; }
-html, body { height:100%; overflow:hidden; background:transparent; color:red; font-family:'Kaushan Script', cursive; }
+html, body { height:100%; background:transparent; color:red; font-family:'Kaushan Script', cursive; overflow:hidden; }
 
-body {
-  display: flex;
-  justify-content: center;
-  align-items: flex-end;
-  padding: 20px;
+/* ======= PLAY BUTTON CENTRALE ======= */
+#centerPlay {
+  position: fixed;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  background: rgba(255,255,255,0.2);
+  color: red;
+  font-family: 'Kaushan Script', cursive;
+  font-size: 48px;
+  border: 2px solid red;
+  border-radius: 20px;
+  padding: 20px 40px;
+  cursor: pointer;
+  z-index: 1000;
 }
 
-/* Contenitore principale che scorre */
+/* ======= MUSIC TOGGLE IN ALTO DESTRA ======= */
+#musicToggle {
+  position: fixed;
+  top: 20px; right: 20px; z-index: 1000;
+  background: rgba(255,255,255,0.2);
+  color: red;
+  border: 2px solid red;
+  border-radius: 12px;
+  padding: 10px 20px;
+  font-size: 20px;
+  font-family: 'Kaushan Script', cursive;
+  cursor: pointer;
+  display: none; /* appare solo dopo il play centrale */
+}
+
+/* ======= CONTENITORE ======= */
+.main-container {
+  transform: scale(0.9);
+  transform-origin: top center;
+}
+
+/* ======= SCROLL ======= */
 .credits-container {
   display: flex;
   flex-direction: column;
   align-items: center;
-  animation: scroll-up 40s linear infinite;
+  /* scroll partira via JS */
 }
 
-/* =========================
-   ANIMAZIONE SCROLL
-========================= */
-@keyframes scroll-up {
-  0% { transform: translateY(100%); }
-  100% { transform: translateY(-100%); }
-}
-
-/* =========================
-   TITOLI
-========================= */
+/* ======= TITOLI ======= */
 #countdown-top-title, #countdown-title {
   font-family: 'Kaushan Script', cursive;
   font-size: 34px;
@@ -48,30 +62,48 @@ body {
   margin-bottom: 20px;
 }
 
-/* =========================
-   ELENCO NUMERATO
-========================= */
+/* ======= TESTO + ELENCO ======= */
+#pre-countdown-text {
+  text-align: center;
+  font-family: 'Kaushan Script', cursive;
+  font-size: 24px;
+  margin-bottom: 10px;
+  color: red;
+}
+
 #pre-countdown-list {
   font-family: 'Kaushan Script', cursive;
   font-size: 24px;
   line-height: 1.6;
   margin-bottom: 40px;
   text-align: center;
+  counter-reset: item;
+  list-style: none;
+  padding-left: 0;
 }
 
-/* Adattamento smartphone */
-@media (max-width:600px){
-  #countdown-top-title, #countdown-title { font-size: 28px; }
-  #pre-countdown-list { font-size: 18px; }
+#pre-countdown-list li {
+  margin: 10px 0;
+  position: relative;
 }
 
-/* =========================
-   COUNTDOWN BOX
-========================= */
+/* numeri personalizzati */
+#pre-countdown-list li::before {
+  counter-increment: item;
+  content: counter(item) ". ";
+  font-weight: bold;
+}
+
+/* primi 3 punti grigio chiaro */
+#pre-countdown-list li:nth-child(-n+3) { color: #ddd; }
+/* quarto punto rosso */
+#pre-countdown-list li:nth-child(4) { color: red; }
+
+/* ======= COUNTDOWN BOX ======= */
 #countdown {
   display: flex;
-  gap: 25px;
-  flex-wrap: wrap;
+  flex-direction: row;
+  gap: 20px;
   justify-content: center;
   align-items: center;
   margin-bottom: 60px;
@@ -82,9 +114,8 @@ body {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 40px 50px;
+  width: 120px; height: 120px;
   border-radius: 25px;
-  min-width: 120px;
   color: red;
   box-shadow: 0 0 20px rgba(255,0,0,0.4);
   transition: background 1s linear, box-shadow 1s linear;
@@ -102,7 +133,9 @@ body {
 
 /* Adattamento smartphone */
 @media (max-width:600px){
-  .box { min-width: 90px; padding: 25px 30px; }
+  #countdown-top-title, #countdown-title { font-size: 28px; }
+  #pre-countdown-list { font-size: 18px; }
+  .box { width: 90px; height: 90px; }
   .number { font-size: 2em; }
   .label { font-size: 1em; }
 }
@@ -110,30 +143,72 @@ body {
 </head>
 <body>
 
-<div class="credits-container">
-  <div id="countdown-top-title">Siete pronti?</div>
+<!-- Pulsante centrale play -->
+<div id="centerPlay">▶ Play</div>
+<!-- Pulsante play/pause in alto destra -->
+<button id="musicToggle">⏸ Pause</button>
 
-  <ol id="pre-countdown-list">
-    <li>Il Vostro sorriso migliore</li>
-    <li>Un costume</li>
-    <li>Tanta voglia di divertirvi</li>
-    <li>Scarpe Rosse e comode!</li>
-  </ol>
+<audio id="bgMusic" loop>
+  <source src="https://raw.githubusercontent.com/username/repo/main/musica.mp3" type="audio/mpeg">
+</audio>
 
-  <div id="countdown-title">...perché mancano solo...</div>
+<div class="main-container">
+  <div class="credits-container">
 
-  <div id="countdown">
-    <div class="box" id="box-days"><div class="number" id="days">0</div><div class="label">Giorni</div></div>
-    <div class="box" id="box-hours"><div class="number" id="hours">0</div><div class="label">Ore</div></div>
-    <div class="box" id="box-minutes"><div class="number" id="minutes">0</div><div class="label">Minuti</div></div>
-    <div class="box" id="box-seconds"><div class="number" id="seconds">0</div><div class="label">Secondi</div></div>
+    <div id="countdown-top-title">Siete pronti?</div>
+
+    <div id="pre-countdown-text">Ricordatevi di portare:</div>
+    <ol id="pre-countdown-list">
+      <li>Il Vostro sorriso migliore!</li>
+      <li>Un costume!</li>
+      <li>Tanta voglia di divertirvi!</li>
+      <li>Scarpe Rosse e comode!</li>
+    </ol>
+
+    <div id="countdown-title">...perché mancano solo...</div>
+
+    <div id="countdown">
+      <div class="box" id="box-days"><div class="number" id="days">0</div><div class="label">Giorni</div></div>
+      <div class="box" id="box-hours"><div class="number" id="hours">0</div><div class="label">Ore</div></div>
+      <div class="box" id="box-minutes"><div class="number" id="minutes">0</div><div class="label">Minuti</div></div>
+      <div class="box" id="box-seconds"><div class="number" id="seconds">0</div><div class="label">Secondi</div></div>
+    </div>
+
   </div>
 </div>
 
 <script>
-const targetDate = new Date("2026-06-04T16:00:00");
+const music = document.getElementById("bgMusic");
+const centerPlay = document.getElementById("centerPlay");
+const musicToggle = document.getElementById("musicToggle");
+const creditsContainer = document.querySelector(".credits-container");
 
-// Funzione countdown
+// imposta volume 50%
+music.volume = 0.5;
+
+// Funzione centrale play
+centerPlay.addEventListener("click", () => {
+  music.play();
+  centerPlay.style.display = "none";       // scompare pulsante centrale
+  musicToggle.style.display = "block";     // mostra pulsante in alto destra
+
+  // aggiungi animazione scroll
+  creditsContainer.style.animation = "scroll-up 20s linear forwards";
+});
+
+// Pulsante play/pause in alto destra
+musicToggle.addEventListener("click", () => {
+  if(music.paused){
+    music.play();
+    musicToggle.textContent = "⏸ Pause";
+  } else {
+    music.pause();
+    musicToggle.textContent = "▶ Play";
+  }
+});
+
+// COUNTDOWN
+const targetDate = new Date("2026-06-04T16:00:00");
 function updateCountdown() {
   const now = new Date();
   const diff = targetDate - now;
@@ -153,8 +228,10 @@ function updateCountdown() {
   document.getElementById("minutes").textContent = minuti;
   document.getElementById("seconds").textContent = secondi;
 }
+updateCountdown();
+setInterval(updateCountdown,1000);
 
-// Interpolazione colore per gradienti dei box
+// GRADIENTI BOX
 function interpolateColor(c1, c2, t){
   return [
     Math.round(c1[0] + (c2[0]-c1[0])*t),
@@ -162,8 +239,6 @@ function interpolateColor(c1, c2, t){
     Math.round(c1[2] + (c2[2]-c1[2])*t)
   ];
 }
-
-// Aggiorna gradienti box in base all'ora
 function updateBoxColors() {
   const now = new Date();
   const utcOffset = 1; 
@@ -173,7 +248,6 @@ function updateBoxColors() {
   const timeDecimal = romaHour + romaMinute/60;
 
   let topColor, bottomColor;
-
   if(timeDecimal >= 6 && timeDecimal < 8){
     let t = (timeDecimal - 6)/2;
     topColor = interpolateColor([255,69,0],[255,179,71], t);
@@ -195,13 +269,13 @@ function updateBoxColors() {
   const gradient = `linear-gradient(to top, rgb(${topColor.join(',')}), rgb(${bottomColor.join(',')}))`;
   document.querySelectorAll(".box").forEach(box => box.style.background = gradient);
 }
-
-// Aggiorna tutto subito
-updateCountdown();
 updateBoxColors();
-setInterval(updateCountdown,1000);
 setInterval(updateBoxColors,1000);
-</script>
 
+// ANIMAZIONE SCROLL KEYFRAMES VIA JS
+const styleSheet = document.styleSheets[0];
+styleSheet.insertRule("@keyframes scroll-up {0% {transform: translateY(100%);} 100% {transform: translateY(0%);}}", styleSheet.cssRules.length);
+
+</script>
 </body>
 </html>
