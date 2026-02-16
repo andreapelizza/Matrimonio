@@ -9,7 +9,7 @@
 
 <style>
 * { box-sizing: border-box; margin:0; padding:0; }
-html, body { height:100%; overflow:hidden; background:transparent; font-family:'Kaushan Script', cursive; color:red; }
+html, body { height:100%; overflow-x:hidden; background:transparent; font-family:'Kaushan Script', cursive; color:red; }
 body { display:flex; justify-content:center; align-items:flex-start; padding:20px; }
 
 .main-container {
@@ -21,14 +21,15 @@ body { display:flex; justify-content:center; align-items:flex-start; padding:20p
   display:flex;
   flex-direction:column;
   align-items:center;
+  will-change: transform;
   /* parte fuori dallo schermo sotto */
-  transform: translateY(100vh);
+  transform: translateY(120vh);
   animation: scroll-up 15s linear forwards;
   animation-play-state: paused;
 }
 
 @keyframes scroll-up {
-  0% { transform: translateY(100vh); }
+  0% { transform: translateY(120%); }
   100% { transform: translateY(0); }
 }
 
