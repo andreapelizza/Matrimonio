@@ -10,12 +10,37 @@ html, body { height:100%; background: transparent; }
 
 body {
   display: flex;
+  flex-direction: column;
   justify-content: center;
   align-items: center;
   font-family: 'Kaushan Script', cursive;
-  color: red; /* testo rosso */
+  color: red;
+  padding: 20px;
 }
 
+/* Titoli centrati */
+#countdown-top-title, #countdown-title {
+  font-family: 'Kaushan Script', cursive;
+  font-size: 34px;
+  text-align: center;
+  color: red;
+}
+
+/* Elenco numerato centrato */
+#pre-countdown-list {
+  margin: 10px 0 20px 0;
+  font-family: 'Kaushan Script', cursive;
+  font-size: 20px;
+  text-align: center;
+  line-height: 1.6;
+  color: red;
+}
+
+#pre-countdown-list li {
+  margin: 6px 0;
+}
+
+/* Contenitore countdown */
 #countdown {
   display: flex;
   gap: 25px;
@@ -29,7 +54,7 @@ body {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 40px 50px; /* box più grandi */
+  padding: 40px 50px;
   border-radius: 25px;
   min-width: 120px;
   color: red;
@@ -48,6 +73,8 @@ body {
 .label { font-size: 1.2em; margin-top:5px; }
 
 @media (max-width:600px){
+  #countdown-top-title, #countdown-title { font-size:28px; }
+  #pre-countdown-list { font-size:16px; }
   .box { min-width: 90px; padding: 25px 30px; }
   .number { font-size: 2em; }
   .label { font-size: 1em; }
@@ -55,6 +82,20 @@ body {
 </style>
 </head>
 <body>
+
+<!-- Titolo principale -->
+<div id="countdown-top-title">Siete pronti?</div>
+
+<!-- Elenco numerato centrato -->
+<ol id="pre-countdown-list">
+  <li>Il Vostro sorriso migliore</li>
+  <li>Un costume</li>
+  <li>Tanta voglia di divertirvi</li>
+  <li>Scarpe Rosse e comode!</li>
+</ol>
+
+<!-- Titolo countdown -->
+<div id="countdown-title">...perché mancano solo...</div>
 
 <div id="countdown">
   <div class="box" id="box-days"><div class="number" id="days">0</div><div class="label">Giorni</div></div>
