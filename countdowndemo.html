@@ -2,26 +2,79 @@
 <html lang="it">
 <head>
 <meta charset="UTF-8">
-<title>Countdown Evento</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Countdown Evento - Titoli di Coda</title>
+
+<!-- Google Font Kaushan Script -->
 <link href="https://fonts.googleapis.com/css2?family=Kaushan+Script&display=swap" rel="stylesheet">
+
 <style>
+/* =========================
+   STILE GENERALE
+========================= */
 * { box-sizing: border-box; margin:0; padding:0; }
-html, body { height:100%; background: transparent; }
+html, body { height:100%; overflow:hidden; background:black; color:red; font-family:'Kaushan Script', cursive; }
 
 body {
   display: flex;
   justify-content: center;
-  align-items: center;
-  font-family: 'Kaushan Script', cursive;
-  color: red; /* testo rosso */
+  align-items: flex-end; /* parte dal basso */
+  padding: 20px;
 }
 
+/* Contenitore principale che scorre */
+.credits-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  animation: scroll-up 40s linear infinite;
+}
+
+/* =========================
+   ANIMAZIONE SCROLL
+========================= */
+@keyframes scroll-up {
+  0% { transform: translateY(100%); }
+  100% { transform: translateY(-100%); }
+}
+
+/* =========================
+   TITOLI
+========================= */
+#countdown-top-title, #countdown-title {
+  font-family: 'Kaushan Script', cursive;
+  font-size: 34px;
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+/* =========================
+   ELENCO NUMERATO
+========================= */
+#pre-countdown-list {
+  font-family: 'Kaushan Script', cursive;
+  font-size: 24px;
+  line-height: 1.6;
+  margin-bottom: 40px;
+  text-align: center;
+}
+
+/* Adattamento smartphone */
+@media (max-width:600px){
+  #countdown-top-title, #countdown-title { font-size: 28px; }
+  #pre-countdown-list { font-size: 18px; }
+}
+
+/* =========================
+   COUNTDOWN BOX
+========================= */
 #countdown {
   display: flex;
-  gap: 15px;
+  gap: 25px;
   flex-wrap: wrap;
   justify-content: center;
   align-items: center;
+  margin-bottom: 60px;
 }
 
 .box {
@@ -29,37 +82,58 @@ body {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 25px;
-  border-radius: 20px;
-  min-width: 90px;
-  color: red; /* testo rosso */
-  box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-  transition: background 1s linear; /* transizione graduale */
+  padding: 40px 50px;
+  border-radius: 25px;
+  min-width: 120px;
+  color: red;
+  box-shadow: 0 0 20px rgba(255,0,0,0.4);
+  transition: background 1s linear, box-shadow 1s linear;
+  animation: glow 3s ease-in-out infinite alternate;
 }
 
-.number { font-size: 2.5em; }
-.label { font-size: 1em; margin-top:5px; }
+@keyframes glow {
+  0% { box-shadow: 0 0 10px rgba(255,0,0,0.2); }
+  50% { box-shadow: 0 0 25px rgba(255,0,0,0.5); }
+  100% { box-shadow: 0 0 40px rgba(255,0,0,0.7); }
+}
 
+.number { font-size: 3em; }
+.label { font-size: 1.2em; margin-top:5px; }
+
+/* Adattamento smartphone */
 @media (max-width:600px){
-  .box { min-width: 70px; padding: 15px; }
+  .box { min-width: 90px; padding: 25px 30px; }
   .number { font-size: 2em; }
-  .label { font-size: 0.9em; }
+  .label { font-size: 1em; }
 }
 </style>
 </head>
 <body>
 
-<div id="countdown">
-  <div class="box" id="box-days"><div class="number" id="days">0</div><div class="label">Giorni</div></div>
-  <div class="box" id="box-hours"><div class="number" id="hours">0</div><div class="label">Ore</div></div>
-  <div class="box" id="box-minutes"><div class="number" id="minutes">0</div><div class="label">Minuti</div></div>
-  <div class="box" id="box-seconds"><div class="number" id="seconds">0</div><div class="label">Secondi</div></div>
+<div class="credits-container">
+  <div id="countdown-top-title">Siete pronti?</div>
+
+  <ol id="pre-countdown-list">
+    <li>Il Vostro sorriso migliore</li>
+    <li>Un costume</li>
+    <li>Tanta voglia di divertirvi</li>
+    <li>Scarpe Rosse e comode!</li>
+  </ol>
+
+  <div id="countdown-title">...perché mancano solo...</div>
+
+  <div id="countdown">
+    <div class="box" id="box-days"><div class="number" id="days">0</div><div class="label">Giorni</div></div>
+    <div class="box" id="box-hours"><div class="number" id="hours">0</div><div class="label">Ore</div></div>
+    <div class="box" id="box-minutes"><div class="number" id="minutes">0</div><div class="label">Minuti</div></div>
+    <div class="box" id="box-seconds"><div class="number" id="seconds">0</div><div class="label">Secondi</div></div>
+  </div>
 </div>
 
 <script>
 const targetDate = new Date("2026-06-04T16:00:00");
 
-// Funzione per aggiornare i numeri del countdown
+// Funzione countdown
 function updateCountdown() {
   const now = new Date();
   const diff = targetDate - now;
@@ -80,43 +154,7 @@ function updateCountdown() {
   document.getElementById("seconds").textContent = secondi;
 }
 
-// Gradiente fluido basato sull’ora di Bertinoro
-function updateBoxColors() {
-  const now = new Date();
-  const utcOffset = 1; 
-  const isDST = (now.getMonth() > 2 && now.getMonth() < 10);
-  const romaHour = now.getUTCHours() + utcOffset + (isDST ? 1 : 0);
-  const romaMinute = now.getMinutes();
-  const timeDecimal = romaHour + romaMinute/60; // ora come decimale
-
-  // Calcoliamo gradienti intermedi tra alba(6-8), giorno(8-18), tramonto(18-20), notte(20-6)
-  let topColor, bottomColor;
-
-  if(timeDecimal >= 6 && timeDecimal < 8){ // alba
-    let t = (timeDecimal - 6)/2;
-    topColor = interpolateColor([255,69,0],[255,179,71], t);
-    bottomColor = interpolateColor([255,200,150],[255,223,127], t);
-  } else if(timeDecimal >= 8 && timeDecimal < 18){ // giorno
-    let t = (timeDecimal - 8)/10;
-    topColor = interpolateColor([135,206,235],[255,255,255], t);
-    bottomColor = interpolateColor([200,230,255],[255,255,255], t);
-  } else if(timeDecimal >= 18 && timeDecimal < 20){ // tramonto
-    let t = (timeDecimal - 18)/2;
-    topColor = interpolateColor([255,127,80],[255,69,0], t);
-    bottomColor = interpolateColor([255,180,150],[255,120,50], t);
-  } else { // notte
-    let t = (timeDecimal>=20 ? (timeDecimal-20)/10 : (timeDecimal+4)/10);
-    topColor = interpolateColor([15,32,39],[44,83,100], t);
-    bottomColor = interpolateColor([30,50,60],[20,30,40], t);
-  }
-
-  const gradient = `linear-gradient(to top, rgb(${topColor.join(',')}), rgb(${bottomColor.join(',')}))`;
-  document.querySelectorAll(".box").forEach(box => {
-    box.style.background = gradient;
-  });
-}
-
-// Funzione per interpolare due colori [r,g,b]
+// Interpolazione colore per gradienti dei box
 function interpolateColor(c1, c2, t){
   return [
     Math.round(c1[0] + (c2[0]-c1[0])*t),
@@ -125,10 +163,44 @@ function interpolateColor(c1, c2, t){
   ];
 }
 
+// Aggiorna gradienti box in base all'ora
+function updateBoxColors() {
+  const now = new Date();
+  const utcOffset = 1; 
+  const isDST = (now.getMonth() > 2 && now.getMonth() < 10);
+  const romaHour = now.getUTCHours() + utcOffset + (isDST ? 1 : 0);
+  const romaMinute = now.getMinutes();
+  const timeDecimal = romaHour + romaMinute/60;
+
+  let topColor, bottomColor;
+
+  if(timeDecimal >= 6 && timeDecimal < 8){
+    let t = (timeDecimal - 6)/2;
+    topColor = interpolateColor([255,69,0],[255,179,71], t);
+    bottomColor = interpolateColor([255,200,150],[255,223,127], t);
+  } else if(timeDecimal >= 8 && timeDecimal < 18){
+    let t = (timeDecimal - 8)/10;
+    topColor = interpolateColor([135,206,235],[255,255,255], t);
+    bottomColor = interpolateColor([200,230,255],[255,255,255], t);
+  } else if(timeDecimal >= 18 && timeDecimal < 20){
+    let t = (timeDecimal - 18)/2;
+    topColor = interpolateColor([255,127,80],[255,69,0], t);
+    bottomColor = interpolateColor([255,180,150],[255,120,50], t);
+  } else {
+    let t = (timeDecimal>=20 ? (timeDecimal-20)/10 : (timeDecimal+4)/10);
+    topColor = interpolateColor([15,32,39],[44,83,100], t);
+    bottomColor = interpolateColor([30,50,60],[20,30,40], t);
+  }
+
+  const gradient = `linear-gradient(to top, rgb(${topColor.join(',')}), rgb(${bottomColor.join(',')}))`;
+  document.querySelectorAll(".box").forEach(box => box.style.background = gradient);
+}
+
+// Aggiorna tutto subito
 updateCountdown();
 updateBoxColors();
-setInterval(updateCountdown, 1000);
-setInterval(updateBoxColors, 1000); // aggiorna gradiente ogni secondo per effetto fluido
+setInterval(updateCountdown,1000);
+setInterval(updateBoxColors,1000);
 </script>
 
 </body>
