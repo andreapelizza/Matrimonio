@@ -32,7 +32,16 @@ body { display:flex; justify-content:center; align-items:flex-start; padding:20p
   position: absolute;
   top: 50%;
   left: 50%;
-  transform: translate(-50%, -50%) scale(1.2);
+  transform: translate(-50%, -50%) scale(0.7);
+animation: zoomFinal 1.5s ease forwards;
+}
+
+@keyframes zoomFinal {
+  to {
+    transform: translate(-50%, -50%) scale(1.2);
+  }
+}
+
 }
 
 @keyframes scroll-up {
