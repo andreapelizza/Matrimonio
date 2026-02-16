@@ -5,125 +5,68 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Countdown Evento - Titoli di Coda</title>
 
-<!-- Google Font Kaushan Script -->
 <link href="https://fonts.googleapis.com/css2?family=Kaushan+Script&display=swap" rel="stylesheet">
 
 <style>
-/* =========================
-   STILE GENERALE
-========================= */
 * { box-sizing: border-box; margin:0; padding:0; }
-html, body { height:100%; overflow:hidden; background:transparent; font-family:'Kaushan Script', cursive; color:red; }
-body { display:flex; justify-content:center; align-items:flex-start; padding:20px; }
+html, body { height:100%; overflow-x: hidden; overflow-y: hidden; background:transparent; font-family:'Kaushan Script', cursive; color:red; }
+body { display:flex; justify-content:center; align-items:flex-start; padding:20px; min-height: 100vh;}
 
 .main-container {
   transform: scale(0.9);
   transform-origin: top center;
 }
 
-/* Contenitore principale che scorre */
 .credits-container {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  animation: scroll-up 15s linear forwards;
-  animation-play-state: paused; /* parte dopo play */
-}
-
-/* =========================
-   ANIMAZIONE SCROLL
-========================= */
-@keyframes scroll-up {
-  0% { transform: translateY(100%); }
-  100% { transform: translateY(0%); }
-}
-
-/* =========================
-   TITOLI
-========================= */
-#countdown-top-title, #countdown-title {
-  font-family: 'Kaushan Script', cursive;
-  font-size: 34px;
-  text-align: center;
-  margin-bottom: 20px;
-  color: red;
-}
-
-/* =========================
-   ELENCO NUMERATO
-========================= */
-#pre-countdown-text {
-  text-align: center;
-  font-family: 'Kaushan Script', cursive;
-  font-size: 24px;
-  margin-bottom: 10px;
-  color: red;
-}
-
-#pre-countdown-list {
-  font-family: 'Kaushan Script', cursive;
-  font-size: 24px;
-  line-height: 1.6;
-  margin-bottom: 40px;
-  text-align: center;
-  counter-reset: item;
-  list-style: none;
-  padding-left:0;
-}
-
-#pre-countdown-list li {
-  margin: 10px 0;
-  position: relative;
-}
-
-/* numeri personalizzati */
-#pre-countdown-list li::before {
-  counter-increment: item;
-  content: counter(item) ". ";
-  font-weight: bold;
-}
-
-/* primi 3 punti grigio chiaro */
-#pre-countdown-list li:nth-child(-n+3) { color:#ddd; }
-
-/* quarto punto rosso */
-#pre-countdown-list li:nth-child(4) { color:red; }
-
-/* =========================
-   COUNTDOWN ORIZZONTALE
-========================= */
-#countdown {
-  display:flex;
-  flex-direction:row;
-  justify-content:center;
-  align-items:center;
-  gap:20px;
-  margin-bottom:60px;
-}
-
-.box {
-  width:120px;
-  height:120px;
   display:flex;
   flex-direction:column;
   align-items:center;
-  justify-content:center;
-  border-radius:25px;
-  color:red;
-  box-shadow:0 0 20px rgba(255,0,0,0.4);
-  animation: glow 3s ease-in-out alternate infinite;
+  will-change: transform;
+  /* parte fuori dallo schermo sotto */
+  transform: translateY(120%);
+  animation: scroll-up 15s linear forwards;
+  animation-play-state: paused;
 }
 
-@keyframes glow {
-  0% { box-shadow:0 0 10px rgba(255,0,0,0.2); }
-  50% { box-shadow:0 0 25px rgba(255,0,0,0.5); }
-  100% { box-shadow:0 0 40px rgba(255,0,0,0.7); }
+.center-countdown {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) scale(1.2);
 }
 
-.number { font-size:3em; }
-.label { font-size:1.2em; margin-top:5px; }
+@keyframes scroll-up {
+  0% { transform: translateY(120%); }
+  100% { transform: translateY(0); }
+}
 
-/* Adattamento smartphone */
+/* TITOLI */
+#countdown-top-title, #countdown-title { font-size:34px; margin-bottom:20px; color:red; text-align:center; }
+
+/* ELENCO */
+#pre-countdown-text { text-align:center; font-size:24px; margin-bottom:10px; color:red; }
+#pre-countdown-list {
+  font-size:24px;
+  line-height:1.6;
+  margin-bottom:40px;
+  text-align:center;
+  counter-reset:item;
+  list-style:none;
+  padding-left:0; 
+  opacity: 0;                  /* nascosto all’inizio */
+  transform: translateY(50px); /* leggermente spostato verso il basso */
+  transition: opacity 2s ease, transform 2s ease; /* fade-in e movimento */}
+#pre-countdown-list li { margin:10px 0; }
+#pre-countdown-list li::before { counter-increment:item; content:counter(item) ". "; font-weight:bold; }
+#pre-countdown-list li:nth-child(-n+3) { color:#ddd; }
+#pre-countdown-list li:nth-child(4) { color:red; }
+
+/* COUNTDOWN ORIZZONTALE */
+#countdown { display:flex; flex-direction:row; justify-content:center; align-items:center; gap:20px; margin-bottom:60px; }
+.box { width:120px; height:120px; display:flex; flex-direction:column; align-items:center; justify-content:center; border-radius:25px; color:red; box-shadow:0 0 20px rgba(255,0,0,0.4); animation: glow 3s ease-in-out infinite alternate; }
+@keyframes glow { 0%{box-shadow:0 0 10px rgba(255,0,0,0.2);} 50%{box-shadow:0 0 25px rgba(255,0,0,0.5);} 100%{box-shadow:0 0 40px rgba(255,0,0,0.7);} }
+.number { font-size:3em; } .label { font-size:1.2em; margin-top:5px; }
+
 @media(max-width:600px){
   #countdown-top-title,#countdown-title{ font-size:28px; }
   #pre-countdown-list{ font-size:18px; }
@@ -132,24 +75,16 @@ body { display:flex; justify-content:center; align-items:flex-start; padding:20p
   .label{ font-size:1em; }
 }
 
-/* =========================
-   PULSANTE PLAY
-========================= */
+/* PULSANTE PLAY */
 #play-button {
-  position:absolute;
-  top:50%;
-  left:50%;
-  transform:translate(-50%,-50%);
-  background: rgba(255,255,255,0.5);
-  color:red;
-  border:2px solid red;
-  border-radius:10px;
-  padding:10px 20px;
-  font-size:24px;
-  cursor:pointer;
-  z-index:1000;
+  position:absolute; top:50%; left:50%; transform:translate(-50%,-50%);
+  background: #a32f2f; color:white; border:none;
+  border-radius:15px; padding:10px 20px; font-size:28px; cursor:pointer; z-index:1000;
+  box-shadow: 0 5px 10px rgba(0,0,0,0.3);
   transition:all 2s ease;
+  font-family: 'Kaushan Script', cursive;
 }
+
 </style>
 </head>
 <body>
@@ -158,7 +93,6 @@ body { display:flex; justify-content:center; align-items:flex-start; padding:20p
   <div class="credits-container">
 
     <div id="countdown-top-title">Siete pronti?</div>
-
     <div id="pre-countdown-text">Ricordatevi di portare:</div>
     <ol id="pre-countdown-list">
       <li>Il Vostro sorriso migliore!</li>
@@ -166,7 +100,6 @@ body { display:flex; justify-content:center; align-items:flex-start; padding:20p
       <li>Tanta voglia di divertirvi!</li>
       <li>Scarpe Rosse e comode!</li>
     </ol>
-
     <div id="countdown-title">...perché mancano solo...</div>
 
     <div id="countdown">
@@ -179,24 +112,19 @@ body { display:flex; justify-content:center; align-items:flex-start; padding:20p
   </div>
 </div>
 
-<!-- Musica e pulsante play -->
-<audio id="bg-music" src="URL_DEL_TUO_BRANO.mp3" loop></audio>
-<button id="play-button">▶ Play</button>
+<audio id="bg-music" src="Are You Ready For This.mp3" loop></audio>
+<button id="play-button">🎵 Play</button>
 
 <script>
-const targetDate = new Date("2026-06-04T16:00:00");
-const audio = document.getElementById("bg-music");
-const playBtn = document.getElementById("play-button");
-const credits = document.querySelector(".credits-container");
+const targetDate=new Date("2026-06-04T16:00:00");
+const audio=document.getElementById("bg-music");
+const playBtn=document.getElementById("play-button");
+const credits=document.querySelector(".credits-container");
 
-// FUNZIONE COUNTDOWN
 function updateCountdown(){
-  const now = new Date();
-  const diff = targetDate - now;
-  if(diff<=0){
-    document.getElementById("countdown").innerHTML="🎉 L'evento è iniziato!";
-    return;
-  }
+  const now=new Date();
+  const diff=targetDate-now;
+  if(diff<=0){ document.getElementById("countdown").innerHTML="🎉 L'evento è iniziato!"; return; }
   const giorni=Math.floor(diff/(1000*60*60*24));
   const ore=Math.floor((diff/(1000*60*60))%24);
   const minuti=Math.floor((diff/(1000*60))%60);
@@ -207,33 +135,20 @@ function updateCountdown(){
   document.getElementById("seconds").textContent=secondi;
 }
 
-// FUNZIONE COLORI BOX
 function interpolateColor(c1,c2,t){ return [ Math.round(c1[0]+(c2[0]-c1[0])*t), Math.round(c1[1]+(c2[1]-c1[1])*t), Math.round(c1[2]+(c2[2]-c1[2])*t) ]; }
-
 function updateBoxColors(){
-  const now=new Date();
-  const utcOffset=1;
-  const isDST=(now.getMonth()>2 && now.getMonth()<10);
-  const romaHour=now.getUTCHours()+utcOffset+(isDST?1:0);
-  const romaMinute=now.getMinutes();
+  const now=new Date(); const utcOffset=1; const isDST=(now.getMonth()>2 && now.getMonth()<10);
+  const romaHour=now.getUTCHours()+utcOffset+(isDST?1:0); const romaMinute=now.getMinutes();
   const timeDecimal=romaHour+romaMinute/60;
   let topColor,bottomColor;
-  if(timeDecimal>=6 && timeDecimal<8){
-    let t=(timeDecimal-6)/2;
-    topColor=interpolateColor([255,69,0],[255,179,71],t);
-    bottomColor=interpolateColor([255,200,150],[255,223,127],t);
-  }else if(timeDecimal>=8 && timeDecimal<18){
-    let t=(timeDecimal-8)/10;
-    topColor=interpolateColor([135,206,235],[255,255,255],t);
-    bottomColor=interpolateColor([200,230,255],[255,255,255],t);
-  }else if(timeDecimal>=18 && timeDecimal<20){
-    let t=(timeDecimal-18)/2;
-    topColor=interpolateColor([255,127,80],[255,69,0],t);
-    bottomColor=interpolateColor([255,180,150],[255,120,50],t);
-  }else{
-    let t=(timeDecimal>=20?(timeDecimal-20)/10:(timeDecimal+4)/10);
-    topColor=interpolateColor([15,32,39],[44,83,100],t);
-    bottomColor=interpolateColor([30,50,60],[20,30,40],t);
+  if(timeDecimal>=6 && timeDecimal<8){ let t=(timeDecimal-6)/2;
+    topColor=interpolateColor([255,69,0],[255,179,71],t); bottomColor=interpolateColor([255,200,150],[255,223,127],t);
+  }else if(timeDecimal>=8 && timeDecimal<18){ let t=(timeDecimal-8)/10;
+    topColor=interpolateColor([135,206,235],[255,255,255],t); bottomColor=interpolateColor([200,230,255],[255,255,255],t);
+  }else if(timeDecimal>=18 && timeDecimal<20){ let t=(timeDecimal-18)/2;
+    topColor=interpolateColor([255,127,80],[255,69,0],t); bottomColor=interpolateColor([255,180,150],[255,120,50],t);
+  }else{ let t=(timeDecimal>=20?(timeDecimal-20)/10:(timeDecimal+4)/10);
+    topColor=interpolateColor([15,32,39],[44,83,100],t); bottomColor=interpolateColor([30,50,60],[20,30,40],t);
   }
   const gradient=`linear-gradient(to top,rgb(${topColor.join(',')}),rgb(${bottomColor.join(',')}))`;
   document.querySelectorAll(".box").forEach(box=>box.style.background=gradient);
@@ -241,29 +156,50 @@ function updateBoxColors(){
 
 // PLAY BUTTON
 playBtn.addEventListener("click",()=>{
-  // Fade-in audio
-  audio.volume=0;
-  audio.play();
+  audio.volume=0; audio.play();
   let vol=0;
-  const fadeIn=setInterval(()=>{
-    if(vol<0.5){ vol+=0.01; audio.volume=vol; }
-    else clearInterval(fadeIn);
-  },50);
+  const fadeIn=setInterval(()=>{ if(vol<0.5){ vol+=0.01; audio.volume=vol; } else clearInterval(fadeIn); },50);
 
   // Pulsante sfuma e va in alto a destra
-  playBtn.style.top="20px";
-  playBtn.style.left="auto";
-  playBtn.style.right="20px";
-  playBtn.style.opacity="0";
+  playBtn.style.top="20px"; playBtn.style.left="auto"; playBtn.style.right="20px"; playBtn.style.opacity="0";
 
   // Avvia scroll e countdown
   credits.style.animationPlayState="running";
+
+  // dopo lo scroll mostra solo il countdown
+setTimeout(() => {
+  document.getElementById("countdown-top-title").style.display = "none";
+  document.getElementById("pre-countdown-text").style.display = "none";
+  document.getElementById("pre-countdown-list").style.display = "none";
+  document.getElementById("countdown-title").style.display = "none";
+
+  const countdown = document.getElementById("countdown");
+  countdown.classList.add("center-countdown");
+}, 15000); // durata animazione scroll
+
+  // MOSTRA TESTO E LISTA CON FADE-IN
+  document.getElementById("pre-countdown-text").style.opacity = "1";
+  document.getElementById("pre-countdown-text").style.transform = "translateY(0)";
+  document.getElementById("pre-countdown-list").style.opacity = "1";
+  document.getElementById("pre-countdown-list").style.transform = "translateY(0)";
 });
 
-updateCountdown();
-updateBoxColors();
+updateCountdown(); updateBoxColors();
 setInterval(updateCountdown,1000);
 setInterval(updateBoxColors,1000);
+
+// Toggle musica con tap o click
+function toggleMusic() {
+  if(audio.paused){
+    audio.play(); // riprende da dove era stata fermata
+  } else {
+    audio.pause(); // ferma
+  }
+}
+
+// Toggle musica SOLO dopo l'avvio
+credits.addEventListener("click", toggleMusic);
+credits.addEventListener("touchstart", toggleMusic);
 </script>
 
 </body>
