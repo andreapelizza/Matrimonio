@@ -83,12 +83,22 @@ body {
 #pre-countdown-list li:nth-child(4) { color:red; }
 
 /* COUNTDOWN ORIZZONTALE */
-#countdown { display:flex; flex-direction:row; justify-content:center; align-items:center; gap:20px; margin-bottom:60px; }
-.box { width:120px; height:120px; display:flex; flex-direction:column; align-items:center; justify-content:center; border-radius:25px; color:red; box-shadow:0 0 20px rgba(255,0,0,0.4); animation: glow 3s ease-in-out infinite alternate; }
+#countdown {
+  display: grid;
+  grid-template-columns: repeat(2, auto);
+  gap: 20px;
+  justify-content: center;
+  align-items: center;
+}
+
+.box { width:120px; height:120px; display:flex; flex-direction:column; align-items:center; justify-content:center; border-radius:25px; color:red; box-shadow:0 0 20px rgba(255,0,0,0.4); animation: glow 3s ease-in-out infinite alternate; aspect-ratio: 1 / 1;}
 @keyframes glow { 0%{box-shadow:0 0 10px rgba(255,0,0,0.2);} 50%{box-shadow:0 0 25px rgba(255,0,0,0.5);} 100%{box-shadow:0 0 40px rgba(255,0,0,0.7);} }
 .number { font-size:3em; } .label { font-size:1.2em; margin-top:5px; }
 
 @media(max-width:600px){
+  #countdown {
+    gap: 12px;
+  }
 
   .main-container{
     width: 100%;
@@ -102,10 +112,6 @@ body {
 
   #pre-countdown-list{
     font-size: 18px;
-  }
-
-  #countdown{
-    gap: 10px;
   }
 
   .box{
@@ -149,7 +155,10 @@ body {
 
 /* PULSANTE PLAY */
 #play-button {
-  position:absolute; top:50%; left:50%; transform:translate(-50%,-50%);
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  transform: none;
   background: #a32f2f; color:white; border:none;
   border-radius:15px; padding:10px 20px; font-size:28px; cursor:pointer; z-index:1000;
   box-shadow: 0 5px 10px rgba(0,0,0,0.3);
@@ -227,39 +236,16 @@ function updateBoxColors(){
 }
 
 // PLAY BUTTON
-playBtn.addEventListener("click",()=>{
-  audio.volume=0; audio.play();
-  let vol=0;
-  const fadeIn=setInterval(()=>{ if(vol<0.5){ vol+=0.01; audio.volume=vol; } else clearInterval(fadeIn); },50);
+playBtn.addEventListener("click", () => {
 
-  // Pulsante sfuma e va in alto a destra
-  playBtn.style.top="20px"; playBtn.style.left="auto"; playBtn.style.right="20px"; playBtn.style.opacity="0";
+  if(audio.paused){
+    audio.play();
+    playBtn.textContent = "⏸ Pause";
+  } else {
+    audio.pause();
+    playBtn.textContent = "🎵 Play";
+  }
 
-  // Avvia scroll e countdown
-  credits.style.animationPlayState="running";
-
-// finale senza salti
-setTimeout(() => {
-
-  document.getElementById("countdown-top-title").classList.add("fade-out");
-  document.getElementById("pre-countdown-text").classList.add("fade-out");
-  document.getElementById("pre-countdown-list").classList.add("fade-out");
-  document.getElementById("countdown-title").classList.add("fade-out");
-
-  const countdown = document.getElementById("countdown");
-
-  setTimeout(() => {
-    countdown.classList.add("center-countdown");
-  }, 800);
-
-}, 15000);
-
-
-  // MOSTRA TESTO E LISTA CON FADE-IN
-  document.getElementById("pre-countdown-text").style.opacity = "1";
-  document.getElementById("pre-countdown-text").style.transform = "translateY(0)";
-  document.getElementById("pre-countdown-list").style.opacity = "1";
-  document.getElementById("pre-countdown-list").style.transform = "translateY(0)";
 });
 
 updateCountdown(); updateBoxColors();
