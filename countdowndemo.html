@@ -10,11 +10,18 @@
 <style>
 * { box-sizing: border-box; margin:0; padding:0; }
 html, body { height:100%; overflow-x: hidden; overflow-y: hidden; background:transparent; font-family:'Kaushan Script', cursive; color:red; }
-body { display:flex; justify-content:center; align-items:flex-start; padding:20px; min-height: 100vh;}
+
+body {
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  min-height:100vh;
+  overflow:hidden;
+}
+
 
 .main-container {
-  transform: scale(0.9);
-  transform-origin: top center;
+  transform-origin: center center;
 }
 
 .credits-container {
@@ -220,6 +227,24 @@ function toggleMusic() {
 // Toggle musica SOLO dopo l'avvio
 credits.addEventListener("click", toggleMusic);
 credits.addEventListener("touchstart", toggleMusic);
+
+function scaleToFit() {
+  const container = document.querySelector(".main-container");
+
+  const baseWidth = 900;   // larghezza di riferimento layout
+  const baseHeight = 700;  // altezza di riferimento
+
+  const scaleX = window.innerWidth / baseWidth;
+  const scaleY = window.innerHeight / baseHeight;
+
+  const scale = Math.min(scaleX, scaleY);
+
+  container.style.transform = `scale(${scale})`;
+}
+
+window.addEventListener("resize", scaleToFit);
+scaleToFit();
+
 </script>
 
 </body>
