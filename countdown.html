@@ -153,5 +153,18 @@ setInterval(updateCountdown,1000);
 setInterval(updateBoxColors,1000);
 </script>
 
+// Toggle musica con tap o click
+function toggleMusic() {
+  if(audio.paused){
+    audio.play(); // riprende da dove era stata fermata
+  } else {
+    audio.pause(); // ferma
+  }
+}
+
+// Eventi per touch e click
+document.addEventListener("click", toggleMusic);
+document.addEventListener("touchstart", toggleMusic);
+
 </body>
 </html>
