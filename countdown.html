@@ -18,7 +18,7 @@ html, body { height:100%; overflow:hidden; background:transparent; color:red; fo
 body {
   display: flex;
   justify-content: center;
-  align-items: flex-end;
+  align-items: flex-start; /* Tutto in alto */
   padding: 20px;
 }
 
@@ -27,7 +27,7 @@ body {
   display: flex;
   flex-direction: column;
   align-items: center;
-  animation: scroll-up 20s linear forwards;
+  animation: scroll-up 15s linear forwards; /* si ferma in alto */
 }
 
 /* =========================
@@ -57,17 +57,6 @@ body {
   line-height: 1.6;
   margin-bottom: 40px;
   text-align: center;
-}
-
-/* Adattamento smartphone */
-@media (max-width:600px){
-  #countdown-top-title, #countdown-title { font-size: 28px; }
-  #pre-countdown-list {
-  font-family: 'Kaushan Script', cursive;
-  font-size: 24px;
-  line-height: 1.6;
-  margin-bottom: 40px;
-  text-align: center;
   counter-reset: item;
   list-style: none;
 }
@@ -86,7 +75,7 @@ body {
 
 /* primi 3 punti grigio chiaro */
 #pre-countdown-list li:nth-child(-n+3) {
-  color: #ddd; /* grigio chiaro/bianco */
+  color: #ddd; /* grigio chiaro */
 }
 
 /* quarto punto rosso */
@@ -94,16 +83,15 @@ body {
   color: red;
 }
 
-}
-
 /* =========================
-   COUNTDOWN BOX
+   COUNTDOWN BOX IN QUADRATO 2x2
 ========================= */
 #countdown {
-  display: flex;
-  gap: 25px;
-  flex-wrap: wrap;
-  justify-content: center;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  grid-template-rows: repeat(2, 1fr);
+  gap: 20px;
+  justify-items: center;
   align-items: center;
   margin-bottom: 60px;
 }
@@ -113,13 +101,13 @@ body {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 40px 50px;
+  width: 120px;
+  height: 120px;
   border-radius: 25px;
-  min-width: 120px;
   color: red;
   box-shadow: 0 0 20px rgba(255,0,0,0.4);
   transition: background 1s linear, box-shadow 1s linear;
-  animation: glow 3s ease-in-out alternate;
+  animation: glow 3s ease-in-out infinite alternate;
 }
 
 @keyframes glow {
@@ -133,7 +121,9 @@ body {
 
 /* Adattamento smartphone */
 @media (max-width:600px){
-  .box { min-width: 90px; padding: 25px 30px; }
+  #countdown-top-title, #countdown-title { font-size: 28px; }
+  #pre-countdown-list { font-size: 18px; }
+  .box { width: 90px; height: 90px; }
   .number { font-size: 2em; }
   .label { font-size: 1em; }
 }
@@ -142,12 +132,10 @@ body {
 <body>
 
 <div class="credits-container">
+
   <div id="countdown-top-title">Siete pronti?</div>
 
-
-
   <ol id="pre-countdown-list">
-    Ricordatevi di portare:
     <li>Il Vostro sorriso migliore!</li>
     <li>Un costume!</li>
     <li>Tanta voglia di divertirvi!</li>
@@ -157,43 +145,11 @@ body {
   <div id="countdown-title">...perché mancano solo...</div>
 
   <div id="countdown">
-  <div class="box" id="box-days"><div class="number" id="days">0</div><div class="label">Giorni</div></div>
-  <div class="box" id="box-hours"><div class="number" id="hours">0</div><div class="label">Ore</div></div>
-  <div class="box" id="box-minutes"><div class="number" id="minutes">0</div><div class="label">Minuti</div></div>
-  <div class="box" id="box-seconds"><div class="number" id="seconds">0</div><div class="label">Secondi</div></div>
-</div>
-
-<style>
-#countdown {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr); /* 2 colonne */
-  grid-template-rows: repeat(2, 1fr);    /* 2 righe */
-  gap: 20px;
-  justify-items: center;
-  align-items: center;
-  margin-bottom: 60px;
-}
-
-.box {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  width: 120px;   /* quadrato fisso */
-  height: 120px;  /* stesso valore per altezza */
-  border-radius: 25px;
-  color: red;
-  box-shadow: 0 0 20px rgba(255,0,0,0.4);
-  animation: glow 3s ease-in-out alternate;
-}
-
-@media (max-width:600px){
-  .box {
-    width: 90px;
-    height: 90px;
-  }
-}
-</style>
+    <div class="box" id="box-days"><div class="number" id="days">0</div><div class="label">Giorni</div></div>
+    <div class="box" id="box-hours"><div class="number" id="hours">0</div><div class="label">Ore</div></div>
+    <div class="box" id="box-minutes"><div class="number" id="minutes">0</div><div class="label">Minuti</div></div>
+    <div class="box" id="box-seconds"><div class="number" id="seconds">0</div><div class="label">Secondi</div></div>
+  </div>
 
 </div>
 
