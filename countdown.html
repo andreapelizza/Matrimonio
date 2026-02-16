@@ -30,6 +30,11 @@ body {
   animation: scroll-up 15s linear forwards; /* si ferma in alto */
 }
 
+.main-container {
+  transform: scale(0.9); /* riduce tutto al 90% della dimensione originale */
+  transform-origin: top center; /* mantiene l’allineamento dall’alto */
+}
+
 /* =========================
    ANIMAZIONE SCROLL
 ========================= */
@@ -142,30 +147,31 @@ body {
 </head>
 <body>
 
-<div class="credits-container">
+<div class="main-container">
+  <div class="credits-container">
 
-  <div id="countdown-top-title">Siete pronti?</div>
+    <div id="countdown-top-title">Siete pronti?</div>
 
-<div id="pre-countdown-text">Ricordatevi di portare:</div>
-<ol id="pre-countdown-list">
-  <li>Il Vostro sorriso migliore!</li>
-  <li>Un costume!</li>
-  <li>Tanta voglia di divertirvi!</li>
-  <li>Scarpe Rosse e comode!</li>
-</ol>
+  <div id="pre-countdown-text">Ricordatevi di portare:</div>
+  <ol id="pre-countdown-list">
+    <li>Il Vostro sorriso migliore!</li>
+    <li>Un costume!</li>
+    <li>Tanta voglia di divertirvi!</li>
+    <li>Scarpe Rosse e comode!</li>
+  </ol>
 
 
-  <div id="countdown-title">...perché mancano solo...</div>
+    <div id="countdown-title">...perché mancano solo...</div>
 
-  <div id="countdown">
-    <div class="box" id="box-days"><div class="number" id="days">0</div><div class="label">Giorni</div></div>
-    <div class="box" id="box-hours"><div class="number" id="hours">0</div><div class="label">Ore</div></div>
-    <div class="box" id="box-minutes"><div class="number" id="minutes">0</div><div class="label">Minuti</div></div>
-    <div class="box" id="box-seconds"><div class="number" id="seconds">0</div><div class="label">Secondi</div></div>
+    <div id="countdown">
+      <div class="box" id="box-days"><div class="number" id="days">0</div><div class="label">Giorni</div></div>
+      <div class="box" id="box-hours"><div class="number" id="hours">0</div><div class="label">Ore</div></div>
+      <div class="box" id="box-minutes"><div class="number" id="minutes">0</div><div class="label">Minuti</div></div>
+      <div class="box" id="box-seconds"><div class="number" id="seconds">0</div><div class="label">Secondi</div></div>
+    </div>
+
   </div>
-
 </div>
-
 <script>
 const targetDate = new Date("2026-06-04T16:00:00");
 
