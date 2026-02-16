@@ -103,7 +103,8 @@ body {
    COUNTDOWN BOX IN QUADRATO 2x2
 ========================= */
 #countdown {
-  display: grid;
+  display: flex;
+  flex-direction: row;  /* orizzontale */
   grid-template-columns: repeat(2, 1fr);
   grid-template-rows: repeat(2, 1fr);
   gap: 20px;
