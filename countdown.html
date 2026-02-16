@@ -37,7 +37,17 @@ body { display:flex; justify-content:center; align-items:flex-start; padding:20p
 
 /* ELENCO */
 #pre-countdown-text { text-align:center; font-size:24px; margin-bottom:10px; color:red; }
-#pre-countdown-list { font-size:24px; line-height:1.6; margin-bottom:40px; text-align:center; counter-reset:item; list-style:none; padding-left:0; }
+#pre-countdown-list {
+  font-size:24px;
+  line-height:1.6;
+  margin-bottom:40px;
+  text-align:center;
+  counter-reset:item;
+  list-style:none;
+  padding-left:0; 
+  opacity: 0;                  /* nascosto all’inizio */
+  transform: translateY(50px); /* leggermente spostato verso il basso */
+  transition: opacity 2s ease, transform 2s ease; /* fade-in e movimento */}
 #pre-countdown-list li { margin:10px 0; }
 #pre-countdown-list li::before { counter-increment:item; content:counter(item) ". "; font-weight:bold; }
 #pre-countdown-list li:nth-child(-n+3) { color:#ddd; }
@@ -146,12 +156,17 @@ playBtn.addEventListener("click",()=>{
 
   // Avvia scroll e countdown
   credits.style.animationPlayState="running";
+
+  // MOSTRA TESTO E LISTA CON FADE-IN
+  document.getElementById("pre-countdown-text").style.opacity = "1";
+  document.getElementById("pre-countdown-text").style.transform = "translateY(0)";
+  document.getElementById("pre-countdown-list").style.opacity = "1";
+  document.getElementById("pre-countdown-list").style.transform = "translateY(0)";
 });
 
 updateCountdown(); updateBoxColors();
 setInterval(updateCountdown,1000);
 setInterval(updateBoxColors,1000);
-</script>
 
 // Toggle musica con tap o click
 function toggleMusic() {
@@ -165,6 +180,7 @@ function toggleMusic() {
 // Eventi per touch e click
 document.addEventListener("click", toggleMusic);
 document.addEventListener("touchstart", toggleMusic);
+</script>
 
 </body>
 </html>
