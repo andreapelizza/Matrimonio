@@ -180,16 +180,22 @@ playBtn.addEventListener("click",()=>{
   // Avvia scroll e countdown
   credits.style.animationPlayState="running";
 
-  // dopo lo scroll mostra solo il countdown
+// finale senza salti
 setTimeout(() => {
-  document.getElementById("countdown-top-title").style.display = "none";
-  document.getElementById("pre-countdown-text").style.display = "none";
-  document.getElementById("pre-countdown-list").style.display = "none";
-  document.getElementById("countdown-title").style.display = "none";
+
+  document.getElementById("countdown-top-title").classList.add("fade-out");
+  document.getElementById("pre-countdown-text").classList.add("fade-out");
+  document.getElementById("pre-countdown-list").classList.add("fade-out");
+  document.getElementById("countdown-title").classList.add("fade-out");
 
   const countdown = document.getElementById("countdown");
-  countdown.classList.add("center-countdown");
-}, 15000); // durata animazione scroll
+
+  setTimeout(() => {
+    countdown.classList.add("center-countdown");
+  }, 800);
+
+}, 15000);
+
 
   // MOSTRA TESTO E LISTA CON FADE-IN
   document.getElementById("pre-countdown-text").style.opacity = "1";
