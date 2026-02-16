@@ -3,70 +3,103 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Countdown Evento - Titoli di Coda</title>
+<title>Countdown Evento</title>
+
 <link href="https://fonts.googleapis.com/css2?family=Kaushan+Script&display=swap" rel="stylesheet">
+
 <style>
+/* =========================
+   STILE GENERALE
+========================= */
 * { box-sizing: border-box; margin:0; padding:0; }
-html, body { height:100%; background:transparent; font-family:'Kaushan Script', cursive; overflow:hidden; }
+html, body { height:100%; overflow:hidden; background:transparent; font-family:'Kaushan Script', cursive; }
 
-/* ======= PULSANTE PLAY CENTRALE ======= */
-#centerPlay {
-  position: fixed;
-  top: 50%; left: 50%;
-  transform: translate(-50%, -50%);
-  background: rgba(255,255,255,0.2);
-  color: red;
-  font-size: 48px;
-  border: 2px solid red;
-  border-radius: 20px;
-  padding: 20px 40px;
-  cursor: pointer;
-  z-index: 1000;
-  transition: all 1s ease;
+body {
+  display: flex;
+  justify-content: center;
+  align-items: flex-start; 
+  padding: 20px;
 }
 
-/* ======= PULSANTE PLAY IN ALTO DESTRA ======= */
-#centerPlay.shrink {
-  top: 20px;
-  right: 20px;
-  left: auto;
-  transform: none;
-  font-size: 20px;
-  padding: 8px 16px;
-  border-radius: 12px;
-  background: rgba(255,255,255,0.2);
-}
-
-/* ======= CONTENITORE ======= */
+/* =========================
+   CONTAINER PRINCIPALE
+========================= */
 .main-container {
   transform: scale(0.9);
   transform-origin: top center;
+  width: 100%;
+  max-width: 500px;
+  position: relative;
 }
 
-/* ======= SCROLL ======= */
+/* =========================
+   PLAY BUTTON
+========================= */
+#play-button {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: rgba(255,255,255,0.8);
+  color: red;
+  font-family: 'Kaushan Script', cursive;
+  font-size: 32px;
+  padding: 20px 40px;
+  border: 2px solid red;
+  border-radius: 12px;
+  cursor: pointer;
+  z-index: 10;
+  transition: all 1s ease;
+}
+
+/* Dopo il click, tasto in alto a destra */
+#play-button.top-right {
+  top: 20px;
+  left: auto;
+  right: 20px;
+  transform: translate(0,0);
+  font-size: 20px;
+  padding: 10px 20px;
+  opacity: 0.8;
+}
+
+/* =========================
+   SCROLL ANIMAZIONE
+========================= */
 .credits-container {
   display: flex;
   flex-direction: column;
   align-items: center;
+  position: relative;
+  top: 100vh;
+  opacity: 0;
+  transition: opacity 1s ease;
 }
 
-/* ======= TITOLI ======= */
+/* =========================
+   TITOLI
+========================= */
 #countdown-top-title, #countdown-title {
   font-family: 'Kaushan Script', cursive;
   font-size: 34px;
   text-align: center;
   margin-bottom: 20px;
+  color: red;
 }
 
-/* ======= TESTO + ELENCO ======= */
+/* =========================
+   ELENCO
+========================= */
 #pre-countdown-text {
   text-align: center;
+  font-family: 'Kaushan Script', cursive;
   font-size: 24px;
   margin-bottom: 10px;
   color: red;
 }
 
 #pre-countdown-list {
+  font-family: 'Kaushan Script', cursive;
   font-size: 24px;
   line-height: 1.6;
   margin-bottom: 40px;
@@ -93,12 +126,15 @@ html, body { height:100%; background:transparent; font-family:'Kaushan Script', 
 /* quarto punto rosso */
 #pre-countdown-list li:nth-child(4) { color: red; }
 
-/* ======= COUNTDOWN BOX ======= */
+/* =========================
+   COUNTDOWN BOX 2x2
+========================= */
 #countdown {
-  display: flex;
-  flex-direction: row;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  grid-template-rows: repeat(2, 1fr);
   gap: 20px;
-  justify-content: center;
+  justify-items: center;
   align-items: center;
   margin-bottom: 60px;
 }
@@ -108,7 +144,8 @@ html, body { height:100%; background:transparent; font-family:'Kaushan Script', 
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  width: 120px; height: 120px;
+  width: 120px;
+  height: 120px;
   border-radius: 25px;
   color: red;
   box-shadow: 0 0 20px rgba(255,0,0,0.4);
@@ -125,9 +162,10 @@ html, body { height:100%; background:transparent; font-family:'Kaushan Script', 
 .number { font-size: 3em; }
 .label { font-size: 1.2em; margin-top:5px; }
 
+/* ADATTAMENTO MOBILE */
 @media (max-width:600px){
   #countdown-top-title, #countdown-title { font-size: 28px; }
-  #pre-countdown-list { font-size: 18px; }
+  #pre-countdown-text, #pre-countdown-list { font-size: 18px; }
   .box { width: 90px; height: 90px; }
   .number { font-size: 2em; }
   .label { font-size: 1em; }
@@ -136,16 +174,18 @@ html, body { height:100%; background:transparent; font-family:'Kaushan Script', 
 </head>
 <body>
 
-<!-- Pulsante centrale -->
-<div id="centerPlay">▶ Play</div>
-
-<audio id="bgMusic" loop>
-  <source src="Are You Ready For This.mp3" type="audio/mpeg">
-</audio>
-
 <div class="main-container">
-  <div class="credits-container">
 
+  <!-- Pulsante Play/Pause -->
+  <div id="play-button">▶</div>
+
+  <!-- Musica -->
+  <audio id="bg-music" loop>
+    <source src="Are You Ready For This.mp3" type="audio/mpeg">
+  </audio>
+
+  <!-- Contenuto -->
+  <div class="credits-container">
     <div id="countdown-top-title">Siete pronti?</div>
 
     <div id="pre-countdown-text">Ricordatevi di portare:</div>
@@ -164,98 +204,86 @@ html, body { height:100%; background:transparent; font-family:'Kaushan Script', 
       <div class="box" id="box-minutes"><div class="number" id="minutes">0</div><div class="label">Minuti</div></div>
       <div class="box" id="box-seconds"><div class="number" id="seconds">0</div><div class="label">Secondi</div></div>
     </div>
-
   </div>
 </div>
 
 <script>
-const music = document.getElementById("bgMusic");
-const centerPlay = document.getElementById("centerPlay");
-const creditsContainer = document.querySelector(".credits-container");
+// Riferimenti
+const playBtn = document.getElementById("play-button");
+const music = document.getElementById("bg-music");
+const credits = document.querySelector(".credits-container");
 
-// volume 50%
+// Volume al 50%
 music.volume = 0.5;
 
-// play centrale
-centerPlay.addEventListener("click", () => {
-  music.play();
-
-  // trasforma pulsante in piccolo in alto a destra
-  centerPlay.classList.add("shrink");
-
-  // avvia scroll del testo
-  creditsContainer.style.animation = "scroll-up 20s linear forwards";
-});
-
-// COUNTDOWN
+// Countdown
 const targetDate = new Date("2026-06-04T16:00:00");
 function updateCountdown() {
   const now = new Date();
   const diff = targetDate - now;
-
-  if(diff <= 0){
+  if(diff <=0){
     document.getElementById("countdown").innerHTML = "🎉 L'evento è iniziato!";
     return;
   }
-
   const giorni = Math.floor(diff / (1000*60*60*24));
   const ore = Math.floor((diff / (1000*60*60)) % 24);
   const minuti = Math.floor((diff / (1000*60)) % 60);
   const secondi = Math.floor((diff / 1000) % 60);
-
   document.getElementById("days").textContent = giorni;
   document.getElementById("hours").textContent = ore;
   document.getElementById("minutes").textContent = minuti;
   document.getElementById("seconds").textContent = secondi;
 }
-updateCountdown();
-setInterval(updateCountdown,1000);
+setInterval(updateCountdown, 1000);
 
-// GRADIENTI BOX
-function interpolateColor(c1, c2, t){
-  return [
-    Math.round(c1[0] + (c2[0]-c1[0])*t),
-    Math.round(c1[1] + (c2[1]-c1[1])*t),
-    Math.round(c1[2] + (c2[2]-c1[2])*t)
-  ];
-}
-function updateBoxColors() {
-  const now = new Date();
-  const utcOffset = 1; 
-  const isDST = (now.getMonth() > 2 && now.getMonth() < 10);
-  const romaHour = now.getUTCHours() + utcOffset + (isDST ? 1 : 0);
-  const romaMinute = now.getMinutes();
-  const timeDecimal = romaHour + romaMinute/60;
-
-  let topColor, bottomColor;
-  if(timeDecimal >= 6 && timeDecimal < 8){
-    let t = (timeDecimal - 6)/2;
-    topColor = interpolateColor([255,69,0],[255,179,71], t);
-    bottomColor = interpolateColor([255,200,150],[255,223,127], t);
-  } else if(timeDecimal >= 8 && timeDecimal < 18){
-    let t = (timeDecimal - 8)/10;
-    topColor = interpolateColor([135,206,235],[255,255,255], t);
-    bottomColor = interpolateColor([200,230,255],[255,255,255], t);
-  } else if(timeDecimal >= 18 && timeDecimal < 20){
-    let t = (timeDecimal - 18)/2;
-    topColor = interpolateColor([255,127,80],[255,69,0], t);
-    bottomColor = interpolateColor([255,180,150],[255,120,50], t);
+// Gradient box
+function interpolateColor(c1,c2,t){ return [Math.round(c1[0]+(c2[0]-c1[0])*t), Math.round(c1[1]+(c2[1]-c1[1])*t), Math.round(c1[2]+(c2[2]-c1[2])*t)]; }
+function updateBoxColors(){
+  const now=new Date();
+  const utcOffset=1;
+  const isDST=(now.getMonth()>2 && now.getMonth()<10);
+  const romaHour=now.getUTCHours()+utcOffset+(isDST?1:0);
+  const romaMinute=now.getMinutes();
+  const timeDecimal=romaHour+romaMinute/60;
+  let topColor,bottomColor;
+  if(timeDecimal>=6 && timeDecimal<8){
+    let t=(timeDecimal-6)/2;
+    topColor=interpolateColor([255,69,0],[255,179,71],t);
+    bottomColor=interpolateColor([255,200,150],[255,223,127],t);
+  } else if(timeDecimal>=8 && timeDecimal<18){
+    let t=(timeDecimal-8)/10;
+    topColor=interpolateColor([135,206,235],[255,255,255],t);
+    bottomColor=interpolateColor([200,230,255],[255,255,255],t);
+  } else if(timeDecimal>=18 && timeDecimal<20){
+    let t=(timeDecimal-18)/2;
+    topColor=interpolateColor([255,127,80],[255,69,0],t);
+    bottomColor=interpolateColor([255,180,150],[255,120,50],t);
   } else {
-    let t = (timeDecimal>=20 ? (timeDecimal-20)/10 : (timeDecimal+4)/10);
-    topColor = interpolateColor([15,32,39],[44,83,100], t);
-    bottomColor = interpolateColor([30,50,60],[20,30,40], t);
+    let t=(timeDecimal>=20?(timeDecimal-20)/10:(timeDecimal+4)/10);
+    topColor=interpolateColor([15,32,39],[44,83,100],t);
+    bottomColor=interpolateColor([30,50,60],[20,30,40],t);
   }
-
-  const gradient = `linear-gradient(to top, rgb(${topColor.join(',')}), rgb(${bottomColor.join(',')}))`;
-  document.querySelectorAll(".box").forEach(box => box.style.background = gradient);
+  const gradient=`linear-gradient(to top,rgb(${topColor.join(',')}),rgb(${bottomColor.join(',')}))`;
+  document.querySelectorAll(".box").forEach(box=>box.style.background=gradient);
 }
 updateBoxColors();
 setInterval(updateBoxColors,1000);
 
-// SCROLL KEYFRAMES
-const styleSheet = document.styleSheets[0];
-styleSheet.insertRule("@keyframes scroll-up {0% {transform: translateY(100%);} 100% {transform: translateY(0%);}}", styleSheet.cssRules.length);
-
+// Play/Pause
+playBtn.addEventListener("click",()=>{
+  if(music.paused){
+    music.play();
+    playBtn.textContent = "⏸";
+    playBtn.classList.add("top-right");
+    credits.style.transition="top 15s linear, opacity 1s ease";
+    credits.style.top="0";
+    credits.style.opacity="1";
+  } else {
+    music.pause();
+    playBtn.textContent = "▶";
+  }
+});
 </script>
+
 </body>
 </html>
