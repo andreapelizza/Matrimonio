@@ -102,18 +102,22 @@ header{
 }
 
 .box{
-  backdrop-filter:blur(4px);
-  border-radius:15px;
-  padding:20px;
-  width:90px;
-  height:90px;
+  width:80px;
+  aspect-ratio:1/1; /* mantiene il quadrato perfetto */
   display:flex;
   flex-direction:column;
   justify-content:center;
   align-items:center;
+  border-radius:15px;
   box-shadow:0 0 20px red;
+  backdrop-filter:blur(4px);
   animation:glow 2s ease-in-out infinite alternate;
+  padding:0; /* il padding si riduce per non rompere il quadrato */
 }
+
+.number{ font-size:clamp(24px,5vw,36px); }
+.label{ font-size:clamp(10px,2.5vw,14px); }
+
 
 @keyframes glow{
   0%{ box-shadow:0 0 10px red; text-shadow:0 0 6px red; }
@@ -127,7 +131,7 @@ header{
 </head>
 <body>
 
-<header>Siete Pront*</header>
+<header>Siete Pront*?</header>
 
 <div class="central-container">
   <div class="sequence" id="sequence">
@@ -186,8 +190,8 @@ function showNextLine(){
     document.querySelector('.sequence').style.display = 'none';
     
     // mostra countdown centrato
-    countdownDiv.style.opacity=1;
-    countdownDiv.style.transform="translate(-50%,-50%) scale(1.4)";
+    countdown.style.opacity=1;
+    countdown.style.transform="translate(0%,0%) scale(1.4)";
   }
 }
 
