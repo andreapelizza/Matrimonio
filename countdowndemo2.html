@@ -9,7 +9,7 @@
 
 <style>
 *{margin:0;padding:0;box-sizing:border-box;}
-body{
+html, body{
   font-family:'Kaushan Script', cursive;
   overflow:hidden;
   background:transparent;
@@ -31,19 +31,19 @@ body{
 /* ===== PULSANTE PLAY ===== */
 #playBtn{
   position:absolute;
-  top:50%;
-  left:50%;
-  transform:translate(-50%,-50%);
-  font-size:clamp(28px,8vw,48px);
-  padding:15px 30px;
+  top:15px;
+  right:15px;
+  font-family:'Kaushan Script', cursive;
+  font-size:clamp(16px,4vw,24px);
+  padding:10px 20px;
   border:none;
-  border-radius:25px;
+  border-radius:15px;
   background:#a32f2f;
   color:white;
   cursor:pointer;
-  z-index:100;
-  box-shadow:0 5px 20px rgba(0,0,0,0.4);
-  transition:all 1s ease;
+  z-index:110;
+  box-shadow:0 3px 10px rgba(0,0,0,0.4);
+  transition: all 1s ease;
 }
 
 /* ===== SEQUENZA TESTI ===== */
@@ -197,15 +197,9 @@ function playSequence(){
 // PLAY BUTTON
 playBtn.onclick=()=>{
   if(!started){
-    // Sposta il pulsante in alto a destra
-    playBtn.style.transform="translate(0,0)";
-    playBtn.style.top="15px";
-    playBtn.style.right="15px";
-    playBtn.style.left="auto";
-    
-    // cambia testo
+    // piccolo, in alto a destra già impostato in CSS
     playBtn.innerHTML="⏸Pause";
-    
+
     // musica fade-in
     music.volume=0;
     music.play();
