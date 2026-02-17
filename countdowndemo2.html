@@ -28,7 +28,20 @@ body{
   z-index:100;
 }
 
-/* ===== PULSANTE PLAY ===== */
+/* ===== PULSANTE PLAY ===== 
+#play-button {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  transform: none;
+  background: #a32f2f; color:white; border:none;
+  border-radius:15px; padding:10px 20px; font-size:28px; cursor:pointer; z-index:1000;
+  box-shadow: 0 5px 10px rgba(0,0,0,0.3);
+  transition:all 2s ease;
+  font-family: 'Kaushan Script', cursive;
+}
+
+*/
 #playBtn{
   position:absolute;
   top:15px;
@@ -37,7 +50,7 @@ body{
   padding:10px 20px;
   border:none;
   border-radius:15px;
-  background:red;
+  background:#a32f2f;
   color:white;
   cursor:pointer;
   z-index:100;
@@ -134,7 +147,7 @@ body{
 
 <div id="title">Siete pront*?</div>
 
-<button id="playBtn">▶</button>
+<button id="playBtn">▶ Play</button>
 
 <div class="container">
 
