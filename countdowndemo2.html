@@ -13,111 +13,137 @@
 body{
   font-family:'Kaushan Script', cursive;
   overflow:hidden;
-  height:100vh;
+  color:red;
+}
+
+/* ===== HEADER ===== */
+header{
+  position:fixed;
+  top:0;
+  width:100%;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  padding:10px 15px;
+  font-size:18px;
+  z-index:1000;
+  background:linear-gradient(to right,#ffeaa7,#2c3e50);
+  color:red;
+}
+
+#today{
+  text-align:center;
+  flex:1;
+}
+
+#playBtn{
+  cursor:pointer;
+  font-size:18px;
+  border:none;
+  background:none;
+  color:red;
+}
+
+/* ===== CONTENUTO ===== */
+.container{
+  position:absolute;
+  top:0;
+  width:100%;
+  height:100%;
+  display:flex;
+  justify-content:center;
+  align-items:flex-end;
+  overflow:hidden;
+}
+
+/* SCROLL TITOLI */
+.scroll{
+  text-align:center;
+  transform:translateY(100%);
+  animation:scrollUp 18s linear forwards;
+  animation-play-state:paused;
+}
+
+@keyframes scrollUp{
+  to{ transform:translateY(-120%); }
+}
+
+.scroll p{
+  font-size:clamp(20px,4vw,28px);
+  margin:15px 0;
+}
+
+.scroll ol{
+  list-style:none;
+  counter-reset:item;
+  font-size:clamp(18px,4vw,26px);
+}
+
+.scroll li{
+  margin:10px 0;
+}
+
+.scroll li::before{
+  counter-increment:item;
+  content: counter(item) ". ";
+}
+
+.highlight{ color:red; }
+
+/* ===== COUNTDOWN ===== */
+#countdown{
+  position:absolute;
+  inset:0;
   display:flex;
   justify-content:center;
   align-items:center;
-  transition: background 3s linear;
-}
-
-/* CONTENITORE PRINCIPALE */
-.container{
-  text-align:center;
-  width:100%;
-  max-width:900px;
-  padding:20px;
-}
-
-/* TITOLI */
-.title{
-  color:red;
-  font-size:clamp(26px,5vw,42px);
-  margin-bottom:20px;
-}
-
-/* TESTO CHE SALE */
-.scroll{
-  transform: translateY(100vh);
-  animation: rise 14s linear forwards;
-}
-
-@keyframes rise{
-  from{ transform: translateY(100vh);}
-  to{ transform: translateY(0);}
-}
-
-.list{
-  color:red;
-  font-size:clamp(20px,4vw,30px);
-  line-height:1.6;
-  margin-bottom:30px;
-}
-
-.list li:nth-child(4){
-  color:red;
-  font-weight:bold;
-}
-
-/* COUNTDOWN */
-.countdown{
-  display:flex;
-  justify-content:center;
-  gap:clamp(10px,3vw,25px);
-  flex-wrap:wrap;
+  gap:15px;
+  opacity:0;
+  transition:opacity 1.5s ease;
 }
 
 .box{
-  min-width:80px;
+  backdrop-filter:blur(6px);
+  border-radius:18px;
   padding:15px;
-  border-radius:20px;
-  color:red;
-  background: rgba(255,255,255,0.25);
-  backdrop-filter: blur(6px);
-  box-shadow:0 0 20px rgba(255,0,0,0.4);
+  min-width:70px;
+  text-align:center;
+  box-shadow:0 0 15px rgba(255,0,0,0.4);
 }
 
 .number{
-  font-size:clamp(28px,6vw,48px);
+  font-size:clamp(28px,8vw,48px);
 }
 
 .label{
-  font-size:clamp(14px,2.5vw,20px);
-}
-
-/* PLAY BUTTON */
-#play{
-  position:absolute;
-  top:50%;
-  left:50%;
-  transform:translate(-50%,-50%);
-  font-size:26px;
-  padding:10px 20px;
-  border:2px solid red;
-  background:rgba(255,255,255,0.6);
-  color:red;
-  border-radius:10px;
-  cursor:pointer;
+  font-size:clamp(12px,3vw,16px);
 }
 </style>
 </head>
 <body>
 
-<button id="play">▶ Play</button>
+<header>
+  <div>Siete pronti?</div>
+  <div id="today"></div>
+  <button id="playBtn">▶</button>
+</header>
 
-<div class="container scroll" id="content">
+<div class="container">
 
-  <div class="title">Ricordatevi di portare:</div>
+  <div class="scroll" id="scrollText">
+    <p class="highlight">Ricordatevi di portare:</p>
 
-  <ul class="list">
-    <li>Il Vostro sorriso migliore!</li>
-    <li>Un costume!</li>
-    <li>Tanta voglia di divertirvi!</li>
-    <li>Scarpe Rosse e comode!</li>
-  </ul>
+    <ol>
+      <li>Il Vostro sorriso migliore!</li>
+      <li>Un costume!</li>
+      <li>Tanta voglia di divertirvi!</li>
+      <li class="highlight">Scarpe Rosse e comode!</li>
+    </ol>
 
-  <div class="title">...perché mancano solo...</div>
+    <p class="highlight">...perché mancano solo...</p>
+  </div>
 
-  <div class="countdown" id="countdown">
+  <div id="countdown">
     <div class="box"><div class="number" id="days">0</div><div class="label">Giorni</div></div>
     <div class="box"><div class="number" id="hours">0</div><div class="label">Ore</div></div>
     <div class="box"><div class="number" id="minutes">0</div><div class="label">Minuti</div></div>
@@ -126,57 +152,77 @@ body{
 
 </div>
 
+<audio id="music" src="Are You Ready For This.mp3" loop></audio>
+
 <script>
-// DATA EVENTO: 4 giugno 2026 ore 16:00 Roma = 14:00 UTC
-const targetDate = new Date("2026-06-04T14:00:00Z");
+// DATA OGGI
+const todayEl=document.getElementById("today");
+const now=new Date();
+todayEl.innerHTML=now.toLocaleDateString("it-IT",{weekday:'long', day:'numeric', month:'long', year:'numeric'});
+
+// DATA EVENTO (4 Giugno 2026 16:00 Roma = 14:00 UTC)
+const target=new Date("2026-06-04T14:00:00Z").getTime();
 
 // COUNTDOWN
 function updateCountdown(){
-  const now = new Date();
-  const diff = targetDate - now;
+  const diff=target-Date.now();
+  if(diff<=0)return;
 
-  if(diff <= 0){
-    document.getElementById("countdown").innerHTML = "<div class='title'>🎉 L'evento è iniziato!</div>";
-    return;
-  }
-
-  const d = Math.floor(diff/86400000);
-  const h = Math.floor(diff/3600000)%24;
-  const m = Math.floor(diff/60000)%60;
-  const s = Math.floor(diff/1000)%60;
-
-  days.textContent=d;
-  hours.textContent=h;
-  minutes.textContent=m;
-  seconds.textContent=s;
+  document.getElementById("days").innerText=Math.floor(diff/86400000);
+  document.getElementById("hours").innerText=Math.floor(diff/3600000)%24;
+  document.getElementById("minutes").innerText=Math.floor(diff/60000)%60;
+  document.getElementById("seconds").innerText=Math.floor(diff/1000)%60;
 }
 setInterval(updateCountdown,1000);
 updateCountdown();
 
-// SFONDO DINAMICO IN BASE ALL'ORA
-function updateBackground(){
-  const h = new Date().getHours();
-  let gradient;
+// MUSICA PLAY / PAUSE + FADEIN
+const music=document.getElementById("music");
+const btn=document.getElementById("playBtn");
+const scroll=document.getElementById("scrollText");
+const countdown=document.getElementById("countdown");
 
-  if(h>=6 && h<10)
-    gradient="linear-gradient(to top,#fff3b0,#ffd36b)";
-  else if(h>=10 && h<18)
-    gradient="linear-gradient(to top,#87ceeb,#e6f7ff)";
-  else if(h>=18 && h<20)
-    gradient="linear-gradient(to top,#ffb347,#ff7043)";
-  else
-    gradient="linear-gradient(to top,#0f2027,#203a43,#2c5364)";
+let started=false;
 
-  document.body.style.background = gradient;
+btn.onclick=()=>{
+  if(!started){
+    music.volume=0;
+    music.play();
+    let v=0;
+    const fade=setInterval(()=>{
+      if(v<0.5){ v+=0.02; music.volume=v; }
+      else clearInterval(fade);
+    },80);
+
+    scroll.style.animationPlayState="running";
+    started=true;
+    btn.innerHTML="⏸";
+    
+    // mostra countdown dopo lo scroll
+    setTimeout(()=>{ countdown.style.opacity=1; },17000);
+
+  }else{
+    if(music.paused){
+      music.play();
+      btn.innerHTML="⏸";
+    }else{
+      music.pause();
+      btn.innerHTML="▶";
+    }
+  }
+};
+
+// SFONDO DINAMICO GIORNO / NOTTE
+function updateHeaderBackground(){
+  const h=new Date().getHours();
+  const header=document.querySelector("header");
+  if(h>=6 && h<18){
+    header.style.background="linear-gradient(to right,#ffeaa7,#87ceeb)";
+  }else{
+    header.style.background="linear-gradient(to right,#2c3e50,#000000)";
+  }
 }
-updateBackground();
-setInterval(updateBackground,60000);
-
-// PLAY + avvio animazione
-play.onclick = ()=>{
-  play.style.display="none";
-  content.style.animationPlayState="running";
-}
+updateHeaderBackground();
 </script>
 </body>
 </html>
