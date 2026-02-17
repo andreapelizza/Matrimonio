@@ -9,92 +9,72 @@
 
 <style>
 *{margin:0;padding:0;box-sizing:border-box;}
-
 body{
   font-family:'Kaushan Script', cursive;
   overflow:hidden;
+  background:#000;
   color:red;
 }
 
-/* ===== HEADER ===== */
-header{
-  position:fixed;
-  top:0;
+/* ===== Siete Pront*? ===== */
+#title{
+  position:absolute;
+  top:15px;
   width:100%;
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  padding:10px 15px;
-  font-size:18px;
-  z-index:1000;
-  color:red;
-  transition: background 2s linear;
-}
-
-#today{
   text-align:center;
-  flex:1;
-}
-
-#playBtn{
-  cursor:pointer;
-  font-size:18px;
-  border:none;
-  background:none;
+  font-size:clamp(28px,6vw,40px);
   color:red;
+  font-weight:bold;
+  z-index:100;
 }
 
-/* ===== CONTENUTO ===== */
-.container{
+/* ===== PULSANTE PLAY ===== */
+#playBtn{
+  position:absolute;
+  top:50%;
+  left:50%;
+  transform:translate(-50%,-50%);
+  font-size:clamp(24px,8vw,40px);
+  padding:15px 30px;
+  border:none;
+  border-radius:15px;
+  background:red;
+  color:white;
+  cursor:pointer;
+  z-index:100;
+  box-shadow:0 5px 15px rgba(0,0,0,0.4);
+  transition:all 0.3s ease;
+}
+
+/* ===== SEQUENZA TESTI ===== */
+.sequence{
   position:absolute;
   inset:0;
   display:flex;
   justify-content:center;
-  align-items:flex-end;
-  overflow:hidden;
-}
-
-/* 🎬 TITOLI DI CODA */
-.scroll{
+  align-items:center;
   text-align:center;
-  transform:translateY(180vh);   /* parte MOLTO sotto */
-  animation:scrollUp 22s linear forwards;
-  animation-play-state:paused;
-  width:100%;
-  padding-bottom:40vh;           /* spazio extra finale */
+  flex-direction:column;
 }
 
-@keyframes scrollUp{
-  from{ transform:translateY(160vh); }
-  to{ transform:translateY(-260vh); }
+.line{
+  opacity:0;
+  font-size:clamp(22px,5vw,34px);
+  margin:10px 0;
+  transition:opacity 1s ease;
 }
 
-.scroll p{
-  font-size:clamp(20px,4vw,28px);
-  margin:18px 0;
+.light{
+  color:#d0d0d0;
 }
 
-.scroll ol{
-  list-style:none;
-  counter-reset:item;
-  font-size:clamp(18px,4vw,26px);
+.highlight{
+  color:red;
 }
 
-.scroll li{
-  margin:14px 0;
-  color:#d0d0d0; /* grigio chiaro */
+.show{
+  opacity:1;
 }
-
-.scroll li:last-child{
-  color:red; /* punto 4 rosso */
-}
-
-.scroll li::before{
-  counter-increment:item;
-  content: counter(item) ". ";
-}
-
-.highlight{ color:red; }
 
 /* ===== COUNTDOWN ===== */
 #countdown{
@@ -104,8 +84,9 @@ header{
   justify-content:center;
   align-items:center;
   gap:15px;
+  flex-wrap:wrap;
   opacity:0;
-  transition:opacity 1.5s ease;
+  transition:opacity 1s ease;
 }
 
 .box{
@@ -115,6 +96,7 @@ header{
   min-width:70px;
   text-align:center;
   box-shadow:0 0 15px rgba(255,0,0,0.4);
+  animation:glowZoom 2s ease-in-out infinite alternate;
 }
 
 .number{
@@ -124,29 +106,30 @@ header{
 .label{
   font-size:clamp(12px,3vw,16px);
 }
+
+/* GLOW + ZOOM */
+@keyframes glowZoom{
+  0%{transform:scale(1);box-shadow:0 0 10px rgba(255,0,0,0.3);}
+  50%{transform:scale(1.05);box-shadow:0 0 25px rgba(255,0,0,0.6);}
+  100%{transform:scale(1.1);box-shadow:0 0 40px rgba(255,0,0,0.8);}
+}
 </style>
 </head>
 <body>
 
-<header>
-  <div>Siete pronti?</div>
-  <div id="today"></div>
-  <button id="playBtn">▶</button>
-</header>
+<div id="title">Siete pront*?</div>
+
+<button id="playBtn">▶</button>
 
 <div class="container">
 
-  <div class="scroll" id="scrollText">
-    <p class="highlight">Ricordatevi di portare:</p>
-
-    <ol>
-      <li>Il Vostro sorriso migliore!</li>
-      <li>Un costume!</li>
-      <li>Tanta voglia di divertirvi!</li>
-      <li class="highlight">Scarpe Rosse e comode!</li>
-    </ol>
-
-    <p class="highlight">...perché mancano solo...</p>
+  <div class="sequence" id="sequence">
+    <p class="line highlight">Ricordatevi di portare:</p>
+    <p class="line light">1. Il Vostro sorriso migliore!</p>
+    <p class="line light">2. Un costume!</p>
+    <p class="line light">3. Tanta voglia di divertirvi!</p>
+    <p class="line highlight">4. Scarpe Rosse e comode!</p>
+    <p class="line highlight">...perché mancano solo...</p>
   </div>
 
   <div id="countdown">
@@ -161,11 +144,6 @@ header{
 <audio id="music" src="Are You Ready For This.mp3" loop></audio>
 
 <script>
-// DATA OGGI
-const todayEl=document.getElementById("today");
-const now=new Date();
-todayEl.innerHTML=now.toLocaleDateString("it-IT",{weekday:'long', day:'numeric', month:'long', year:'numeric'});
-
 // DATA EVENTO (4 Giugno 2026 16:00 Roma = 14:00 UTC)
 const target=new Date("2026-06-04T14:00:00Z").getTime();
 
@@ -182,54 +160,51 @@ function updateCountdown(){
 setInterval(updateCountdown,1000);
 updateCountdown();
 
-// MUSICA PLAY / PAUSE + FADEIN
-const music=document.getElementById("music");
-const btn=document.getElementById("playBtn");
-const scroll=document.getElementById("scrollText");
+// SEQUENZA TESTI
+const lines = document.querySelectorAll(".line");
 const countdown=document.getElementById("countdown");
+const playBtn=document.getElementById("playBtn");
+const music=document.getElementById("music");
 
 let started=false;
 
-btn.onclick=()=>{
+function playSequence(){
+  let i=0;
+  function showNext(){
+    if(i>0) lines[i-1].classList.remove("show");
+    if(i<lines.length){
+      lines[i].classList.add("show");
+      i++;
+      setTimeout(showNext,4000);
+    } else {
+      countdown.style.opacity=1;
+    }
+  }
+  showNext();
+}
+
+// PLAY BUTTON CENTRALE
+playBtn.onclick=()=>{
   if(!started){
+    playBtn.style.display="none"; // nasconde il pulsante centrale
+    // musica fade-in
     music.volume=0;
     music.play();
     let v=0;
     const fade=setInterval(()=>{
-      if(v<0.5){ v+=0.02; music.volume=v; }
+      if(v<0.5){v+=0.02; music.volume=v;}
       else clearInterval(fade);
     },80);
 
-    scroll.style.animationPlayState="running";
+    playSequence();
     started=true;
-    btn.innerHTML="⏸";
-    
-    // mostra countdown dopo lo scroll
-setTimeout(()=>{countdown.style.opacity=1; countdown.style.transform="scale(1.15)";},21000);
-
-  }else{
-    if(music.paused){
-      music.play();
-      btn.innerHTML="⏸";
-    }else{
-      music.pause();
-      btn.innerHTML="▶";
-    }
+  } else {
+    if(music.paused) music.play();
+    else music.pause();
   }
 };
 
-// SFONDO DINAMICO GIORNO / NOTTE
-function updateHeaderBackground(){
-  const h=new Date().getHours();
-  const header=document.querySelector("header");
-  if(h>=6 && h<18){
-    header.style.background="linear-gradient(to right,#ffeaa7,#87ceeb)";
-  }else{
-    header.style.background="linear-gradient(to right,#2c3e50,#000000)";
-  }
-}
-updateHeaderBackground();
-
+// SFONDO DINAMICO GIORNO/sera Bertinoro
 function getSunTimes(date, lat, lng) {
   const rad = Math.PI / 180;
   const J1970 = 2440588;
@@ -239,90 +214,63 @@ function getSunTimes(date, lat, lng) {
   const toDays = date => toJulian(date) - J2000;
 
   const e = rad * 23.4397;
-
   const solarMeanAnomaly = d => rad * (357.5291 + 0.98560028 * d);
   const eclipticLongitude = M => {
-    const C = rad * (1.9148 * Math.sin(M) + 0.02 * Math.sin(2*M) + 0.0003 * Math.sin(3*M));
-    const P = rad * 102.9372;
-    return M + C + P + Math.PI;
+    const C = rad*(1.9148*Math.sin(M)+0.02*Math.sin(2*M)+0.0003*Math.sin(3*M));
+    const P = rad*102.9372;
+    return M+C+P+Math.PI;
   };
+  const declination = L => Math.asin(Math.sin(L)*Math.sin(e));
 
-  const declination = L => Math.asin(Math.sin(L) * Math.sin(e));
   const hourAngle = (h, phi, d) =>
-    Math.acos((Math.sin(h) - Math.sin(phi) * Math.sin(d)) /
-              (Math.cos(phi) * Math.cos(d)));
+    Math.acos((Math.sin(h)-Math.sin(phi)*Math.sin(d))/(Math.cos(phi)*Math.cos(d)));
 
-  const approxTransit = (Ht, lw, n) => (Ht + lw) / (2 * Math.PI) + n;
+  const approxTransit = (Ht, lw, n) => (Ht+lw)/(2*Math.PI)+n;
   const solarTransitJ = (ds, M, L) =>
-    J2000 + ds + 0.0053 * Math.sin(M) - 0.0069 * Math.sin(2 * L);
-
+    J2000+ds+0.0053*Math.sin(M)-0.0069*Math.sin(2*L);
   const getSetJ = (h, lw, phi, dec, n, M, L) => {
     const w = hourAngle(h, phi, dec);
-    const a = approxTransit(w, lw, n);
-    return solarTransitJ(a, M, L);
+    const a = approxTransit(w,lw,n);
+    return solarTransitJ(a,M,L);
   };
 
   const lw = rad * -lng;
   const phi = rad * lat;
-
   const d = toDays(date);
-  const n = Math.round(d - lw / (2 * Math.PI));
-  const ds = approxTransit(0, lw, n);
+  const n = Math.round(d - lw / (2*Math.PI));
+  const ds = approxTransit(0,lw,n);
 
   const M = solarMeanAnomaly(ds);
   const L = eclipticLongitude(M);
   const dec = declination(L);
 
-  const Jnoon = solarTransitJ(ds, M, L);
-  const Jset = getSetJ(-0.833 * rad, lw, phi, dec, n, M, L);
-  const Jrise = Jnoon - (Jset - Jnoon);
+  const Jnoon = solarTransitJ(ds,M,L);
+  const Jset = getSetJ(-0.833*rad,lw,phi,dec,n,M,L);
+  const Jrise = Jnoon-(Jset-Jnoon);
 
-  return {
-    sunrise: new Date((Jrise - J1970) * 86400000),
-    sunset: new Date((Jset - J1970) * 86400000)
-  };
+  return {sunrise:new Date((Jrise-J1970)*86400000),sunset:new Date((Jset-J1970)*86400000)};
 }
 
-function updateHeaderColor() {
-
-  // coordinate Bertinoro
-  const lat = 44.148;
-  const lng = 12.135;
-
-  const now = new Date();
-  const sun = getSunTimes(now, lat, lng);
-
-  const sunrise = sun.sunrise;
-  const sunset = sun.sunset;
-
-  const minutesNow = now.getHours()*60 + now.getMinutes();
-  const sunriseMin = sunrise.getHours()*60 + sunrise.getMinutes();
-  const sunsetMin = sunset.getHours()*60 + sunset.getMinutes();
+function updateBackground(){
+  const lat=44.148,lng=12.135;
+  const now=new Date();
+  const sun=getSunTimes(now,lat,lng);
+  const minutesNow = now.getHours()*60+now.getMinutes();
+  const sunriseMin = sun.sunrise.getHours()*60+sun.sunrise.getMinutes();
+  const sunsetMin = sun.sunset.getHours()*60+sun.sunset.getMinutes();
 
   let color;
+  if(minutesNow < sunriseMin - 30) color="rgba(10,20,40,0.55)"; // notte
+  else if(minutesNow < sunriseMin + 30) color="rgba(255,170,80,0.55)"; // alba
+  else if(minutesNow < sunsetMin - 60) color="rgba(255,235,120,0.55)"; // giorno giallo
+  else if(minutesNow < sunsetMin + 30) color="rgba(255,120,60,0.55)"; // tramonto
+  else color="rgba(15,35,80,0.55)"; // sera blu
 
-  if(minutesNow < sunriseMin - 30){
-    color = "#0d1b2a"; // notte
-  }
-  else if(minutesNow < sunriseMin + 30){
-    color = "#f4a261"; // alba
-  }
-  else if(minutesNow < sunsetMin - 60){
-    color = "#ffe066"; // giorno
-  }
-  else if(minutesNow < sunsetMin + 30){
-    color = "#e76f51"; // tramonto
-  }
-  else{
-    color = "#1b263b"; // sera
-  }
-
-  document.querySelector("header").style.background = color;
+  document.body.style.background=color;
 }
 
-setInterval(updateHeaderColor,60000);
-updateHeaderColor();
-
+setInterval(updateBackground,60000);
+updateBackground();
 </script>
 </body>
 </html>
