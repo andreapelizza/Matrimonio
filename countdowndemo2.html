@@ -28,34 +28,22 @@ body{
   z-index:100;
 }
 
-/* ===== PULSANTE PLAY ===== 
-#play-button {
-  position: fixed;
-  top: 20px;
-  right: 20px;
-  transform: none;
-  background: #a32f2f; color:white; border:none;
-  border-radius:15px; padding:10px 20px; font-size:28px; cursor:pointer; z-index:1000;
-  box-shadow: 0 5px 10px rgba(0,0,0,0.3);
-  transition:all 2s ease;
-  font-family: 'Kaushan Script', cursive;
-}
-
-*/
+/* ===== PULSANTE PLAY ===== */
 #playBtn{
   position:absolute;
-  top:15px;
-  right:15px;
-  font-size:clamp(18px,5vw,28px);
-  padding:10px 20px;
+  top:50%;
+  left:50%;
+  transform:translate(-50%,-50%);
+  font-size:clamp(28px,8vw,48px);
+  padding:15px 30px;
   border:none;
-  border-radius:15px;
+  border-radius:25px;
   background:#a32f2f;
   color:white;
   cursor:pointer;
   z-index:100;
-  box-shadow:0 5px 15px rgba(0,0,0,0.4);
-  transition:all 0.3s ease;
+  box-shadow:0 5px 20px rgba(0,0,0,0.4);
+  transition:all 1s ease;
 }
 
 /* ===== SEQUENZA TESTI ===== */
@@ -77,13 +65,8 @@ body{
   transition:opacity 1s ease, transform 1s ease, text-shadow 1s ease;
 }
 
-.light{
-  color:#d0d0d0;
-}
-
-.highlight{
-  color:red;
-}
+.light{ color:#d0d0d0; }
+.highlight{ color:red; }
 
 .show{
   opacity:1;
@@ -127,8 +110,8 @@ body{
 /* GLOW + ZOOM FLUIDO COUNTDOWN */
 @keyframes glowZoom{
   0%{transform:scale(1); box-shadow:0 0 10px rgba(255,0,0,0.3);}
-  50%{transform:scale(1.15); box-shadow:0 0 25px rgba(255,0,0,0.6);}
-  100%{transform:scale(1.2); box-shadow:0 0 40px rgba(255,0,0,0.8);}
+  50%{transform:scale(1.25); box-shadow:0 0 30px rgba(255,0,0,0.6);}
+  100%{transform:scale(1.3); box-shadow:0 0 45px rgba(255,0,0,0.8);}
 }
 
 /* ZOOM + GLOW FRASI */
@@ -147,7 +130,7 @@ body{
 
 <div id="title">Siete pront*?</div>
 
-<button id="playBtn">▶ Play</button>
+<button id="playBtn">▶Play</button>
 
 <div class="container">
 
@@ -208,13 +191,21 @@ function playSequence(){
       countdown.style.opacity=1;
     }
   }
-  showNext();
+  setTimeout(showNext,1000); // attesa 1 secondo prima di partire
 }
 
-// PLAY BUTTON IN ALTO A DESTRA
+// PLAY BUTTON
 playBtn.onclick=()=>{
   if(!started){
-    playBtn.style.display="none"; // nasconde pulsante
+    // Sposta il pulsante in alto a destra
+    playBtn.style.transform="translate(0,0)";
+    playBtn.style.top="15px";
+    playBtn.style.right="15px";
+    playBtn.style.left="auto";
+    
+    // cambia testo
+    playBtn.innerHTML="⏸Pause";
+    
     // musica fade-in
     music.volume=0;
     music.play();
@@ -227,8 +218,13 @@ playBtn.onclick=()=>{
     playSequence();
     started=true;
   } else {
-    if(music.paused) music.play();
-    else music.pause();
+    if(music.paused){
+      music.play();
+      playBtn.innerHTML="⏸Pause";
+    } else {
+      music.pause();
+      playBtn.innerHTML="▶Play";
+    }
   }
 };
 </script>
