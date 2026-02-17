@@ -58,15 +58,15 @@ header{
 .scroll{
   text-align:center;
   transform:translateY(180vh);   /* parte MOLTO sotto */
-  animation:scrollUp 40s linear forwards;
+  animation:scrollUp 22s linear forwards;
   animation-play-state:paused;
   width:100%;
   padding-bottom:40vh;           /* spazio extra finale */
 }
 
 @keyframes scrollUp{
-  from{ transform:translateY(180vh); }
-  to{ transform:translateY(-220vh); } /* sale molto in alto */
+  from{ transform:translateY(160vh); }
+  to{ transform:translateY(-260vh); }
 }
 
 .scroll p{
@@ -205,7 +205,7 @@ btn.onclick=()=>{
     btn.innerHTML="⏸";
     
     // mostra countdown dopo lo scroll
-    setTimeout(()=>{ countdown.style.opacity=1; },15000);
+setTimeout(()=>{countdown.style.opacity=1; countdown.style.transform="scale(1.15)";},21000);
 
   }else{
     if(music.paused){
