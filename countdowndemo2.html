@@ -172,15 +172,22 @@ const countdown = document.getElementById("countdown");
 let index=0;
 
 function showNextLine(){
-  if(index>0) lines[index-1].style.opacity=0;
+  if(index>0){
+    lines[index-1].style.opacity=0;
+    lines[index-1].classList.remove("glow");
+  }
   if(index<lines.length){
     lines[index].style.opacity=1;
+    lines[index].classList.add("glow");
     index++;
-    setTimeout(showNextLine,4000); // 4 secondi per ogni frase
+    setTimeout(showNextLine,4000);
   } else {
-    // mostra countdown
-    countdown.style.opacity=1;
-    countdown.style.transform="scale(1.2)";
+    // Nasconde le frasi
+    document.querySelector('.sequence').style.display = 'none';
+    
+    // mostra countdown centrato
+    countdownDiv.style.opacity=1;
+    countdownDiv.style.transform="translate(-50%,-50%) scale(1.4)";
   }
 }
 
