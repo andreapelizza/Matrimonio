@@ -25,10 +25,10 @@ header{
   position:absolute;
   top:10px;
   width:100%;
-  text-align:center;
-  font-size:28px;
+  text-align:center;header{
+  font-size:clamp(18px,6vw,28px);
+  text-shadow:0 0 4px red, 0 0 8px red;
   color:red;
-  text-shadow: 0 0 8px red, 0 0 16px red;
   pointer-events:none;
 }
 
@@ -38,9 +38,9 @@ header{
   left:50%;
   top:50%;
   transform:translate(-50%,-50%);
-  font-family:'Kaushan Script', cursive;
-  font-size:32px;
-  padding:15px 30px;
+  font-family:'Kaushan Script', cursive;#playBtn{
+  font-size:clamp(18px,5vw,32px);
+  padding:clamp(10px,4vw,15px) clamp(20px,8vw,30px);    
   border-radius:20px;
   background:#a32f2f;
   color:white;
@@ -50,6 +50,8 @@ header{
   transition:all 1s ease;
   z-index:1000;
   animation:glowBtn 1.5s ease-in-out infinite alternate;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
 }
 
 @keyframes glowBtn{
@@ -73,6 +75,7 @@ header{
 /* SEQUENZA FRASI */
 .sequence{
   position:relative;
+  padding:0 10px;
   height:60px; /* spazio fisso per il testo */
   width:100%;
   display:flex;
@@ -104,9 +107,9 @@ header{
 .box{
   backdrop-filter:blur(4px);
   border-radius:15px;
-  padding:20px;
-  width:90px;
-  height:90px;
+  width:clamp(60px,18vw,90px);
+  height:clamp(60px,18vw,90px);
+  padding:clamp(10px,2vw,20px);
   display:flex;
   flex-direction:column;
   justify-content:center;
