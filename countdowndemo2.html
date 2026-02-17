@@ -195,32 +195,39 @@ function playSequence(){
 }
 
 // PLAY BUTTON
-playBtn.onclick=()=>{
+let musicPlaying = false; // nuovo flag
+
+playBtn.onclick = () => {
   if(!started){
-    // piccolo, in alto a destra già impostato in CSS
-    playBtn.innerHTML="⏸Pause";
+    // primo click: avvia fade-in e sequenza
+    started = true;
+    playBtn.innerHTML = "⏸Pause";
 
     // musica fade-in
-    music.volume=0;
+    music.volume = 0;
     music.play();
-    let v=0;
-    const fade=setInterval(()=>{
-      if(v<0.5){v+=0.02; music.volume=v;}
+    musicPlaying = true;
+    let v = 0;
+    const fade = setInterval(() => {
+      if(v < 0.5){ v += 0.02; music.volume = v; }
       else clearInterval(fade);
-    },80);
+    }, 80);
 
     playSequence();
-    started=true;
   } else {
-    if(music.paused){
-      music.play();
-      playBtn.innerHTML="⏸Pause";
-    } else {
+    // click successivi: toggle musica
+    if(musicPlaying){
       music.pause();
-      playBtn.innerHTML="▶Play";
+      musicPlaying = false;
+      playBtn.innerHTML = "▶Play";
+    } else {
+      music.play();
+      musicPlaying = true;
+      playBtn.innerHTML = "⏸Pause";
     }
   }
 };
+
 </script>
 </body>
 </html>
