@@ -58,7 +58,7 @@ header{
 .scroll{
   text-align:center;
   transform:translateY(180vh);   /* parte MOLTO sotto */
-  animation:scrollUp 24s linear forwards;
+  animation:scrollUp 40s linear forwards;
   animation-play-state:paused;
   width:100%;
   padding-bottom:40vh;           /* spazio extra finale */
@@ -200,7 +200,7 @@ btn.onclick=()=>{
     btn.innerHTML="⏸";
     
     // mostra countdown dopo lo scroll
-    setTimeout(()=>{ countdown.style.opacity=1; },23000);
+    setTimeout(()=>{ countdown.style.opacity=1; },15000);
 
   }else{
     if(music.paused){
