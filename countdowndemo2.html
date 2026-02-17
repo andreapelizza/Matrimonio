@@ -3,229 +3,180 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Countdown Evento</title>
 
-<title>Countdown</title>
+<link href="https://fonts.googleapis.com/css2?family=Kaushan+Script&display=swap" rel="stylesheet">
 
 <style>
+*{margin:0;padding:0;box-sizing:border-box;}
 
-/* RESET */
-*{
-  margin:0;
-  padding:0;
-  box-sizing:border-box;
-}
-
-/* SFONDO */
 body{
-  background: linear-gradient(to bottom, #000000, #0a0a0a);
-  color:white;
-  font-family: Arial, Helvetica, sans-serif;
+  font-family:'Kaushan Script', cursive;
   overflow:hidden;
   height:100vh;
-}
-
-/* HEADER */
-.top-bar{
-  position:fixed;
-  top:0;
-  left:0;
-  width:100%;
   display:flex;
+  justify-content:center;
   align-items:center;
-  justify-content:space-between;
-  padding:12px 16px;
-  z-index:1000;
-  background:rgba(0,0,0,0.35);
-  backdrop-filter:blur(6px);
+  transition: background 3s linear;
 }
 
-.top-left{
-  font-size:20px;
+/* CONTENITORE PRINCIPALE */
+.container{
+  text-align:center;
+  width:100%;
+  max-width:900px;
+  padding:20px;
+}
+
+/* TITOLI */
+.title{
+  color:red;
+  font-size:clamp(26px,5vw,42px);
+  margin-bottom:20px;
+}
+
+/* TESTO CHE SALE */
+.scroll{
+  transform: translateY(100vh);
+  animation: rise 14s linear forwards;
+}
+
+@keyframes rise{
+  from{ transform: translateY(100vh);}
+  to{ transform: translateY(0);}
+}
+
+.list{
+  color:red;
+  font-size:clamp(20px,4vw,30px);
+  line-height:1.6;
+  margin-bottom:30px;
+}
+
+.list li:nth-child(4){
+  color:red;
   font-weight:bold;
 }
 
-/* COUNTDOWN CENTRATO */
-#countdown{
-  position:absolute;
-  left:50%;
-  transform:translateX(-50%);
-  font-size:20px;
-  letter-spacing:1px;
+/* COUNTDOWN */
+.countdown{
+  display:flex;
+  justify-content:center;
+  gap:clamp(10px,3vw,25px);
+  flex-wrap:wrap;
+}
+
+.box{
+  min-width:80px;
+  padding:15px;
+  border-radius:20px;
+  color:red;
+  background: rgba(255,255,255,0.25);
+  backdrop-filter: blur(6px);
+  box-shadow:0 0 20px rgba(255,0,0,0.4);
+}
+
+.number{
+  font-size:clamp(28px,6vw,48px);
+}
+
+.label{
+  font-size:clamp(14px,2.5vw,20px);
 }
 
 /* PLAY BUTTON */
-#play-button{
-  font-size:18px;
-  padding:6px 14px;
-  border:none;
-  border-radius:20px;
-  background:white;
-  color:black;
+#play{
+  position:absolute;
+  top:50%;
+  left:50%;
+  transform:translate(-50%,-50%);
+  font-size:26px;
+  padding:10px 20px;
+  border:2px solid red;
+  background:rgba(255,255,255,0.6);
+  color:red;
+  border-radius:10px;
   cursor:pointer;
 }
-
-/* CONTENITORE SCENA */
-.scene{
-  position:absolute;
-  width:100%;
-  height:100%;
-  perspective:400px;
-  overflow:hidden;
-}
-
-/* CONTENITORE TITOLI */
-.credits-container{
-  position:absolute;
-  bottom:-100%;
-  width:100%;
-  text-align:center;
-  transform-origin:50% 100%;
-}
-
-/* TESTO TITOLI */
-.credits{
-  font-size:28px;
-  line-height:1.6;
-  padding:0 20px;
-}
-
-/* ANIMAZIONE TITOLI DI CODA */
-.scroll{
-  animation: scrollUp 60s linear forwards;
-}
-
-@keyframes scrollUp{
-  from{
-    transform: rotateX(25deg) translateY(0);
-  }
-  to{
-    transform: rotateX(25deg) translateY(-250%);
-  }
-}
-
-/* 📱 OTTIMIZZAZIONE TELEFONO */
-@media (max-width:600px){
-
-  .top-left{
-    font-size:16px;
-  }
-
-  #countdown{
-    font-size:18px;
-  }
-
-  #play-button{
-    font-size:16px;
-  }
-
-  .credits{
-    font-size:22px;
-  }
-
-}
-
-/* SCHERMI GRANDI */
-@media (min-width:1200px){
-  .credits{
-    font-size:34px;
-  }
-}
-
 </style>
 </head>
 <body>
 
-<!-- HEADER -->
-<div class="top-bar">
-  <div class="top-left">Siete pronti?</div>
+<button id="play">▶ Play</button>
 
-  <div id="countdown">
-    <span id="days">0</span>g :
-    <span id="hours">0</span>h :
-    <span id="minutes">0</span>m :
-    <span id="seconds">0</span>s
+<div class="container scroll" id="content">
+
+  <div class="title">Ricordatevi di portare:</div>
+
+  <ul class="list">
+    <li>Il Vostro sorriso migliore!</li>
+    <li>Un costume!</li>
+    <li>Tanta voglia di divertirvi!</li>
+    <li>Scarpe Rosse e comode!</li>
+  </ul>
+
+  <div class="title">...perché mancano solo...</div>
+
+  <div class="countdown" id="countdown">
+    <div class="box"><div class="number" id="days">0</div><div class="label">Giorni</div></div>
+    <div class="box"><div class="number" id="hours">0</div><div class="label">Ore</div></div>
+    <div class="box"><div class="number" id="minutes">0</div><div class="label">Minuti</div></div>
+    <div class="box"><div class="number" id="seconds">0</div><div class="label">Secondi</div></div>
   </div>
 
-  <button id="play-button">🎵 Play</button>
 </div>
-
-<!-- SCENA -->
-<div class="scene">
-  <div class="credits-container" id="credits">
-
-    <div class="credits">
-      <p>🔥 EVENTO SPECIALE 🔥</p>
-      <br>
-      <p>Preparati ad un momento unico</p>
-      <p>musica, emozioni e spettacolo</p>
-      <br>
-      <p>Organizzazione</p>
-      <p>Team Evento</p>
-      <br>
-      <p>Regia</p>
-      <p>Produzione Creativa</p>
-      <br>
-      <p>Un’esperienza da ricordare</p>
-      <br><br>
-      <p>Ci vediamo presto…</p>
-    </div>
-
-  </div>
-</div>
-
-<!-- AUDIO -->
-<audio id="music" src="musica.mp3"></audio>
 
 <script>
+// DATA EVENTO: 4 giugno 2026 ore 16:00 Roma = 14:00 UTC
+const targetDate = new Date("2026-06-04T14:00:00Z");
 
-// DATA EVENTO
-const targetDate = new Date("Dec 31, 2026 23:59:59").getTime();
-
+// COUNTDOWN
 function updateCountdown(){
-  const now = new Date().getTime();
+  const now = new Date();
   const diff = targetDate - now;
 
-  const giorni = Math.floor(diff/(1000*60*60*24));
-  const ore = Math.floor((diff%(1000*60*60*24))/(1000*60*60));
-  const minuti = Math.floor((diff%(1000*60*60))/(1000*60));
-  const secondi = Math.floor((diff%(1000*60))/1000);
+  if(diff <= 0){
+    document.getElementById("countdown").innerHTML = "<div class='title'>🎉 L'evento è iniziato!</div>";
+    return;
+  }
 
-  document.getElementById("days").textContent = giorni;
-  document.getElementById("hours").textContent = ore;
-  document.getElementById("minutes").textContent = minuti;
-  document.getElementById("seconds").textContent = secondi;
+  const d = Math.floor(diff/86400000);
+  const h = Math.floor(diff/3600000)%24;
+  const m = Math.floor(diff/60000)%60;
+  const s = Math.floor(diff/1000)%60;
+
+  days.textContent=d;
+  hours.textContent=h;
+  minutes.textContent=m;
+  seconds.textContent=s;
 }
-
 setInterval(updateCountdown,1000);
 updateCountdown();
 
-// PLAY BUTTON
-const btn = document.getElementById("play-button");
-const music = document.getElementById("music");
-const credits = document.getElementById("credits");
+// SFONDO DINAMICO IN BASE ALL'ORA
+function updateBackground(){
+  const h = new Date().getHours();
+  let gradient;
 
-let started = false;
+  if(h>=6 && h<10)
+    gradient="linear-gradient(to top,#fff3b0,#ffd36b)";
+  else if(h>=10 && h<18)
+    gradient="linear-gradient(to top,#87ceeb,#e6f7ff)";
+  else if(h>=18 && h<20)
+    gradient="linear-gradient(to top,#ffb347,#ff7043)";
+  else
+    gradient="linear-gradient(to top,#0f2027,#203a43,#2c5364)";
 
-btn.addEventListener("click", () => {
+  document.body.style.background = gradient;
+}
+updateBackground();
+setInterval(updateBackground,60000);
 
-  if(!started){
-    music.play();
-    credits.classList.add("scroll");
-    btn.textContent="⏸ Pausa";
-    started = true;
-  }else{
-    if(music.paused){
-      music.play();
-      btn.textContent="⏸ Pausa";
-    }else{
-      music.pause();
-      btn.textContent="▶ Play";
-    }
-  }
-
-});
-
+// PLAY + avvio animazione
+play.onclick = ()=>{
+  play.style.display="none";
+  content.style.animationPlayState="running";
+}
 </script>
-
 </body>
 </html>
