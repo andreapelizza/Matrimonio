@@ -12,11 +12,11 @@
 body{
   font-family:'Kaushan Script', cursive;
   overflow:hidden;
-  background:#000;
+  background:transparent;
   color:red;
 }
 
-/* ===== Siete Pront*? ===== */
+/* ===== TITOLO ===== */
 #title{
   position:absolute;
   top:15px;
@@ -58,10 +58,11 @@ body{
 }
 
 .line{
+  position:absolute;
   opacity:0;
   font-size:clamp(22px,5vw,34px);
   margin:10px 0;
-  transition:opacity 1s ease;
+  transition:opacity 1s ease, transform 1s ease;
 }
 
 .light{
@@ -74,6 +75,7 @@ body{
 
 .show{
   opacity:1;
+  transform:scale(1.05);
 }
 
 /* ===== COUNTDOWN ===== */
@@ -160,7 +162,7 @@ function updateCountdown(){
 setInterval(updateCountdown,1000);
 updateCountdown();
 
-// SEQUENZA TESTI
+// SEQUENZA FRASI CENTRALI
 const lines = document.querySelectorAll(".line");
 const countdown=document.getElementById("countdown");
 const playBtn=document.getElementById("playBtn");
@@ -175,7 +177,7 @@ function playSequence(){
     if(i<lines.length){
       lines[i].classList.add("show");
       i++;
-      setTimeout(showNext,4000);
+      setTimeout(showNext,4000); // 4 secondi per frase
     } else {
       countdown.style.opacity=1;
     }
@@ -186,7 +188,7 @@ function playSequence(){
 // PLAY BUTTON CENTRALE
 playBtn.onclick=()=>{
   if(!started){
-    playBtn.style.display="none"; // nasconde il pulsante centrale
+    playBtn.style.display="none"; // nasconde pulsante
     // musica fade-in
     music.volume=0;
     music.play();
@@ -203,74 +205,6 @@ playBtn.onclick=()=>{
     else music.pause();
   }
 };
-
-// SFONDO DINAMICO GIORNO/sera Bertinoro
-function getSunTimes(date, lat, lng) {
-  const rad = Math.PI / 180;
-  const J1970 = 2440588;
-  const J2000 = 2451545;
-
-  const toJulian = date => date / 86400000 - 0.5 + J1970;
-  const toDays = date => toJulian(date) - J2000;
-
-  const e = rad * 23.4397;
-  const solarMeanAnomaly = d => rad * (357.5291 + 0.98560028 * d);
-  const eclipticLongitude = M => {
-    const C = rad*(1.9148*Math.sin(M)+0.02*Math.sin(2*M)+0.0003*Math.sin(3*M));
-    const P = rad*102.9372;
-    return M+C+P+Math.PI;
-  };
-  const declination = L => Math.asin(Math.sin(L)*Math.sin(e));
-
-  const hourAngle = (h, phi, d) =>
-    Math.acos((Math.sin(h)-Math.sin(phi)*Math.sin(d))/(Math.cos(phi)*Math.cos(d)));
-
-  const approxTransit = (Ht, lw, n) => (Ht+lw)/(2*Math.PI)+n;
-  const solarTransitJ = (ds, M, L) =>
-    J2000+ds+0.0053*Math.sin(M)-0.0069*Math.sin(2*L);
-  const getSetJ = (h, lw, phi, dec, n, M, L) => {
-    const w = hourAngle(h, phi, dec);
-    const a = approxTransit(w,lw,n);
-    return solarTransitJ(a,M,L);
-  };
-
-  const lw = rad * -lng;
-  const phi = rad * lat;
-  const d = toDays(date);
-  const n = Math.round(d - lw / (2*Math.PI));
-  const ds = approxTransit(0,lw,n);
-
-  const M = solarMeanAnomaly(ds);
-  const L = eclipticLongitude(M);
-  const dec = declination(L);
-
-  const Jnoon = solarTransitJ(ds,M,L);
-  const Jset = getSetJ(-0.833*rad,lw,phi,dec,n,M,L);
-  const Jrise = Jnoon-(Jset-Jnoon);
-
-  return {sunrise:new Date((Jrise-J1970)*86400000),sunset:new Date((Jset-J1970)*86400000)};
-}
-
-function updateBackground(){
-  const lat=44.148,lng=12.135;
-  const now=new Date();
-  const sun=getSunTimes(now,lat,lng);
-  const minutesNow = now.getHours()*60+now.getMinutes();
-  const sunriseMin = sun.sunrise.getHours()*60+sun.sunrise.getMinutes();
-  const sunsetMin = sun.sunset.getHours()*60+sun.sunset.getMinutes();
-
-  let color;
-  if(minutesNow < sunriseMin - 30) color="rgba(10,20,40,0.55)"; // notte
-  else if(minutesNow < sunriseMin + 30) color="rgba(255,170,80,0.55)"; // alba
-  else if(minutesNow < sunsetMin - 60) color="rgba(255,235,120,0.55)"; // giorno giallo
-  else if(minutesNow < sunsetMin + 30) color="rgba(255,120,60,0.55)"; // tramonto
-  else color="rgba(15,35,80,0.55)"; // sera blu
-
-  document.body.style.background=color;
-}
-
-setInterval(updateBackground,60000);
-updateBackground();
 </script>
 </body>
 </html>
