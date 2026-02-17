@@ -8,138 +8,106 @@
 <link href="https://fonts.googleapis.com/css2?family=Kaushan+Script&display=swap" rel="stylesheet">
 
 <style>
-* { margin:0; padding:0; box-sizing:border-box; }
-
 body{
+  margin:0;
+  padding:0;
+  overflow:hidden;
   font-family:'Kaushan Script', cursive;
   background:transparent;
-  overflow:hidden;
-  display:flex;
-  justify-content:center;
-  align-items:center;
-  height:100vh;
   color:red;
 }
 
-/* ===== HEADER ===== */
-header{
-  position:absolute;
-  top:10px;
-  width:100%;
-  text-align:center;
-  font-size:28px;
+#title{
+  position:fixed;
+  top:15px;
+  left:50%;
+  transform:translateX(-50%);
+  font-size:32px;
   color:red;
-  text-shadow: 0 0 8px red, 0 0 16px red;
+  text-shadow:0 0 10px red;
+  z-index:1000;
 }
 
-/* ===== PULSANTE PLAY ===== */
 #playBtn{
   position:absolute;
-  left:50%;
   top:50%;
+  left:50%;
   transform:translate(-50%,-50%);
-  font-family:'Kaushan Script', cursive;
-  font-size:36px;
-  padding:15px 30px;
-  border-radius:20px;
   background:#a32f2f;
-  color:white;
   border:none;
+  border-radius:12px;
+  padding:15px 30px;
+  font-size:28px;
+  color:white;
   cursor:pointer;
-  text-shadow:0 0 6px rgba(0,0,0,0.5);
-  transition:all 1s ease;
+  font-family:'Kaushan Script', cursive;
   z-index:1000;
-  animation:glowBtn 1.5s ease-in-out infinite alternate;
+  text-shadow:0 0 10px red;
 }
 
-/* glow pulsante prima del click */
-@keyframes glowBtn{
-  0%{ box-shadow:0 0 10px #a32f2f; }
-  50%{ box-shadow:0 0 25px #ff4c4c; }
-  100%{ box-shadow:0 0 15px #a32f2f; }
-}
-
-/* ===== SEQUENZA FRASI ===== */
-.sequence{
+.sequence, #countdown{
   position:absolute;
-  inset:0;
-  display:flex;
-  flex-direction:column;
-  justify-content:center;
-  align-items:center;
+  top:50%;
+  left:50%;
+  transform:translate(-50%,-50%);
   text-align:center;
-  gap:20px;
-  pointer-events:none;
 }
 
 .sequence p{
+  position:absolute;
   opacity:0;
-  transition: opacity 1s ease, transform 1s ease;
-  font-size:clamp(22px,5vw,32px);
-  text-shadow:0 0 6px red,0 0 12px red;
+  font-size:clamp(24px,5vw,36px);
+  color:red;
+  text-shadow:0 0 10px red;
+  transition:opacity 1s ease;
 }
 
-.sequence .light{ color:#d0d0d0; }
-.sequence .highlight{ color:red; }
+.sequence p.light{
+  color:#d0d0d0;
+  text-shadow:0 0 6px #d0d0d0;
+}
 
-/* ===== COUNTDOWN ===== */
 #countdown{
   display:flex;
-  gap:25px;
-  margin-top:20px;
+  gap:15px;
   opacity:0;
-  transform:scale(1);
-  transition: all 0.5s ease;
 }
 
 .box{
-  backdrop-filter:blur(4px);
-  border-radius:15px;
-  padding:20px;
-  width:90px;
-  height:90px;
+  padding:15px;
+  min-width:80px;
   text-align:center;
-  display:flex;
-  flex-direction:column;
-  justify-content:center;
-  align-items:center;
-  box-shadow:0 0 20px red;
-  animation:glow 2s ease-in-out infinite alternate;
-}
-
-@keyframes glow{
-  0%{ box-shadow:0 0 10px red; text-shadow:0 0 6px red; }
-  50%{ box-shadow:0 0 25px red; text-shadow:0 0 12px red; }
-  100%{ box-shadow:0 0 40px red; text-shadow:0 0 18px red; }
-}
-
-/* ZOOM FLUIDO SU TUTTI I BOX E NUMERI */
-.zoom-countdown{
-  animation:zoomCountdown 3s ease-in-out infinite alternate;
-}
-
-@keyframes zoomCountdown{
-  0%{ transform: scale(1); }
-  50%{ transform: scale(1.5); } /* più grande */
-  100%{ transform: scale(1); }
+  border-radius:18px;
+  box-shadow:0 0 15px rgba(255,0,0,0.5);
+  backdrop-filter:blur(6px);
+  transition:transform 0.3s ease, box-shadow 0.3s ease;
 }
 
 .number{
-  font-size:clamp(28px,8vw,48px);
+  font-size:clamp(28px,8vw,50px);
 }
 
 .label{
   font-size:clamp(12px,3vw,16px);
 }
+
+.glow{
+  animation:glow 1.5s ease-in-out infinite alternate;
+}
+
+@keyframes glow{
+  0%{ text-shadow:0 0 5px red; box-shadow:0 0 10px rgba(255,0,0,0.4);}
+  50%{ text-shadow:0 0 15px red; box-shadow:0 0 25px rgba(255,0,0,0.7);}
+  100%{ text-shadow:0 0 25px red; box-shadow:0 0 40px rgba(255,0,0,1);}
+}
 </style>
 </head>
 <body>
 
-<header>Siete Pront*?</header>
-
+<div id="title">Siete Pront*</div>
 <button id="playBtn">▶Play</button>
 
-<div class="sequence" id="sequence">
+<div class="sequence">
   <p class="highlight">Ricordatevi di portare:</p>
   <p class="light">1. Il Vostro sorriso migliore!</p>
   <p class="light">2. Un costume!</p>
@@ -149,41 +117,58 @@ header{
 </div>
 
 <div id="countdown">
-  <div class="box"><div class="number" id="days">0</div><div class="label">Giorni</div></div>
-  <div class="box"><div class="number" id="hours">0</div><div class="label">Ore</div></div>
-  <div class="box"><div class="number" id="minutes">0</div><div class="label">Minuti</div></div>
-  <div class="box"><div class="number" id="seconds">0</div><div class="label">Secondi</div></div>
+  <div class="box glow"><div class="number" id="days">0</div><div class="label">Giorni</div></div>
+  <div class="box glow"><div class="number" id="hours">0</div><div class="label">Ore</div></div>
+  <div class="box glow"><div class="number" id="minutes">0</div><div class="label">Minuti</div></div>
+  <div class="box glow"><div class="number" id="seconds">0</div><div class="label">Secondi</div></div>
 </div>
 
 <audio id="music" src="Are You Ready For This.mp3" loop></audio>
 
 <script>
-// DATA EVENTO (4 Giugno 2026 16:00 Roma = 14:00 UTC)
-const target=new Date("2026-06-04T14:00:00Z").getTime();
+// DATA EVENTO
+const target = new Date("2026-06-04T14:00:00Z").getTime();
 
 // COUNTDOWN
 function updateCountdown(){
-  const diff=target-Date.now();
+  const diff = target - Date.now();
   if(diff<=0) return;
-  document.getElementById("days").innerText=Math.floor(diff/86400000);
-  document.getElementById("hours").innerText=Math.floor(diff/3600000)%24;
-  document.getElementById("minutes").innerText=Math.floor(diff/60000)%60;
-  document.getElementById("seconds").innerText=Math.floor(diff/1000)%60;
+  document.getElementById("days").innerText = Math.floor(diff/86400000);
+  document.getElementById("hours").innerText = Math.floor(diff/3600000)%24;
+  document.getElementById("minutes").innerText = Math.floor(diff/60000)%60;
+  document.getElementById("seconds").innerText = Math.floor(diff/1000)%60;
 }
 setInterval(updateCountdown,1000);
 updateCountdown();
 
-// PLAY / PAUSE + FRASI + COUNTDOWN
-const btn=document.getElementById("playBtn");
-const music=document.getElementById("music");
-const sequence=document.querySelectorAll("#sequence p");
-const countdown=document.getElementById("countdown");
+// FRASI
+const lines = document.querySelectorAll(".sequence p");
+const countdownDiv = document.getElementById("countdown");
+let index = 0;
 
+function showNextLine(){
+  if(index>0) lines[index-1].style.opacity=0;
+  if(index<lines.length){
+    lines[index].style.opacity=1;
+    index++;
+    setTimeout(showNextLine,4000); // 4 sec per frase
+  } else {
+    // mostra countdown
+    countdownDiv.style.opacity=1;
+    countdownDiv.style.transform="translate(-50%,-50%) scale(1.3)";
+  }
+}
+
+// PULSANTE
+const btn = document.getElementById("playBtn");
+const music = document.getElementById("music");
 let started=false;
 
 btn.addEventListener("click", ()=>{
   if(!started){
-    // fadein musica
+    btn.textContent="⏸Pause";
+
+    // musica con fade-in
     music.volume=0;
     music.play();
     let v=0;
@@ -192,35 +177,16 @@ btn.addEventListener("click", ()=>{
       else clearInterval(fade);
     },80);
 
-    // sposta pulsante in alto a destra e ferma glow
-    btn.style.left="95%";
-    btn.style.top="10px";
-    btn.style.transform="translate(-50%,0)";
-    btn.style.fontSize="24px";
-    btn.style.animation="none";
+    // sposta pulsante in alto a destra
+    btn.style.position="fixed";
+    btn.style.top="15px";
+    btn.style.right="15px";
+    btn.style.left="auto";
+    btn.style.transform="none";
+    btn.style.fontSize="20px";
 
-    btn.textContent="⏸Pause";
-
-    // sequenza frasi con intervalli
-    let delay=500;
-    sequence.forEach((line,i)=>{
-      setTimeout(()=>{
-        line.style.opacity=1;
-        line.style.transform="scale(1.05)";
-      }, delay);
-      setTimeout(()=>{
-        line.style.opacity=0;
-        line.style.transform="scale(1)";
-      }, delay+3500);
-      delay+=4000;
-    });
-
-    // mostra countdown e applica zoom ai box
-    setTimeout(()=>{
-      countdown.style.opacity=1;
-      const boxes=document.querySelectorAll("#countdown .box");
-      boxes.forEach(box=>box.classList.add("zoom-countdown"));
-    }, delay);
+    // ritardo prima di far partire le frasi
+    setTimeout(showNextLine,1000);
 
     started=true;
   } else {
