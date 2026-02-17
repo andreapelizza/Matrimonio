@@ -127,7 +127,7 @@ header{
 
 <header>Siete Pront*?</header>
 
-<button id="playBtn">▶Play</button>
+<button id="playBtn">🎵 Play</button>
 
 <div class="sequence" id="sequence">
   <p class="highlight">Ricordatevi di portare:</p>
@@ -224,11 +224,11 @@ playBtn.onclick = () => {
     if(musicPlaying){
       music.pause();
       musicPlaying = false;
-      playBtn.innerHTML = "▶Play";
+      playBtn.innerHTML = "🎵 Play";
     } else {
       music.play();
       musicPlaying = true;
-      playBtn.innerHTML = "⏸Pause";
+      playBtn.innerHTML = "⏸ Pause";
     }
   }
 };
