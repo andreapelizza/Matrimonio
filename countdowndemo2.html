@@ -4,122 +4,132 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Countdown Evento</title>
+
 <link href="https://fonts.googleapis.com/css2?family=Kaushan+Script&display=swap" rel="stylesheet">
+
 <style>
-*{margin:0;padding:0;box-sizing:border-box;}
+* { margin:0; padding:0; box-sizing:border-box; }
+
 body{
   font-family:'Kaushan Script', cursive;
-  overflow:hidden;
   background:transparent;
+  overflow:hidden;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  height:100vh;
   color:red;
 }
 
 /* ===== HEADER ===== */
 header{
-  position:fixed;
-  top:0;
+  position:absolute;
+  top:10px;
   width:100%;
   text-align:center;
-  font-size:2.2rem;
+  font-size:28px;
   color:red;
-  text-shadow: 0 0 8px red, 0 0 15px red;
-  z-index:1000;
-  pointer-events:none;
+  text-shadow: 0 0 8px red, 0 0 16px red;
 }
 
-/* ===== PLAY BUTTON ===== */
+/* ===== PULSANTE PLAY ===== */
 #playBtn{
   position:absolute;
-  top:50%;
   left:50%;
+  top:50%;
   transform:translate(-50%,-50%);
   font-family:'Kaushan Script', cursive;
-  font-size:2rem;
+  font-size:36px;
+  padding:15px 30px;
+  border-radius:20px;
   background:#a32f2f;
   color:white;
   border:none;
-  border-radius:15px;
-  padding:12px 25px;
   cursor:pointer;
-  text-shadow:0 0 5px black;
-  box-shadow: 0 0 15px #a32f2f;
-  animation:glowBtn 2s infinite alternate;
-  z-index:999;
-  transition: all 1s ease;
+  text-shadow:0 0 6px rgba(0,0,0,0.5);
+  transition:all 1s ease;
+  z-index:1000;
+  animation:glowBtn 1.5s ease-in-out infinite alternate;
 }
+
+/* glow pulsante prima del click */
 @keyframes glowBtn{
   0%{ box-shadow:0 0 10px #a32f2f; }
-  50%{ box-shadow:0 0 25px #a32f2f; }
-  100%{ box-shadow:0 0 40px #a32f2f; }
+  50%{ box-shadow:0 0 25px #ff4c4c; }
+  100%{ box-shadow:0 0 15px #a32f2f; }
 }
 
 /* ===== SEQUENZA FRASI ===== */
-/* SEQUENZA FRASI */
 .sequence{
   position:absolute;
   inset:0;
   display:flex;
+  flex-direction:column;
   justify-content:center;
   align-items:center;
   text-align:center;
-  flex-direction:column;
   gap:20px;
-  font-size:clamp(22px,5vw,32px);
-  color:red;
-  text-shadow:0 0 6px red, 0 0 12px red;
   pointer-events:none;
 }
 
 .sequence p{
   opacity:0;
   transition: opacity 1s ease, transform 1s ease;
+  font-size:clamp(22px,5vw,32px);
+  text-shadow:0 0 6px red,0 0 12px red;
 }
 
 .sequence .light{ color:#d0d0d0; }
-
+.sequence .highlight{ color:red; }
 
 /* ===== COUNTDOWN ===== */
 #countdown{
-  position:absolute;
-  inset:0;
   display:flex;
-  justify-content:center;
-  align-items:center;
-  gap:20px;
+  gap:25px;
+  margin-top:20px;
   opacity:0;
-  transform: scale(1);
-  transition: opacity 1.5s ease, transform 1.5s ease;
+  transform:scale(1);
+  transition: all 0.5s ease;
 }
 
 .box{
-  backdrop-filter:blur(6px);
-  border-radius:18px;
+  backdrop-filter:blur(4px);
+  border-radius:15px;
   padding:20px;
-  min-width:80px;
+  width:90px;
+  height:90px;
   text-align:center;
-  box-shadow:0 0 20px rgba(255,0,0,0.4);
-  animation:glowBox 2s infinite alternate;
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  align-items:center;
+  box-shadow:0 0 20px red;
+  animation:glow 2s ease-in-out infinite alternate;
 }
 
-.number{
-  font-size:clamp(28px,8vw,48px);
-  animation:zoomCountdown 2s infinite alternate;
-}
-.label{
-  font-size:clamp(12px,3vw,16px);
-  color:red;
+@keyframes glow{
+  0%{ box-shadow:0 0 10px red; text-shadow:0 0 6px red; }
+  50%{ box-shadow:0 0 25px red; text-shadow:0 0 12px red; }
+  100%{ box-shadow:0 0 40px red; text-shadow:0 0 18px red; }
 }
 
-@keyframes glowBox{
-  0%{ box-shadow:0 0 10px rgba(255,0,0,0.4); }
-  50%{ box-shadow:0 0 25px rgba(255,0,0,0.6); }
-  100%{ box-shadow:0 0 40px rgba(255,0,0,0.8); }
+/* ZOOM FLUIDO SU TUTTI I BOX E NUMERI */
+.zoom-countdown{
+  animation:zoomCountdown 3s ease-in-out infinite alternate;
 }
 
 @keyframes zoomCountdown{
   0%{ transform: scale(1); }
-  50%{ transform: scale(1.15); }
-  100%{ transform: scale(1.3); }
+  50%{ transform: scale(1.5); } /* più grande */
+  100%{ transform: scale(1); }
+}
+
+.number{
+  font-size:clamp(28px,8vw,48px);
+}
+
+.label{
+  font-size:clamp(12px,3vw,16px);
 }
 </style>
 </head>
@@ -127,7 +137,7 @@ header{
 
 <header>Siete Pront*?</header>
 
-<button id="playBtn">🎵 Play</button>
+<button id="playBtn">▶Play</button>
 
 <div class="sequence" id="sequence">
   <p class="highlight">Ricordatevi di portare:</p>
@@ -148,91 +158,81 @@ header{
 <audio id="music" src="Are You Ready For This.mp3" loop></audio>
 
 <script>
-// DATA EVENTO
-const target = new Date("2026-06-04T14:00:00Z").getTime();
+// DATA EVENTO (4 Giugno 2026 16:00 Roma = 14:00 UTC)
+const target=new Date("2026-06-04T14:00:00Z").getTime();
 
 // COUNTDOWN
 function updateCountdown(){
   const diff=target-Date.now();
   if(diff<=0) return;
-  document.getElementById("days").textContent=Math.floor(diff/86400000);
-  document.getElementById("hours").textContent=Math.floor(diff/3600000)%24;
-  document.getElementById("minutes").textContent=Math.floor(diff/60000)%60;
-  document.getElementById("seconds").textContent=Math.floor(diff/1000)%60;
+  document.getElementById("days").innerText=Math.floor(diff/86400000);
+  document.getElementById("hours").innerText=Math.floor(diff/3600000)%24;
+  document.getElementById("minutes").innerText=Math.floor(diff/60000)%60;
+  document.getElementById("seconds").innerText=Math.floor(diff/1000)%60;
 }
 setInterval(updateCountdown,1000);
 updateCountdown();
 
-// SEQUENZA FRASI
-const sequence = document.querySelectorAll(".sequence p");
+// PLAY / PAUSE + FRASI + COUNTDOWN
+const btn=document.getElementById("playBtn");
+const music=document.getElementById("music");
+const sequence=document.querySelectorAll("#sequence p");
+const countdown=document.getElementById("countdown");
 
-// MUSICA E PULSANTE
-const music = document.getElementById("music");
-const playBtn = document.getElementById("playBtn");
-const countdown = document.getElementById("countdown");
+let started=false;
 
-let started = false;
-let musicPlaying = false;
-
-playBtn.onclick = () => {
+btn.addEventListener("click", ()=>{
   if(!started){
-    // primo click: fade-in musica
-    started = true;
-    music.volume = 0;
+    // fadein musica
+    music.volume=0;
     music.play();
-    musicPlaying = true;
-    let v = 0;
-    const fade = setInterval(()=>{
+    let v=0;
+    const fade=setInterval(()=>{
       if(v<0.5){ v+=0.02; music.volume=v; }
       else clearInterval(fade);
     },80);
 
-    playBtn.innerHTML = "⏸Pause";
+    // sposta pulsante in alto a destra e ferma glow
+    btn.style.left="95%";
+    btn.style.top="10px";
+    btn.style.transform="translate(-50%,0)";
+    btn.style.fontSize="24px";
+    btn.style.animation="none";
 
-    // sposta pulsante in alto a destra
-    playBtn.style.top = "20px";
-    playBtn.style.right = "20px";
-    playBtn.style.left = "auto";
-    playBtn.style.transform = "none";
-    playBtn.style.fontSize = "1.5rem";
-    playBtn.style.padding = "8px 18px";
+    btn.textContent="⏸Pause";
 
-    // sequenza frasi a intervalli
-    let delay = 500; // mezzo secondo iniziale
-    sequence.forEach((line, i)=>{
+    // sequenza frasi con intervalli
+    let delay=500;
+    sequence.forEach((line,i)=>{
       setTimeout(()=>{
-        line.style.opacity = 1;
-        line.style.transform = "scale(1.05)";
+        line.style.opacity=1;
+        line.style.transform="scale(1.05)";
       }, delay);
-    
       setTimeout(()=>{
-        line.style.opacity = 0;
-        line.style.transform = "scale(1)";
-      }, delay + 3500); // 3.5s visibile
-    
-      delay += 4000;
+        line.style.opacity=0;
+        line.style.transform="scale(1)";
+      }, delay+3500);
+      delay+=4000;
     });
 
-
-    // mostra countdown dopo sequenza
+    // mostra countdown e applica zoom ai box
     setTimeout(()=>{
-      countdown.style.opacity = 1;
+      countdown.style.opacity=1;
+      const boxes=document.querySelectorAll("#countdown .box");
+      boxes.forEach(box=>box.classList.add("zoom-countdown"));
     }, delay);
 
+    started=true;
   } else {
-    // toggle musica
-    if(musicPlaying){
-      music.pause();
-      musicPlaying = false;
-      playBtn.innerHTML = "🎵 Play";
-    } else {
+    if(music.paused){
       music.play();
-      musicPlaying = true;
-      playBtn.innerHTML = "⏸ Pause";
+      btn.textContent="⏸Pause";
+    } else {
+      music.pause();
+      btn.textContent="▶Play";
     }
   }
-};
+});
 </script>
-
 </body>
 </html>
