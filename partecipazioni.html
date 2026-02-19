@@ -49,7 +49,7 @@ button:hover {
 </audio>
 
 
-<script>
+<!--<script>
 const audio = document.getElementById('audio');
 const btn = document.getElementById('btn');
 
@@ -86,8 +86,47 @@ btn.onclick = function () {
 audio.addEventListener('timeupdate', () => {
   localStorage.setItem('time', audio.currentTime);
 });
-</script>
+</script>-->
 
+
+<script>
+const audio = document.getElementById('audio');
+const btn = document.getElementById('btn');
+
+audio.volume = 0.6;
+
+// recupera tempo salvato
+let savedTime = localStorage.getItem('time');
+if (savedTime) audio.currentTime = parseFloat(savedTime);
+
+// recupera stato
+let wasPlaying = localStorage.getItem('playing') === 'true';
+
+if (wasPlaying) {
+  audio.play();
+  btn.innerHTML = "⏸ Pause";
+}
+
+// click pulsante
+btn.onclick = function () {
+  if (audio.paused) {
+    audio.play();
+    btn.innerHTML = "⏸ Pause";
+    localStorage.setItem('playing', true);
+  } else {
+    audio.pause();
+    btn.innerHTML = "🎵 Play";
+    localStorage.setItem('playing', false);
+  }
+};
+
+// salva tempo continuamente
+audio.addEventListener('timeupdate', () => {
+  localStorage.setItem('time', audio.currentTime);
+});
+
+
+</script>
 <!--
 <script>
 const audio = document.getElementById('audio');
