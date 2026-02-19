@@ -99,13 +99,9 @@ audio.volume = 0.6;
 let savedTime = localStorage.getItem('time');
 if (savedTime) audio.currentTime = parseFloat(savedTime);
 
-// recupera stato
-let wasPlaying = localStorage.getItem('playing') === 'true';
-
-if (wasPlaying) {
-  audio.play();
-  btn.innerHTML = "⏸ Pause";
-}
+// ALL'AVVIO SEMPRE IN PAUSA
+btn.innerHTML = "🎵 Play";
+localStorage.setItem('playing', false);
 
 // click pulsante
 btn.onclick = function () {
@@ -120,13 +116,12 @@ btn.onclick = function () {
   }
 };
 
-// salva tempo continuamente
+// salva posizione
 audio.addEventListener('timeupdate', () => {
   localStorage.setItem('time', audio.currentTime);
 });
-
-
 </script>
+
 <!--
 <script>
 const audio = document.getElementById('audio');
