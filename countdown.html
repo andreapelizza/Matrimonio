@@ -73,7 +73,7 @@ header{
 
 .sequence p{
   opacity:0;
-  font-size:clamp(22px,5vw,32px);
+  font-size:clamp(18px, 4vw, 26px); /* ridotto da 22-32px a 18-26px */
 }
 
 .sequence .light{ color:#d0d0d0; }
@@ -96,7 +96,7 @@ header{
 }
 
 :root{
-  --countdown-scale: 100%; /* 🔥 cambia qui la dimensione */
+  --countdown-scale: 1.6; /* aumentato da 1.5 → box più grandi */
 }
 
 /* quando sale in alto */
@@ -197,16 +197,6 @@ seq.style.opacity = 0;
     // mostra countdown e lo sposta in alto
     countdown.style.opacity = 1;
     countdown.classList.add("countdown-top");
-
-    // dissolvenza musica
-    let fadeOut = setInterval(()=>{
-      if(music.volume > 0.02){
-        music.volume -= 0.02;
-      } else {
-        music.pause();
-        clearInterval(fadeOut);
-      }
-    },120);
   }
 }
 
