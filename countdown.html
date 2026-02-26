@@ -13,14 +13,13 @@
 body{
   font-family:'Kaushan Script', cursive;
   background:black;
-  min-height:100vh;
+  min-height:100dvh;
   display:flex;
-  flex-direction:column;
   align-items:center;
-  justify-content:flex-start; /* testo più in alto */
+  justify-content:center;
   color:red;
   text-align:center;
-  padding:20px;
+  padding:16px;
 }
 
 /* HEADER */
@@ -81,16 +80,11 @@ header{
 #countdown{
   display:grid;
   grid-template-columns:repeat(2, 1fr);
-  gap:10px;
-
-  position:absolute;       /* relativo al contenitore */
-  top:10%;                   /* in cima al contenitore */
-  left:50%;
-  transform:translateX(-50%) scale(1.5); /* scala più grande */
-  
+  gap:12px;
   opacity:0;
-  transition:all 1s cubic-bezier(.22,.61,.36,1);
-  pointer-events:none;
+  transform:scale(.9);
+  transition:all .6s ease;
+  margin-top:10px;
 }
 
 :root{
@@ -100,7 +94,7 @@ header{
 /* quando sale in alto */
 .countdown-top{
   opacity:1 !important;
-  transform:translateX(-50%) scale(1.5);
+  transform:scale(1);
 }
 
 .box{
