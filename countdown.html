@@ -46,6 +46,10 @@ body{
   pointer-events:auto;
 }
 
+.stage-play{
+  pointer-events:none;
+}
+
 .stage.inactive{
   opacity:0;
   pointer-events:none;
@@ -94,6 +98,12 @@ body{
   opacity:0;
   font-size:clamp(18px,4vw,26px);
   transition:opacity .6s ease;
+}
+
+#finalText{
+  opacity:0;
+  transition: opacity .6s ease;
+  font-size: clamp(22px,5vw,30px);
 }
 
 .light{ color:#ffffff; }
@@ -150,7 +160,7 @@ body{
   <!-- STEP 3: PERCHÉ MANCA SOLO -->
   <div class="stage stage-final inactive">
     <div class="sequence">
-      <p class="highlight">...perché mancano solo...</p>
+    <p id="finalText" class="highlight">...perché mancano solo...</p>
     </div>
   </div>
 
@@ -194,22 +204,35 @@ const stageCountdown = document.querySelector(".stage-countdown");
 const lines = document.querySelectorAll(".stage-sequence p");
 let index = 0;
 
+const finalText = document.getElementById("finalText");
+
 function showNextLine(){
   if(index < lines.length){
     lines[index].style.opacity = 1;
     index++;
     setTimeout(showNextLine, 2000);
   } else {
+
+    // passa allo step 3
     stageSequence.classList.add("inactive");
     stageSequence.classList.remove("active");
+
     stageFinal.classList.add("active");
     stageFinal.classList.remove("inactive");
+
+    // animazione comparsa frase
+    setTimeout(()=>{
+      finalText.style.opacity = 1;
+    },200);
+
+    // dopo 2 secondi mostra countdown
     setTimeout(()=>{
       stageFinal.classList.add("inactive");
       stageFinal.classList.remove("active");
+
       stageCountdown.classList.add("active");
       stageCountdown.classList.remove("inactive");
-    },2000);
+    },2200);
   }
 }
 
@@ -231,8 +254,8 @@ btn.addEventListener("click", ()=>{
       } else clearInterval(fade);
     },80);
 
-    stagePlay.classList.add("inactive");
-    stagePlay.classList.remove("active");
+    /*stagePlay.classList.add("inactive");
+    stagePlay.classList.remove("active");*/
 
     stageSequence.classList.add("active");
     stageSequence.classList.remove("inactive");
