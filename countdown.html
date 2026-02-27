@@ -12,7 +12,8 @@
 
 html, body{
   width:100%;
-  height:auto;
+  height:100%;
+  overflow:hidden; /* blocca scroll */
 }
 
 body{
@@ -20,27 +21,33 @@ body{
   background:transparent;
   display:flex;
   justify-content:center;
+  align-items:center;
   color:red;
   text-align:center;
-  padding:20px 10px;
 }
 
-/* CONTENITORE PRINCIPALE */
+/* CONTENITORE FISSO */
 .central-container{
-  width:100%;
-  max-width:360px;
-  min-height:600px; /* più spazio per evitare tagli */
+  width:360px;
+  height:600px;
   position:relative;
+  overflow:hidden; /* niente scroll interno */
 }
 
-/* SEZIONI */
+/* STAGE */
 .stage{
-  width:100%;
+  position:absolute;
+  inset:0;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
   transition:opacity .8s ease;
 }
 
 .stage:not(.active){
-  display:none;
+  opacity:0;
+  pointer-events:none;
 }
 
 /* PLAY BUTTON */
